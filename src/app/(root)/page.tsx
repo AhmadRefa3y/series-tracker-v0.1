@@ -9,7 +9,7 @@ import AddToWatchListBtn from "@/components/AddToWatchListBtn";
 export default async function Home() {
   const series = await getTrendingSeries();
   // const session = await auth();
-  console.log({ series });
+  console.log("home page series");
 
   return (
     <div className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3  ">

@@ -7,7 +7,7 @@ import { setEpisodWatched } from "@/lib/actions/seriesActions";
 import { Check, Loader } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { Season, Series } from "@/types/seriesT";
+import { Series } from "@/types/seriesT";
 export const TMDB_API_KEY = "bb9cbfca59ec1d1fefd277beb3aa3d82";
 
 const SeriesData = ({
@@ -25,8 +25,6 @@ const SeriesData = ({
   InitWatchedEpisodes: number;
   lastWatchedEpisode: { episodeNumber: number; seasonNumber: number };
 }) => {
-  console.log(lastWatchedEpisode);
-
   const [nextEpisodes, setNextEpisodes] = useState<
     {
       id: number;
@@ -104,7 +102,6 @@ const SeriesData = ({
               episode.episode_number > lastWatchedEpisode.episodeNumber)
           );
         });
-        console.log(filteredEpisodes);
 
         setNextEpisodes(filteredEpisodes);
       } catch (error) {
@@ -123,8 +120,6 @@ const SeriesData = ({
       setCompleted(completionPercentage === 100);
     }
   }, [WatchedEpisodes, seriesData]);
-
-  console.log("render");
 
   const cuurentEpisode = nextEpisodes[currentEpisodeIndex];
 

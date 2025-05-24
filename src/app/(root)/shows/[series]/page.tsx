@@ -4,14 +4,15 @@ import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 import SeriesActionsBtns from "./_components/SeriesActionsBtns";
-import Seasons, { IMAGE_BASE_URL } from "./_components/Seasons";
+import Seasons from "./_components/Seasons";
+import { IMAGE_BASE_URL } from "@/lib/constants";
 
-export default async function Page({ params }: any) {
+export default async function Page({ params }: { params: { series: string } }) {
   const { series } = await params;
   const seriesId = series.split("-")[1];
   const seriesDetails = await getSeriesDetails(seriesId);
 
-  console.log({ seriesDetails });
+  console.log(seriesDetails.backdrop_path);
 
   return (
     <div className="w-full flex flex-col  flex-1 contentDIv">

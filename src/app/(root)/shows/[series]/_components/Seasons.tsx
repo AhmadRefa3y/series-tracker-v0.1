@@ -5,9 +5,7 @@ import { Episode, Series } from "@/types/seriesT";
 import { getEpisodeDataWithWatchStatus } from "@/data/tmdb";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { getSeriesDetails } from "@/data/tmdb";
-
-export const IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500"; // This is safe to keep as it's just for images
+import { IMAGE_BASE_URL } from "@/lib/constants";
 
 const Seasons = ({ seriesDetails }: { seriesDetails: Series }) => {
   const [ActiveSeason, setActiveSeason] = useState({

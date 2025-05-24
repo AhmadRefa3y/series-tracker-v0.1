@@ -5,8 +5,7 @@ import { BASE_URL } from "../constants";
 import prismaDb from "../prisma";
 
 import { auth } from "@/auth";
-// import { Series } from "@/types/seriesT";
-// import { BASE_URL } from "../constants";
+import { WatchListSeries } from "@/types";
 
 export const AddSeriesToWatchlist = async ({
   seriesData,
@@ -28,7 +27,7 @@ export const AddSeriesToWatchlist = async ({
   }
 
   try {
-    await prismaDb.series.create({
+    const series = await prismaDb.series.create({
       data: {
         seriesTmdbId: seriesData.id,
         title: seriesData.title,
@@ -36,6 +35,7 @@ export const AddSeriesToWatchlist = async ({
         posterPath: seriesData.poster,
       },
     });
+    console.log(series);
 
     return {
       success: true,
@@ -179,13 +179,15 @@ export const setEpisodWatched = async ({
   }
 };
 
-export const getMySeriesWatchlist = async () => {
+export const getMySeriesWatchlist = async (): Promise<
+  WatchListSeries[] | null
+> => {
   try {
     const userId = await auth();
     if (!userId?.user?.id) {
       throw new Error("User not found");
     }
-    const series = await prismaDb.series.findMany({
+    const findSeries = await prismaDb.series.findMany({
       where: {
         userId: userId?.user?.id,
       },
@@ -201,7 +203,20 @@ export const getMySeriesWatchlist = async () => {
         latestWatchedAt: "desc",
       },
     });
-    console.log({ series });
+
+    const series = findSeries.map((series) => {
+      return {
+        seriesID: Number(series.seriesTmdbId),
+        currentEpisodeNumber: series.watchedEpisodes[0]?.episodeNumber + 1 || 1,
+        episodeSeason: series.watchedEpisodes[0]?.seasonNumber || 1,
+        seriesPoster: series.posterPath || "",
+        seriesTitle: series.title,
+        watchedEpisodes: series.watchedEpisodes,
+        lastWatchedEpisode: series.latestWatchedAt,
+        posterPath: series.posterPath || "",
+        title: series.title,
+      };
+    });
 
     return series;
   } catch (error) {

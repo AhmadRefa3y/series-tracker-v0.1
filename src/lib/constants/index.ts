@@ -1,4 +1,6 @@
 export const BASE_URL = "https://api.themoviedb.org/3";
+export const IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500"; // This is safe to keep as it's just for images
+
 export const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME || "Prostore";
 export const APP_DESCRIPTION =
   process.env.NEXT_PUBLIC_APP_DESCRIPTION ||

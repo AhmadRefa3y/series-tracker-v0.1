@@ -7,12 +7,12 @@ import {
 } from "@/lib/actions/seriesActions";
 import { cn } from "@/lib/utils";
 import { Loader, Text } from "lucide-react";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+// import { useSession } from "next-auth/react";
+// import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
-import loading from "../loading";
-import { Session } from "next-auth";
+// import loading from "../loading";
+// import { Session } from "next-auth";
 
 interface SeriesData {
   id: string;
@@ -32,7 +32,6 @@ const AddToWatchListBtn = ({
 
   useEffect(() => {
     const checkIfAdded = async () => {
-      console.log("render");
       // if (!session?.user?.id) {
       //   console.log("No user id");
       //   setIsAdded(null);
@@ -50,10 +49,8 @@ const AddToWatchListBtn = ({
     checkIfAdded();
   }, [seriesData.id]);
 
-  console.log("session changed");
-  useEffect(() => {
-    console.log("session changed");
-  }, []);
+  console.log("AddToWatchListBtn");
+
   const handleAddToWatchlist = async () => {
     // if (!session?.user?.id) {
     //   toast("Please login to add to watchlist");

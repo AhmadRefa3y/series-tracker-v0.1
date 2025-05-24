@@ -8,53 +8,45 @@ import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
 
 const Watchlist = () => {
-  // const session = useSession();
+  const session = useSession();
   const [watchList, setWatchList] = useState<WatchListSeries[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  console.log("rerender");
 
+  const getData = async () => {
+    const seriesWatchlist = await getMySeriesWatchlist();
+    console.log("Series Watchlist:", seriesWatchlist);
+  };
+  getData();
   useEffect(() => {
-    // if (session.status === "unauthenticated") {
-    //   redirect("/sign-in");
-    // }
+    console.log("Watchlist component rendered");
+    if (session.status === "unauthenticated") {
+      redirect("/sign-in");
+    }
 
-    // if (session.status === "authenticated") {
-    const getWatchList = async () => {
-      try {
-        setLoading(true);
-        const seriesWatchlist = await getMySeriesWatchlist();
+    if (session.status === "authenticated") {
+      const getWatchList = async () => {
+        try {
+          setLoading(true);
+          const seriesWatchlist = await getMySeriesWatchlist();
 
-        if (!seriesWatchlist) {
-          setWatchList([]);
-          return;
+          if (!seriesWatchlist) {
+            setWatchList([]);
+            return;
+          }
+
+          setWatchList(seriesWatchlist);
+        } catch (err) {
+          setError("Failed to load watchlist");
+          console.error(err);
+        } finally {
+          setLoading(false);
         }
+      };
 
-        setWatchList(
-          seriesWatchlist.map((series) => ({
-            seriesID: Number(series.seriesTmdbId),
-            currentEpisodeNumber:
-              series.watchedEpisodes[0]?.episodeNumber + 1 || 1,
-            episodeSeason: series.watchedEpisodes[0]?.seasonNumber || 1,
-            seriesPoster: series.posterPath || "",
-            seriesTitle: series.title,
-            watchedEpisodes: series.watchedEpisodes,
-            lastWatchedEpisode: series.latestWatchedAt,
-            posterPath: series.posterPath || "",
-            title: series.title,
-          }))
-        );
-      } catch (err) {
-        setError("Failed to load watchlist");
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    getWatchList();
-    // }
-  }, []);
+      getWatchList();
+    }
+  }, [session.status]);
 
   if (loading) {
     return (
