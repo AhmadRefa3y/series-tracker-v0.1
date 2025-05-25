@@ -12,8 +12,6 @@ export default async function Page({ params }: { params: { series: string } }) {
   const seriesId = series.split("-")[1];
   const seriesDetails = await getSeriesDetails(seriesId);
 
-  console.log(seriesDetails.backdrop_path);
-
   return (
     <div className="w-full flex flex-col  flex-1 contentDIv">
       <div className="w-full relative h-[500px]">

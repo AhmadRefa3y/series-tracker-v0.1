@@ -2,14 +2,14 @@
 import { Button } from "@/components/ui/button";
 import {
   AddSeriesToWatchlist,
-  checkSeriesExists,
   removeSeriesFromWatchlist,
 } from "@/lib/actions/seriesActions";
 import { cn } from "@/lib/utils";
 import { Loader, Text } from "lucide-react";
+import { Session } from "next-auth";
 // import { useSession } from "next-auth/react";
 // import { useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { toast } from "sonner";
 // import loading from "../loading";
 // import { Session } from "next-auth";
@@ -22,43 +22,22 @@ interface SeriesData {
 
 const AddToWatchListBtn = ({
   seriesData,
+  session,
+  isTracked,
 }: // session,
 {
   seriesData: SeriesData;
-  // session: Session | null;
+  session: Session | null;
+  isTracked: boolean;
 }) => {
   const [isLoading, setIsLoading] = useState(false);
-  const [isAdded, setIsAdded] = useState<boolean | null>(null);
+  const [isAdded, setIsAdded] = useState<boolean | null>(isTracked);
 
-  useEffect(() => {
-    const checkIfAdded = async () => {
-      console.log("render");
-      // if (!session?.user?.id) {
-      //   console.log("No user id");
-      //   setIsAdded(null);
-      //   return;
-      // }
-      try {
-        const { success } = await checkSeriesExists(seriesData.id.toString());
-        setIsAdded(success);
-      } catch (error) {
-        console.error("Error checking series:", error);
-        toast.error("Failed to check watchlist status");
-      }
-    };
-
-    checkIfAdded();
-  }, [seriesData.id]);
-
-  console.log("session changed");
-  useEffect(() => {
-    console.log("session changed effect");
-  }, []);
   const handleAddToWatchlist = async () => {
-    // if (!session?.user?.id) {
-    //   toast("Please login to add to watchlist");
-    //   return;
-    // }
+    if (!session?.user?.id) {
+      toast("Please login to add to watchlist");
+      return;
+    }
     if (isLoading) return;
     setIsLoading(true);
 
@@ -105,27 +84,6 @@ const AddToWatchListBtn = ({
       setIsLoading(false);
     }
   };
-
-  // if (!session?.user?.id) {
-  //   return (
-  //     <Button
-  //       className={
-  //         "text-white bg-transparent border-none  hover:bg-[#6c3384] duration-200 rounded-none m-0 h-full "
-  //       }
-  //       onClick={() => toast("Please login to add to watchlist")}
-  //     >
-  //       <Text strokeWidth={4} />
-  //     </Button>
-  //   );
-  // }
-
-  if (isAdded === null) {
-    return (
-      <Button className="text-white p-2 duration-200 rounded-none m-0 h-full bg-transparent">
-        <Loader className="animate-spin" />
-      </Button>
-    );
-  }
 
   return (
     <Button

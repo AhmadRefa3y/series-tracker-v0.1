@@ -4,7 +4,7 @@ import {
   removeSeriesFromWatchlist,
 } from "@/lib/actions/seriesActions";
 import { cn } from "@/lib/utils";
-import { Check, Loader, RefreshCcw, Text } from "lucide-react";
+import { Loader, RefreshCcw, Text } from "lucide-react";
 import React, { useEffect, useState, useCallback } from "react";
 import { toast } from "sonner";
 
@@ -69,7 +69,6 @@ const AddToWatchList = ({
       </button>
     );
   }
-  console.log("add to watchlist rerenderd");
 
   return (
     <button

@@ -31,6 +31,7 @@ export async function getTrendingSeries(): Promise<TrendingSeriesT[]> {
     }
 
     const data = await response.json();
+
     return data.results;
   } catch (error) {
     console.error("Error fetching trending series:", error);
@@ -49,7 +50,7 @@ export async function getSeriesDetails(seriesId: string): Promise<Series> {
 
     return response.data;
   } catch (error) {
-    throw new Error("Failed to fetch series details");
+    throw new Error("Failed to fetch series details", { cause: error });
   }
 }
 
@@ -60,7 +61,7 @@ export async function SearchSeries(query: string): Promise<TMDBResponse> {
     });
     return response.data;
   } catch (error) {
-    throw new Error("Failed to fetch series details");
+    throw new Error("Failed to fetch series details", { cause: error });
   }
 }
 

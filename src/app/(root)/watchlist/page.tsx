@@ -13,13 +13,7 @@ const Watchlist = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const getData = async () => {
-    const seriesWatchlist = await getMySeriesWatchlist();
-    console.log("Series Watchlist:", seriesWatchlist);
-  };
-  getData();
   useEffect(() => {
-    console.log("Watchlist component rendered");
     if (session.status === "unauthenticated") {
       redirect("/sign-in");
     }

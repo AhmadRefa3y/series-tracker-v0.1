@@ -1,5 +1,5 @@
 "use client";
-import { setEpisodWatched, Test } from "@/lib/actions/seriesActions";
+import { setEpisodWatched } from "@/lib/actions/seriesActions";
 import { cn } from "@/lib/utils";
 import { Episode, Series } from "@/types/seriesT";
 import { getEpisodeDataWithWatchStatus } from "@/data/tmdb";
@@ -105,8 +105,7 @@ const EpisodeComponent = ({
       });
 
       if (episodeWatched.success) {
-        console.log("Episode marked as watched:", episodeWatched);
-        setEpisodeMarked(true); // Update local state immediately
+        setEpisodeMarked(true);
       }
     } catch (error) {
       console.error("Error marking episode as watched:", error);
@@ -145,13 +144,6 @@ const EpisodeComponent = ({
                 {EpisodeData.season_number}x{EpisodeData.episode_number}
               </span>
               <span>{EpisodeData.name}</span>
-              <button
-                onClick={async () => {
-                  await Test();
-                }}
-              >
-                test
-              </button>
             </div>
             <div className=" text-sm">
               <span>

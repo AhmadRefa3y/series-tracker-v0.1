@@ -4,16 +4,26 @@ import { Check, Star, StarIcon } from "lucide-react";
 
 import Link from "next/link";
 import AddToWatchListBtn from "@/components/AddToWatchListBtn";
-// import { auth } from "@/auth";
+import { auth } from "@/auth";
+import { IsSeriesTracked } from "@/lib/actions/seriesActions"; // Import IsSeriesTracked
 
 export default async function Home() {
   const series = await getTrendingSeries();
-  // const session = await auth();
-  console.log("home page series");
+  const session = await auth();
+
+  const seriesWithTrackingStatus = await Promise.all(
+    series.map(async (s) => {
+      const isTracked = await IsSeriesTracked({ seriesID: s.id.toString() });
+      return {
+        ...s,
+        isTracked: !!isTracked,
+      };
+    })
+  );
 
   return (
     <div className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3  ">
-      {series.map((series) => (
+      {seriesWithTrackingStatus.map((series) => (
         <div key={series.id} className="flex flex-col">
           <Link
             key={series.id}
@@ -54,7 +64,8 @@ export default async function Home() {
                 poster: `https://image.tmdb.org/t/p/w780/${series.poster_path}`,
               }}
               key={series.id}
-              // session={session}
+              session={session}
+              isTracked={series.isTracked}
             />
             <span className="text-white p-2  hover:bg-[#ff5f06] duration-200">
               <StarIcon strokeWidth={2} />

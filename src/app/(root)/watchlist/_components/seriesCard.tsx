@@ -125,9 +125,8 @@ const SeriesData = ({
 
   const handleNextEpisode = async () => {
     if (!cuurentEpisode) return;
-    console.log(cuurentEpisode);
 
-    setAction(true); // Disable UI button
+    setAction(true);
 
     try {
       const episodeWatched = await setEpisodWatched({
@@ -146,7 +145,7 @@ const SeriesData = ({
           setCompleted(true);
         }
       } else {
-        console.log(episodeWatched);
+        throw new Error("Failed to mark episode as watched");
       }
     } catch (error) {
       console.log("Error marking episode as watched:", error);

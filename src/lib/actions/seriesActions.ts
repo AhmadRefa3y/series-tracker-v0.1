@@ -27,7 +27,7 @@ export const AddSeriesToWatchlist = async ({
   }
 
   try {
-    const series = await prismaDb.series.create({
+    await prismaDb.series.create({
       data: {
         seriesTmdbId: seriesData.id,
         title: seriesData.title,
@@ -35,7 +35,6 @@ export const AddSeriesToWatchlist = async ({
         posterPath: seriesData.poster,
       },
     });
-    console.log(series);
 
     return {
       success: true,
@@ -65,7 +64,6 @@ export const IsSeriesTracked = async ({ seriesID }: { seriesID: string }) => {
         watchedEpisodes: true,
       },
     });
-    console.log(series);
 
     return series;
   } catch {
@@ -259,8 +257,6 @@ export const checkSeriesExists = async (seriesID: string) => {
 };
 
 export const removeSeriesFromWatchlist = async (seriesID: string) => {
-  console.log({ seriesID });
-
   try {
     const userId = await auth();
     if (!userId?.user?.id) {
@@ -336,8 +332,4 @@ export const checkEpisodeExists = async (episodeData: {
   } catch (error) {
     return { success: false, data: null, error: error };
   }
-};
-
-export const Test = async () => {
-  console.log("test");
 };
