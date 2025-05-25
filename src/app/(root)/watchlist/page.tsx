@@ -67,7 +67,7 @@ const Watchlist = () => {
   }
 
   return (
-    <div className="flex justify-start flex-wrap p-4 w-full gap-y-2">
+    <div className="flex justify-center flex-wrap p-4 w-full gap-y-2">
       {watchList.map((series) => (
         <SeriesData
           key={series.seriesID}

@@ -155,7 +155,7 @@ const SeriesData = ({
   };
 
   return (
-    <div className="px-2 w-1/4">
+    <div className="px-2 w-1/4 min-w-[330px]">
       <div className="flex flex-col bg-black rounded-sm h-[260px] text-white overflow-hidden gap-1 relative hover:perspective-distant duration-200">
         <div className="flex gap-2 relative">
           <button
