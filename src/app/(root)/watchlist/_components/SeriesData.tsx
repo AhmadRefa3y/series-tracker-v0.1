@@ -160,7 +160,7 @@ const SeriesData = ({
         <div className="flex gap-2 relative">
           <button
             className={cn(
-              "absolute top-2 right-1 h-[40px] bg-white rounded-full w-[40px] text-[#9f42c6] duration-400 flex items-center justify-center",
+              "absolute top-0 right-0 h-[30px] bg-white  w-[30px] text-[#9f42c6] duration-400 flex items-center justify-center",
               IsAction || !cuurentEpisode || completed ? "opacity-30" : ""
             )}
             onClick={handleNextEpisode}
@@ -269,7 +269,7 @@ const SeriesData = ({
               value={
                 (WatchedEpisodes / (seriesData?.number_of_episodes ?? 0)) * 100
               }
-              className="w-full mt-auto  "
+              className="w-full mt-auto rounded-sm "
             />
           </div>
         </div>

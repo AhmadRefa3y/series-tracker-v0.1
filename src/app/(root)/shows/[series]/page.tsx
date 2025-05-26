@@ -14,7 +14,7 @@ export default async function Page({ params }: { params: { series: string } }) {
   const seriesDetails = await getSeriesDetails(seriesId);
 
   return (
-    <div className="w-full flex flex-col  flex-1 contentDIv">
+    <div className="w-full flex flex-col  flex-1 contentDIv container mx-auto">
       <div className="w-full relative h-[500px]">
         <div className="absolute inset-0 bg-black animate-fadeOut" />
         <Image

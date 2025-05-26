@@ -177,10 +177,11 @@ export const setEpisodWatched = async ({
   }
 };
 
-export const getMySeriesWatchlist = async (): Promise<
-  WatchListSeries[] | null
-> => {
+export const getMySeriesWatchlist = async (
+  limit?: number
+): Promise<WatchListSeries[] | null> => {
   try {
+    // await new Promise((resolve) => setTimeout(resolve, 5000));
     const userId = await auth();
     if (!userId?.user?.id) {
       throw new Error("User not found");
@@ -200,6 +201,7 @@ export const getMySeriesWatchlist = async (): Promise<
       orderBy: {
         latestWatchedAt: "desc",
       },
+      take: limit || undefined,
     });
 
     const series = findSeries.map((series) => {

@@ -1,13 +1,22 @@
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, StepForward } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
+import UpNext from "./_components/UpNext";
 
 const DashBoard = () => {
   return (
-    <div className="flex flex-col text-white px-5 bg-gray-900">
+    <div className="flex flex-col text-white ">
       <WelcomeBanner />
-      <div className="container"></div>
+      <div className=" bg-[#1d1d1d]">
+        <div className="container  mx-auto relative h-full">
+          <div className="flex gap-1 text-xl items-center mt-4">
+            <StepForward width={50} height={50} />
+            Up next
+          </div>
+          <UpNext />
+        </div>
+      </div>
     </div>
   );
 };
@@ -16,8 +25,8 @@ export default DashBoard;
 
 const WelcomeBanner = () => {
   return (
-    <div className="flex flex-col container mx-auto">
-      <div className="flex py-10 justify-between">
+    <div className="flex flex-col w-full mx-auto bg-gray-900  p-4">
+      <div className="flex py-10 justify-between container mx-auto">
         <div className="flex  gap-4 flex-1">
           <div>
             <Image
@@ -33,27 +42,36 @@ const WelcomeBanner = () => {
             <p>Member since Mar 12, 2019 1:24 AM</p>
           </div>
         </div>
-        <div className="flex  flex-wrap capitalize items-center justify-end  flex-1 w-fit text-nowrap gap-8 font-semibold ">
+        <div className="flex  flex-wrap uppercase text-sm items-center justify-end  flex-1 w-fit text-nowrap gap-8 font-semibold ">
           <div className="flex flex-col gap-4  items-end">
-            <Link href="/" className="min-w-[1/2] flex">
+            <Link
+              href="/"
+              className="  hover:bg-[#9f42c6] duration-200 rounded-lg pl-2 flex w-fit justify-between "
+            >
               2025 Year To Date
               <ChevronRight />
             </Link>
             <Link
               href="/"
-              className="flex 
-            "
+              className="  hover:bg-[#9f42c6] duration-200 rounded-lg pl-2 flex w-fit justify-between "
             >
               apr month in review <ChevronRight />
             </Link>
           </div>
           <div className="flex flex-col gap-4 items-end">
-            <Link href="/" className="min-w-[1/2] flex">
+            <Link
+              href="/"
+              className="  hover:bg-[#9f42c6] duration-200 rounded-lg pl-2 flex w-fit justify-between "
+            >
               All time stats
               <ChevronRight />
             </Link>
-            <Link href="/" className=" flex">
-              your profile <ChevronRight />
+            <Link
+              href="/"
+              className="  hover:bg-[#9f42c6] duration-200 rounded-lg pl-2 flex w-fit justify-between "
+            >
+              your profile
+              <ChevronRight />
             </Link>
           </div>
         </div>
