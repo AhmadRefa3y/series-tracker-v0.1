@@ -6,6 +6,7 @@ import React from "react";
 import SeriesActionsBtns from "./_components/SeriesActionsBtns";
 import Seasons from "./_components/Seasons";
 import { IMAGE_BASE_URL } from "@/lib/constants";
+import { IsSeriesTracked } from "@/lib/actions/seriesActions";
 
 export default async function Page({ params }: { params: { series: string } }) {
   const { series } = await params;
@@ -49,13 +50,12 @@ export default async function Page({ params }: { params: { series: string } }) {
         />
         <div className="flex flex-col flex-1 gap-2 pb-5">
           <SeriesAdditionalDetails
-            seriesDetails={
-              seriesDetails && {
-                ...seriesDetails,
-                tagline: seriesDetails.tagline || undefined,
-                poster_path: seriesDetails.poster_path || "",
-              }
-            }
+            seriesDetails={{
+              ...seriesDetails,
+              isTracked: !!(await IsSeriesTracked({ seriesID: seriesId })),
+              tagline: seriesDetails.tagline || undefined,
+              poster_path: seriesDetails.poster_path || "",
+            }}
           />
           <Seasons seriesDetails={seriesDetails} />
         </div>
@@ -120,6 +120,7 @@ const SeriesAdditionalDetails = ({
     number_of_episodes: number;
     poster_path: string;
     name: string;
+    isTracked: boolean;
   };
 }) => {
   return (
@@ -187,6 +188,7 @@ const SeriesAdditionalDetails = ({
           number_of_episodes: seriesDetails.number_of_episodes,
           poster: `${IMAGE_BASE_URL}${seriesDetails.poster_path}`,
           title: seriesDetails.name,
+          isTracked: seriesDetails.isTracked,
         }}
       />
     </div>

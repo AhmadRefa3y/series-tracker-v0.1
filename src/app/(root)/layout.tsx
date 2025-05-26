@@ -7,9 +7,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="flex flex-col items-center  bg-black text-white min-h-screen ">
+    <div className="flex flex-col items-center min-h-screen w-full bg-[#ffffff]">
       <Header />
-      <div className="bg-[#ffffff] w-full flex-1 flex flex-col  ">
+      <div className=" w-full flex-1 flex flex-col">
         {children}
         <Toaster richColors />
       </div>

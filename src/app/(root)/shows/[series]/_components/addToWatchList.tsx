@@ -1,11 +1,10 @@
 import {
   AddSeriesToWatchlist,
-  checkSeriesExists,
   removeSeriesFromWatchlist,
 } from "@/lib/actions/seriesActions";
 import { cn } from "@/lib/utils";
 import { Loader, RefreshCcw, Text } from "lucide-react";
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useState } from "react";
 import { toast } from "sonner";
 
 const AddToWatchList = ({
@@ -16,24 +15,13 @@ const AddToWatchList = ({
     title: string;
     poster: string;
     number_of_episodes: number;
+    isTracked: boolean;
   };
 }) => {
   const [loading, setLoading] = useState(false);
-  const [added, setAdded] = useState<boolean | null>(null);
+  const [added, setAdded] = useState<boolean | null>(seriesData.isTracked);
 
   // Check if the series is already added
-  const CheckAdded = useCallback(async () => {
-    try {
-      const { success } = await checkSeriesExists(seriesData.id);
-      setAdded(success);
-    } catch (error) {
-      console.error("Error checking series:", error);
-    }
-  }, [seriesData.id]);
-
-  useEffect(() => {
-    CheckAdded();
-  }, [CheckAdded]);
 
   const handleToast = (success: boolean, message: string) => {
     toast[success ? "success" : "error"](message, {

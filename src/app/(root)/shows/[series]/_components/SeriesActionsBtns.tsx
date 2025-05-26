@@ -11,6 +11,7 @@ const SeriesActionsBtns = ({
     title: string;
     poster: string;
     number_of_episodes: number;
+    isTracked: boolean;
   };
 }) => {
   return (

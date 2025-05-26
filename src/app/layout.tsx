@@ -21,10 +21,11 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const session = await auth();
+
   return (
     <html lang="en">
       <body
-        className={`${inter.className} antialiased capitalize bg-black overflow-y-scroll`}
+        className={`${inter.className} antialiased capitalize overflow-y-scroll `}
       >
         <SessionProvider session={session} key={session?.user?.id}>
           <Providers>{children}</Providers>

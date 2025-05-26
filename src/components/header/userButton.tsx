@@ -28,7 +28,7 @@ const UserButton = ({ Session }: { Session: Session | null }) => {
     );
 
   return (
-    <div className="flex gap-2 items-center">
+    <div className="flex gap-2 items-center w-20 justify-center">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <div className="flex items-center">

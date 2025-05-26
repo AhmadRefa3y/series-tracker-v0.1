@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Menu, Search as SearchIcon, User } from "lucide-react";
 import UserButton from "./userButton";
 import Image from "next/image";
 import Search from "./Search";
@@ -9,8 +8,8 @@ import MobileNavBar from "./mobileNavBar";
 export async function Header() {
   const session = await auth();
   return (
-    <header className="sticky top-0 z-[999] w-full bg-black/80 backdrop-blur-sm h-16 ">
-      <div className="container flex h-16 items-center justify-between mx-auto">
+    <header className="sticky top-0 z-[999] w-full bg-black/80 backdrop-blur-sm h-16 text-white ">
+      <div className="container flex h-16 items-center justify-between mx-auto ">
         <div className="flex justify-between items-center gap-2 md:gap-4 w-full">
           <MobileNavBar />
           <div className="flex items-center gap-4 z-10">
@@ -33,6 +32,18 @@ export async function Header() {
               className=" hover:text-fuchsia-600 duration-200"
             >
               My Watchlist
+            </Link>
+            <Link
+              href="/shows"
+              className=" hover:text-fuchsia-600 duration-200"
+            >
+              Shows
+            </Link>
+            <Link
+              href="/dashboard"
+              className=" hover:text-fuchsia-600 duration-200"
+            >
+              Dashboard
             </Link>
           </nav>
         </div>

@@ -9,6 +9,9 @@ const nextConfig: NextConfig = {
       {
         hostname: "image.tmdb.org",
       },
+      {
+        hostname: "i2.wp.com",
+      },
     ],
   },
 };
