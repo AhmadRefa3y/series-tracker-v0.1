@@ -156,38 +156,37 @@ const SeriesData = ({
 
   return (
     <div className="px-2 w-1/4 min-w-[330px]">
-      <div className="flex flex-col bg-black rounded-sm h-[260px] text-white overflow-hidden gap-1 relative hover:perspective-distant duration-200">
-        <div className="flex gap-2 relative">
-          <button
-            className={cn(
-              "absolute top-0 right-0 h-[30px] bg-white  w-[30px] text-[#9f42c6] duration-400 flex items-center justify-center",
-              IsAction || !cuurentEpisode || completed ? "opacity-30" : ""
-            )}
-            onClick={handleNextEpisode}
-            disabled={IsAction || !cuurentEpisode || completed}
-          >
-            {IsAction ? <Loader className="animate-spin" /> : <Check />}
-          </button>
-
+      <div className="flex flex-col bg-black rounded-sm h-[280px] text-white overflow-hidden gap-1 relative hover:perspective-distant duration-200">
+        <div className="flex gap-2 relative flex-1">
           {/* Poster Image */}
-          <Link
-            href={`/shows/${title}-${seriesId}`}
-            className="relative min-w-[160px] h-[260px]"
-          >
-            <div className="absolute inset-0 bg-black animate-fadeOut" />
-            <Image
-              src={posterPath || ""}
-              alt={title || "Poster"}
-              fill
-              className="object-cover opacity-0 animate-fadeIn"
-            />
-          </Link>
+          <div className="relative min-w-[160px] h-full flex flex-col">
+            <Link
+              href={`/shows/${title}-${seriesId}`}
+              className="relative min-w-[160px] flex-1"
+            >
+              <div className="absolute inset-0 bg-black animate-fadeOut" />
+              <Image
+                src={posterPath || ""}
+                alt={title || "Poster"}
+                fill
+                className="object-cover opacity-0 animate-fadeIn"
+              />
+            </Link>
+            <button
+              className={cn(
+                "  h-[30px] bg-white   text-[#9f42c6] duration-400 flex items-center justify-center",
+                IsAction || !cuurentEpisode || completed ? "opacity-30" : ""
+              )}
+              onClick={handleNextEpisode}
+              disabled={IsAction || !cuurentEpisode || completed}
+            >
+              {IsAction ? <Loader className="animate-spin" /> : <Check />}
+            </button>
+          </div>
 
           <div className="flex flex-col items-start py-2 w-full pr-2">
             {/* Title */}
-            <div className=" max-w-[120px] whitespace-normal text-start">
-              {title}
-            </div>
+            <div className=" whitespace-normal text-start">{title}</div>
 
             {/* Completion Status */}
             {completed ? (
@@ -256,7 +255,7 @@ const SeriesData = ({
                     transition={{ duration: 0.3 }}
                     className="block w-full"
                   >
-                    <span className="whitespace-pre-wrap font-light text-sm   text-gray-400 line-clamp-4 capitalize">
+                    <span className="whitespace-pre-wrap font-light text-sm   text-gray-400 line-clamp-6 capitalize">
                       {cuurentEpisode?.overview}
                     </span>
                   </motion.div>
@@ -267,7 +266,9 @@ const SeriesData = ({
             {/* Progress Bar */}
             <Progress
               value={
-                (WatchedEpisodes / (seriesData?.number_of_episodes ?? 0)) * 100
+                seriesData?.number_of_episodes
+                  ? (WatchedEpisodes / seriesData.number_of_episodes) * 100
+                  : 0
               }
               className="w-full mt-auto rounded-sm "
             />

@@ -3,7 +3,7 @@ import { getMySeriesWatchlist } from "@/lib/actions/seriesActions";
 import React, { useEffect, useState } from "react";
 import { WatchListSeries } from "@/types";
 import { RefreshCcw } from "lucide-react";
-import SeriesData from "../../watchlist/_components/SeriesData";
+import SeriesData from "../../../../components/SeriesData";
 
 const UpNext = () => {
   const [watchList, setWatchList] = useState<WatchListSeries[] | null>(null);

@@ -3,9 +3,9 @@ import { getMySeriesWatchlist } from "@/lib/actions/seriesActions";
 import React, { useEffect, useState } from "react";
 import { WatchListSeries } from "@/types";
 import { RefreshCcw } from "lucide-react";
-import SeriesData from "../../../components/seriesCard";
 import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
+import SeriesData from "@/components/SeriesData";
 
 const Watchlist = () => {
   const session = useSession();
@@ -67,7 +67,7 @@ const Watchlist = () => {
   }
 
   return (
-    <div className="flex justify-center flex-wrap p-4 w-full gap-y-2">
+    <div className="flex justify-center flex-wrap p-4 w-full gap-y-2 bg-[#1d1d1d]">
       {watchList.map((series) => (
         <SeriesData
           key={series.seriesID}
