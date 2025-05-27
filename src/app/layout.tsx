@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { Chocolate_Classical_Sans } from "next/font/google";
+import { Raleway } from "next/font/google";
 import "./globals.css";
 import Providers from "@/components/providers";
 import { SessionProvider } from "next-auth/react";
 import { auth } from "@/auth";
 
-const inter = Chocolate_Classical_Sans({
+const raleway = Raleway({
   subsets: ["latin"],
   weight: ["400"],
 });
@@ -25,7 +25,7 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${inter.className} antialiased capitalize overflow-y-scroll `}
+        className={`${raleway.className} antialiased capitalize overflow-y-scroll `}
       >
         <SessionProvider session={session} key={session?.user?.id}>
           <Providers>{children}</Providers>

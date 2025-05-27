@@ -1,20 +1,22 @@
-import { ChevronRight, StepForward } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 import UpNext from "./_components/UpNext";
+import RecentlyWatched from "./_components/RecentlyWatched";
 
 const DashBoard = () => {
   return (
-    <div className="flex flex-col text-white ">
+    <div className="flex flex-col text-white">
       <WelcomeBanner />
-      <div className=" bg-[#1d1d1d]">
-        <div className="container  mx-auto relative h-full">
-          <div className="flex gap-1 text-xl items-center mt-4">
-            <StepForward width={50} height={50} />
-            Up next
-          </div>
+      <div className="bg-[#1d1d1d]">
+        <div className="container mx-auto relative min-h-[380px]">
           <UpNext />
+        </div>
+      </div>
+      <div className="bg-[#111111]">
+        <div className="container mx-auto relative h-full">
+          <RecentlyWatched />
         </div>
       </div>
     </div>
