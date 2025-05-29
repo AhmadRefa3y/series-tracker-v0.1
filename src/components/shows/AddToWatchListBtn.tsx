@@ -35,7 +35,7 @@ const AddToWatchListBtn = ({
 
   const handleAddToWatchlist = async () => {
     if (!session?.user?.id) {
-      toast("Please login to add to watchlist");
+      toast.error("Please login to add to watchlist");
       return;
     }
     if (isLoading) return;

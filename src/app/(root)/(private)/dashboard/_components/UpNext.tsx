@@ -4,8 +4,8 @@ import { getMySeriesWatchlist } from "@/lib/actions/seriesActions";
 import { useEffect, useState } from "react";
 import { WatchListSeries } from "@/types";
 import { RefreshCcw, StepForward } from "lucide-react";
-import SeriesData from "../../../../components/SeriesData";
 import { cn } from "@/lib/utils";
+import SeriesData from "@/components/SeriesData";
 
 // Extracted components for better organization
 const SectionHeader = ({

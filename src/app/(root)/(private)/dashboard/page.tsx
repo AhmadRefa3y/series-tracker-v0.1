@@ -4,8 +4,14 @@ import Link from "next/link";
 import React from "react";
 import UpNext from "./_components/UpNext";
 import RecentlyWatched from "./_components/RecentlyWatched";
+import { auth } from "@/auth";
+import { redirect } from "next/navigation";
 
-const DashBoard = () => {
+const DashBoard = async () => {
+  const session = await auth();
+  if (!session) {
+    return redirect("/");
+  }
   return (
     <div className="flex flex-col text-white">
       <WelcomeBanner />
