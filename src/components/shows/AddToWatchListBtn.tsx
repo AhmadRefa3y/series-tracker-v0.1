@@ -7,12 +7,9 @@ import {
 import { cn } from "@/lib/utils";
 import { Loader, Text } from "lucide-react";
 import { Session } from "next-auth";
-// import { useSession } from "next-auth/react";
-// import { useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { toast } from "sonner";
-// import loading from "../loading";
-// import { Session } from "next-auth";
 
 interface SeriesData {
   id: string;
@@ -32,11 +29,11 @@ const AddToWatchListBtn = ({
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isAdded, setIsAdded] = useState<boolean | null>(isTracked);
+  const router = useRouter();
 
   const handleAddToWatchlist = async () => {
     if (!session?.user?.id) {
-      toast.error("Please login to add to watchlist");
-      return;
+      router.push("/sign-in");
     }
     if (isLoading) return;
     setIsLoading(true);
