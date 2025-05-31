@@ -6,6 +6,7 @@ import prismaDb from "../prisma";
 
 import { auth } from "@/auth";
 import { WatchListSeries } from "@/types";
+import { revalidatePath } from "next/cache";
 
 export const AddSeriesToWatchlist = async ({
   seriesData,
@@ -163,6 +164,7 @@ export const setEpisodWatched = async ({
         },
       }),
     ]);
+    revalidatePath(`/shows/${`${seriesExists.title}-${episodeData.seriesID}`}`);
     return {
       success: true,
       message: "Series added to add episode to watchlist",

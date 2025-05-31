@@ -1,128 +1,63 @@
+// components/SeriesData.tsx
 "use client";
 import { motion, AnimatePresence } from "framer-motion";
 import { Progress } from "@/components/ui/progress";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { setEpisodWatched } from "@/lib/actions/seriesActions";
 import { Check, Loader } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { Series } from "@/types/seriesT";
-export const TMDB_API_KEY = "bb9cbfca59ec1d1fefd277beb3aa3d82";
 
-const SeriesData = ({
-  seriesId,
-  posterPath,
-  title,
-  InitWatchedEpisodes,
-  lastWatchedEpisode,
-}: {
+type Episode = {
+  id: number;
+  episode_number: number;
+  season_number: number;
+  name: string;
+  overview: string;
+  vote_average: number;
+  runtime: number;
+};
+
+interface SeriesDataProps {
   seriesId: string;
   episodeNumber: number;
   seasonNumber: number;
   posterPath: string;
   title: string;
   InitWatchedEpisodes: number;
-  lastWatchedEpisode: { episodeNumber: number; seasonNumber: number };
-}) => {
-  const [nextEpisodes, setNextEpisodes] = useState<
-    {
-      id: number;
-      episode_number: number;
-      season_number: number;
-      name: string;
-      overview: string;
-      vote_average: number;
-      runtime: number;
-    }[]
-  >([]);
+  lastWatchedEpisode: { episodeNumber: number; seasonNumber: number } | null;
+  seriesData: Series | null;
+  nextEpisodes: Episode[];
+}
+
+const SeriesData = ({
+  seriesId,
+  posterPath,
+  title,
+  InitWatchedEpisodes,
+  seriesData,
+  nextEpisodes,
+}: SeriesDataProps) => {
   const [currentEpisodeIndex, setCurrentEpisodeIndex] = useState(0);
-  const [IsAction, setAction] = useState(false);
-  const [WatchedEpisodes, setWatchedEpisodes] = useState(InitWatchedEpisodes);
-  const [seriesData, setSeriesData] = useState<Series | null>(null);
+  const [isAction, setAction] = useState(false);
+  const [watchedEpisodes, setWatchedEpisodes] = useState(InitWatchedEpisodes);
   const [completed, setCompleted] = useState(false);
 
-  // Effect for fetching series data
-  useEffect(() => {
-    const fetchSeriesData = async () => {
-      try {
-        const response = await fetch(
-          `https://api.themoviedb.org/3/tv/${seriesId}?api_key=${TMDB_API_KEY}`
-        );
-        const data: Series = await response.json();
-
-        setSeriesData(data);
-      } catch (error) {
-        console.error("Error fetching series data:", error);
-      }
-    };
-
-    fetchSeriesData();
-  }, [seriesId]);
-
-  // Effect for fetching episodes after series data is loaded
-  useEffect(() => {
-    if (!seriesData) return;
-    const fetchEpisodes = async () => {
-      try {
-        const newEpisodes: {
-          id: number;
-          episode_number: number;
-          season_number: number;
-          name: string;
-          overview: string;
-          vote_average: number;
-          runtime: number;
-        }[] = [];
-
-        const seasonPromises = Array.from(
-          { length: seriesData.number_of_seasons },
-          async (_, index) => {
-            const response = await fetch(
-              `https://api.themoviedb.org/3/tv/${seriesId}/season/${
-                index + 1
-              }?api_key=${TMDB_API_KEY}`
-            );
-            return await response.json();
-          }
-        );
-
-        const seasons = await Promise.all(seasonPromises);
-
-        for (const season of seasons) {
-          newEpisodes.push(...season.episodes);
-        }
-
-        const filteredEpisodes = newEpisodes.filter((episode) => {
-          if (!lastWatchedEpisode) return true;
-          return (
-            episode.season_number > lastWatchedEpisode.seasonNumber ||
-            (episode.season_number === lastWatchedEpisode.seasonNumber &&
-              episode.episode_number > lastWatchedEpisode.episodeNumber)
-          );
-        });
-
-        setNextEpisodes(filteredEpisodes);
-      } catch (error) {
-        console.error("Error fetching episodes:", error);
-      }
-    };
-
-    fetchEpisodes();
-  }, [seriesId, seriesData, lastWatchedEpisode]);
-
+  // Effect for checking completion status
   useEffect(() => {
     if (seriesData?.number_of_episodes) {
       const completionPercentage =
-        (WatchedEpisodes / seriesData.number_of_episodes) * 100;
+        (watchedEpisodes / seriesData.number_of_episodes) * 100;
       setCompleted(completionPercentage === 100);
     }
-  }, [WatchedEpisodes, seriesData]);
+  }, [watchedEpisodes, seriesData]);
 
-  const cuurentEpisode = nextEpisodes[currentEpisodeIndex];
+  const currentEpisode = nextEpisodes[currentEpisodeIndex];
 
   const handleNextEpisode = async () => {
-    if (!cuurentEpisode) return;
+    if (!currentEpisode) return;
 
     setAction(true);
 
@@ -130,8 +65,8 @@ const SeriesData = ({
       const episodeWatched = await setEpisodWatched({
         episodeData: {
           seriesID: seriesId.toString(),
-          episodeNumber: cuurentEpisode.episode_number,
-          seasonNumber: cuurentEpisode.season_number,
+          episodeNumber: currentEpisode.episode_number,
+          seasonNumber: currentEpisode.season_number,
         },
       });
 
@@ -172,19 +107,19 @@ const SeriesData = ({
             </Link>
             <button
               className={cn(
-                "  h-[30px] bg-white   text-[#9f42c6] duration-400 flex items-center justify-center",
-                IsAction || !cuurentEpisode || completed ? "opacity-30" : ""
+                "h-[30px] bg-white text-[#9f42c6] duration-400 flex items-center justify-center",
+                isAction || !currentEpisode || completed ? "opacity-30" : ""
               )}
               onClick={handleNextEpisode}
-              disabled={IsAction || !cuurentEpisode || completed}
+              disabled={isAction || !currentEpisode || completed}
             >
-              {IsAction ? <Loader className="animate-spin" /> : <Check />}
+              {isAction ? <Loader className="animate-spin" /> : <Check />}
             </button>
           </div>
 
           <div className="flex flex-col items-start py-2 w-full pr-2">
             {/* Title */}
-            <div className=" whitespace-normal text-start">{title}</div>
+            <div className="whitespace-normal text-start">{title}</div>
 
             {/* Completion Status */}
             {completed ? (
@@ -194,38 +129,38 @@ const SeriesData = ({
             ) : (
               <div className="flex flex-col overflow-hidden w-full relative z-50 my-2">
                 {/* Season and Episode Number */}
-                {cuurentEpisode && (
-                  <div className="font-semibold  -z-10">
-                    <div className="bg-white text-black w-fit px-1 rounded-sm ">
+                {currentEpisode && (
+                  <div className="font-semibold -z-10">
+                    <div className="bg-white text-black w-fit px-1 rounded-sm">
                       <AnimatePresence mode="wait">
                         <motion.div
-                          key={`season-${cuurentEpisode?.season_number}`}
+                          key={`season-${currentEpisode?.season_number}`}
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
                           exit={{ opacity: 0 }}
                           transition={{ duration: 0.3 }}
                           className="inline-flex"
                         >
-                          S{cuurentEpisode?.season_number}
+                          S{currentEpisode?.season_number}
                         </motion.div>
                       </AnimatePresence>
                       <AnimatePresence mode="wait">
                         <motion.div
-                          key={`episode-${cuurentEpisode?.season_number}-${cuurentEpisode?.episode_number}`}
+                          key={`episode-${currentEpisode?.season_number}-${currentEpisode?.episode_number}`}
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
                           exit={{ opacity: 0 }}
                           transition={{ duration: 0.3 }}
-                          className="inline-flex "
+                          className="inline-flex"
                         >
                           <span className="mx-1 text-gray-400">|</span>E
-                          {cuurentEpisode?.episode_number}
+                          {currentEpisode?.episode_number}
                         </motion.div>
                       </AnimatePresence>
                     </div>
                     <AnimatePresence mode="wait">
                       <motion.div
-                        key={`title-${cuurentEpisode?.season_number}-${cuurentEpisode?.episode_number}`}
+                        key={`title-${currentEpisode?.season_number}-${currentEpisode?.episode_number}`}
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
@@ -233,10 +168,10 @@ const SeriesData = ({
                         className="block w-full"
                       >
                         <span className="block text-amber-300">
-                          {cuurentEpisode?.vote_average?.toFixed(1)} / 10
+                          {currentEpisode?.vote_average?.toFixed(1)} / 10
                         </span>
                         <span className="text-sm line-clamp-2">
-                          {cuurentEpisode?.name}
+                          {currentEpisode?.name}
                         </span>
                       </motion.div>
                     </AnimatePresence>
@@ -246,15 +181,15 @@ const SeriesData = ({
                 {/* Episode Overview */}
                 <AnimatePresence mode="wait">
                   <motion.div
-                    key={`title-${cuurentEpisode?.season_number}-${cuurentEpisode?.episode_number}`}
+                    key={`title-${currentEpisode?.season_number}-${currentEpisode?.episode_number}`}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.3 }}
                     className="block w-full"
                   >
-                    <span className="whitespace-pre-wrap font-light text-sm   text-gray-400 line-clamp-6 capitalize">
-                      {cuurentEpisode?.overview}
+                    <span className="whitespace-pre-wrap font-light text-sm text-gray-400 line-clamp-6 capitalize">
+                      {currentEpisode?.overview}
                     </span>
                   </motion.div>
                 </AnimatePresence>
@@ -265,10 +200,10 @@ const SeriesData = ({
             <Progress
               value={
                 seriesData?.number_of_episodes
-                  ? (WatchedEpisodes / seriesData.number_of_episodes) * 100
+                  ? (watchedEpisodes / seriesData.number_of_episodes) * 100
                   : 0
               }
-              className="w-full mt-auto rounded-sm "
+              className="w-full mt-auto rounded-sm"
             />
           </div>
         </div>

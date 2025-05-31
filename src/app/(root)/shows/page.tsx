@@ -7,6 +7,7 @@ import AddToWatchListBtn from "@/components/shows/AddToWatchListBtn";
 import { auth } from "@/auth";
 import { IsSeriesTracked } from "@/lib/actions/seriesActions";
 
+export const revalidate = 3600;
 export default async function Shows() {
   const series = await getTrendingSeries();
   const session = await auth();

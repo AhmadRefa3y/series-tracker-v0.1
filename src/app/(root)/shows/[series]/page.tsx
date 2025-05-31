@@ -1,15 +1,24 @@
 import { getSeriesDetails } from "@/data/tmdb";
-import { Heart } from "lucide-react";
+import { Heart, RefreshCcw } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
+import React, { Suspense } from "react";
 import SeriesActionsBtns from "./_components/SeriesActionsBtns";
 import Seasons from "./_components/Seasons";
 import { IMAGE_BASE_URL } from "@/lib/constants";
 import { IsSeriesTracked } from "@/lib/actions/seriesActions";
 
-export default async function Page({ params }: { params: { series: string } }) {
+export default async function Page({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ series: string }>;
+  searchParams: Promise<{
+    season: string;
+  }>;
+}) {
   const { series } = await params;
+  const { season } = await searchParams;
   const seriesId = series.split("-")[1];
   const seriesDetails = await getSeriesDetails(seriesId);
 
@@ -57,7 +66,12 @@ export default async function Page({ params }: { params: { series: string } }) {
               poster_path: seriesDetails.poster_path || "",
             }}
           />
-          <Seasons seriesDetails={seriesDetails} />
+          <Suspense
+            key={season}
+            fallback={<RefreshCcw className="animate-spin" />}
+          >
+            <Seasons seriesDetails={seriesDetails} season={+season} />
+          </Suspense>
         </div>
       </div>
     </div>

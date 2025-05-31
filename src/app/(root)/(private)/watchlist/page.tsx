@@ -1,53 +1,97 @@
-"use client";
+// app/watchlist/page.tsx
 import { getMySeriesWatchlist } from "@/lib/actions/seriesActions";
-import React, { useEffect, useState } from "react";
-import { WatchListSeries } from "@/types";
-import { RefreshCcw } from "lucide-react";
-import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
-import SeriesData from "@/components/SeriesData";
+import { WatchListSeries } from "@/types";
+import { Series } from "@/types/seriesT";
+import { auth } from "@/auth";
+import SeriesData from "./SeriesData";
 
-const Watchlist = () => {
-  const session = useSession();
-  const [watchList, setWatchList] = useState<WatchListSeries[] | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+const TMDB_API_KEY = "bb9cbfca59ec1d1fefd277beb3aa3d82";
 
-  useEffect(() => {
-    if (session.status === "unauthenticated") {
-      redirect("/sign-in");
-    }
-
-    if (session.status === "authenticated") {
-      const getWatchList = async () => {
-        try {
-          setLoading(true);
-          const seriesWatchlist = await getMySeriesWatchlist();
-
-          if (!seriesWatchlist) {
-            setWatchList([]);
-            return;
-          }
-
-          setWatchList(seriesWatchlist);
-        } catch (err) {
-          setError("Failed to load watchlist");
-          console.error(err);
-        } finally {
-          setLoading(false);
-        }
-      };
-
-      getWatchList();
-    }
-  }, [session.status]);
-
-  if (loading) {
-    return (
-      <div className="flex h-screen items-center justify-center w-full absolute inset-0 bg-black/60 text-white">
-        <RefreshCcw className="animate-spin" size={100} />
-      </div>
+async function fetchSeriesData(seriesId: string): Promise<Series | null> {
+  try {
+    const response = await fetch(
+      `https://api.themoviedb.org/3/tv/${seriesId}?api_key=${TMDB_API_KEY}`,
+      { cache: "force-cache" } // Cache for static data
     );
+    if (!response.ok) throw new Error("Failed to fetch series data");
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching series data:", error);
+    return null;
+  }
+}
+
+async function fetchEpisodes(
+  seriesId: string,
+  numberOfSeasons: number,
+  lastWatchedEpisode: { episodeNumber: number; seasonNumber: number } | null
+): Promise<
+  {
+    id: number;
+    episode_number: number;
+    season_number: number;
+    name: string;
+    overview: string;
+    vote_average: number;
+    runtime: number;
+  }[]
+> {
+  try {
+    const seasonPromises = Array.from({ length: numberOfSeasons }, (_, index) =>
+      fetch(
+        `https://api.themoviedb.org/3/tv/${seriesId}/season/${
+          index + 1
+        }?api_key=${TMDB_API_KEY}`,
+        { cache: "force-cache" }
+      ).then((res) => res.json())
+    );
+
+    const seasons = await Promise.all(seasonPromises);
+    const newEpisodes: {
+      id: number;
+      episode_number: number;
+      season_number: number;
+      name: string;
+      overview: string;
+      vote_average: number;
+      runtime: number;
+    }[] = [];
+
+    for (const season of seasons) {
+      newEpisodes.push(...(season.episodes || []));
+    }
+
+    return newEpisodes.filter((episode) => {
+      if (!lastWatchedEpisode) return true;
+      return (
+        episode.season_number > lastWatchedEpisode.seasonNumber ||
+        (episode.season_number === lastWatchedEpisode.seasonNumber &&
+          episode.episode_number > lastWatchedEpisode.episodeNumber)
+      );
+    });
+  } catch (error) {
+    console.error("Error fetching episodes:", error);
+    return [];
+  }
+}
+
+export default async function Watchlist() {
+  const session = await auth();
+
+  if (!session) {
+    redirect("/sign-in");
+  }
+
+  let watchList: WatchListSeries[] = [];
+  let error: string | null = null;
+
+  try {
+    const seriesWatchlist = await getMySeriesWatchlist();
+    watchList = seriesWatchlist || [];
+  } catch (err) {
+    error = "Failed to load watchlist";
+    console.error(err);
   }
 
   if (error) {
@@ -66,9 +110,24 @@ const Watchlist = () => {
     );
   }
 
+  // Pre-fetch series data and episodes for each series in the watchlist
+  const seriesDataPromises = watchList.map(async (series) => {
+    const seriesData = await fetchSeriesData(series.seriesID.toString());
+    const episodes = seriesData
+      ? await fetchEpisodes(
+          series.seriesID.toString(),
+          seriesData.number_of_seasons,
+          series.watchedEpisodes[0] || null
+        )
+      : [];
+    return { series, seriesData, episodes };
+  });
+
+  const seriesWithData = await Promise.all(seriesDataPromises);
+
   return (
     <div className="flex justify-center flex-wrap p-4 w-full gap-y-2 bg-[#1d1d1d]">
-      {watchList.map((series) => (
+      {seriesWithData.map(({ series, seriesData, episodes }) => (
         <SeriesData
           key={series.seriesID}
           episodeNumber={series.currentEpisodeNumber}
@@ -78,10 +137,10 @@ const Watchlist = () => {
           title={series.seriesTitle}
           InitWatchedEpisodes={series.watchedEpisodes.length}
           lastWatchedEpisode={series.watchedEpisodes[0]}
+          seriesData={seriesData}
+          nextEpisodes={episodes}
         />
       ))}
     </div>
   );
-};
-
-export default Watchlist;
+}
