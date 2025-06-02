@@ -1,11 +1,11 @@
-import { getTrendingSeries } from "@/data/tmdb";
 import Image from "next/image";
 import { Check, Star, StarIcon } from "lucide-react";
 
 import Link from "next/link";
-import AddToWatchListBtn from "@/components/shows/AddToWatchListBtn";
+import AddToWatchListBtn from "@/app/(root)/shows/components/AddToWatchListBtn";
 import { auth } from "@/auth";
 import { IsSeriesTracked } from "@/lib/actions/seriesActions";
+import { getTrendingSeries } from "./data";
 
 export const revalidate = 3600;
 export default async function Shows() {

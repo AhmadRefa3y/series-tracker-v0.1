@@ -1,11 +1,11 @@
 // seasons.tsx
-import { getEpisodeDataWithWatchStatus } from "@/data/tmdb";
 import { cn } from "@/lib/utils";
 import { Episode, Series } from "@/types/seriesT";
 import Image from "next/image";
 import { IMAGE_BASE_URL } from "@/lib/constants";
 import { setEpisodWatched } from "@/lib/actions/seriesActions";
 import Link from "next/link";
+import { getEpisodeDataWithWatchStatus } from "../data";
 
 interface SeasonsProps {
   seriesDetails: Series;

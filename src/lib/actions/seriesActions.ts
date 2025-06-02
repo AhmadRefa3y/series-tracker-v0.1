@@ -8,48 +8,6 @@ import { auth } from "@/auth";
 import { WatchListSeries } from "@/types";
 import { revalidatePath } from "next/cache";
 
-export const AddSeriesToWatchlist = async ({
-  seriesData,
-}: {
-  seriesData: {
-    id: string;
-    title: string;
-    poster: string;
-  };
-}) => {
-  const userId = await auth();
-  if (!userId?.user?.id) {
-    console.log("User not authenticated, returning error response.");
-    return {
-      success: false,
-      message: "User not authenticated. Please sign in.",
-      errorType: "AUTH_REQUIRED", // Optional: a custom error type
-    };
-  }
-
-  try {
-    await prismaDb.series.create({
-      data: {
-        seriesTmdbId: seriesData.id,
-        title: seriesData.title,
-        userId: userId.user.id,
-        posterPath: seriesData.poster,
-      },
-    });
-
-    return {
-      success: true,
-      message: "Series added to watchlist",
-    };
-  } catch (error) {
-    console.error("Failed to add series to watchlist:", error); // Log the actual error
-    return {
-      success: false,
-      message: "Failed to add series to watchlist. Please try again.",
-    };
-  }
-};
-
 export const IsSeriesTracked = async ({ seriesID }: { seriesID: string }) => {
   try {
     const userId = await auth();
@@ -74,12 +32,14 @@ export const IsSeriesTracked = async ({ seriesID }: { seriesID: string }) => {
 
 export const setEpisodWatched = async ({
   episodeData,
+  revalaidate = true,
 }: {
   episodeData: {
     seriesID: string;
     episodeNumber: number;
     seasonNumber: number;
   };
+  revalaidate?: boolean;
 }) => {
   try {
     const userId = await auth();
@@ -164,7 +124,11 @@ export const setEpisodWatched = async ({
         },
       }),
     ]);
-    revalidatePath(`/shows/${`${seriesExists.title}-${episodeData.seriesID}`}`);
+    if (revalaidate) {
+      revalidatePath(
+        `/shows/${`${seriesExists.title}-${episodeData.seriesID}`}`
+      );
+    }
     return {
       success: true,
       message: "Series added to add episode to watchlist",
@@ -179,7 +143,7 @@ export const setEpisodWatched = async ({
   }
 };
 
-export const getMySeriesWatchlist = async (
+export const getUserSeriesWatchlist = async (
   limit?: number
 ): Promise<WatchListSeries[] | null> => {
   try {

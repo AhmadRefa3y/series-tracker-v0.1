@@ -1,4 +1,3 @@
-import { getSeriesDetails } from "@/data/tmdb";
 import { Heart, RefreshCcw } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -7,6 +6,7 @@ import SeriesActionsBtns from "./_components/SeriesActionsBtns";
 import Seasons from "./_components/Seasons";
 import { IMAGE_BASE_URL } from "@/lib/constants";
 import { IsSeriesTracked } from "@/lib/actions/seriesActions";
+import { getSeriesDetails } from "./data";
 
 export default async function Page({
   params,

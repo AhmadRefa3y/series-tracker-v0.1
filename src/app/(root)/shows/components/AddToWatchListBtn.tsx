@@ -1,9 +1,7 @@
 "use client";
+import { AddSeriesToWatchlist } from "@/app/(root)/shows/actions";
 import { Button } from "@/components/ui/button";
-import {
-  AddSeriesToWatchlist,
-  removeSeriesFromWatchlist,
-} from "@/lib/actions/seriesActions";
+import { removeSeriesFromWatchlist } from "@/lib/actions/seriesActions";
 import { cn } from "@/lib/utils";
 import { Loader, Text } from "lucide-react";
 import { Session } from "next-auth";

@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/popover";
 import Link from "next/link";
 import Image from "next/image";
-import { SearchSeries } from "@/data/tmdb";
+import { SearchSeries } from "@/data/globalData";
 
 // Define the TMDB Series type
 interface Series {
@@ -28,8 +28,6 @@ const Search: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const API_KEY: string =
-    process.env.NEXT_PUBLIC_TMDB_API_KEY || "your-api-key-here";
   const IMAGE_BASE_URL = "https://image.tmdb.org/t/p/";
   const IMAGE_SIZE = "w92";
 
