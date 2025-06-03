@@ -1,4 +1,3 @@
-// components/SeriesData.tsx
 "use client";
 import { motion, AnimatePresence } from "framer-motion";
 import { Progress } from "@/components/ui/progress";

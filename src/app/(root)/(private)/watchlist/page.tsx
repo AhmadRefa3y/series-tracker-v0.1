@@ -1,17 +1,12 @@
 // app/watchlist/page.tsx
 import { getUserSeriesWatchlist } from "@/lib/actions/seriesActions";
-import { redirect } from "next/navigation";
 import { WatchListSeries } from "@/types";
-import { auth } from "@/auth";
 import SeriesData from "./_components/SeriesData";
-import { fetchEpisodes, fetchSeriesData } from "./watchListData";
+import { fetchEpisodes, fetchSeriesData } from "./WatchListData";
+import { getCurrentUser } from "@/lib/actions/userActions";
 
 export default async function Watchlist() {
-  const session = await auth();
-
-  if (!session) {
-    redirect("/sign-in");
-  }
+  await getCurrentUser();
 
   let watchList: WatchListSeries[] = [];
   let error: string | null = null;
@@ -32,7 +27,7 @@ export default async function Watchlist() {
     );
   }
 
-  if (!watchList || watchList.length === 0) {
+  if (watchList.length === 0) {
     return (
       <div className="flex h-screen items-center justify-center w-full absolute inset-0 bg-black/60 text-white">
         <h1 className="text-3xl font-bold">No Series in Your Watchlist</h1>

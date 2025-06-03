@@ -1,10 +1,11 @@
 "use server";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
-import { signIn, signOut } from "@/auth";
+import { auth, signIn, signOut } from "@/auth";
 import { signInFormSchema, signUpFormSchema } from "../validator";
 import { hashSync } from "bcrypt-ts-edge";
 import prismaDb from "../prisma";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
 export async function signInWithCredentials(formData: FormData) {
   try {
@@ -66,5 +67,19 @@ export async function signUp(prevState: unknown, formData: FormData) {
       success: false,
       message: "Something went wrong",
     };
+  }
+}
+
+export async function getCurrentUser() {
+  try {
+    const session = await auth();
+
+    if (!session?.user) {
+      redirect("/sign-in");
+    }
+    return session.user;
+  } catch (error) {
+    console.log("Something went wrong", error);
+    redirect("/sign-in");
   }
 }

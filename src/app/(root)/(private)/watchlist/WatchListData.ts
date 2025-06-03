@@ -1,4 +1,5 @@
 import "server-only";
+import axios from "axios";
 
 import { Series } from "@/types/seriesT";
 
@@ -6,12 +7,18 @@ export async function fetchSeriesData(
   seriesId: string
 ): Promise<Series | null> {
   try {
-    const response = await fetch(
-      `https://api.themoviedb.org/3/tv/${seriesId}?api_key=${process.env.TMDB_API_KEY}`,
-      { cache: "force-cache" } // Cache for static data
+    const { data } = await axios.get(
+      `https://api.themoviedb.org/3/tv/${seriesId}`,
+      {
+        params: {
+          api_key: process.env.TMDB_API_KEY,
+        },
+        headers: {
+          Accept: "application/json",
+        },
+      }
     );
-    if (!response.ok) throw new Error("Failed to fetch series data");
-    return await response.json();
+    return data;
   } catch (error) {
     console.error("Error fetching series data:", error);
     return null;
@@ -34,13 +41,22 @@ export async function fetchEpisodes(
   }[]
 > {
   try {
-    const seasonPromises = Array.from({ length: numberOfSeasons }, (_, index) =>
-      fetch(
-        `https://api.themoviedb.org/3/tv/${seriesId}/season/${
-          index + 1
-        }?api_key=${process.env.TMDB_API_KEY}`,
-        { cache: "force-cache" }
-      ).then((res) => res.json())
+    const seasonPromises = Array.from(
+      { length: numberOfSeasons },
+      async (_, index) => {
+        const { data } = await axios.get(
+          `https://api.themoviedb.org/3/tv/${seriesId}/season/${index + 1}`,
+          {
+            params: {
+              api_key: process.env.TMDB_API_KEY,
+            },
+            headers: {
+              Accept: "application/json",
+            },
+          }
+        );
+        return data;
+      }
     );
 
     const seasons = await Promise.all(seasonPromises);
