@@ -1,7 +1,7 @@
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, RefreshCcw, StepForward } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
+import React, { Suspense } from "react";
 import UpNext from "./_components/UpNext";
 import RecentlyWatched from "./_components/RecentlyWatched";
 import { auth } from "@/auth";
@@ -17,7 +17,9 @@ const DashBoard = async () => {
       <WelcomeBanner />
       <div className="bg-[#1d1d1d]">
         <div className="container mx-auto relative min-h-[380px]">
-          <UpNext />
+          <Suspense fallback={<UpNextSkeleton />}>
+            <UpNext />
+          </Suspense>
         </div>
       </div>
       <div className="bg-[#111111]">
@@ -83,6 +85,36 @@ const WelcomeBanner = () => {
             </Link>
           </div>
         </div>
+      </div>
+    </div>
+  );
+};
+
+const SectionHeader = ({ title }: { title: string }) => (
+  <div className="flex gap-1 text-xl items-center mt-4">
+    <StepForward width={40} height={40} />
+    {title}
+    {<RefreshCcw className="animate-spin ms-2" size={30} />}
+  </div>
+);
+const UpNextSkeleton = () => {
+  return (
+    <div className="flex flex-col text-white">
+      <div className="flex justify-between items-center">
+        <SectionHeader title="Up next" />
+      </div>
+      <div className="flex flex-wrap items-center justify-center mt-3 w-full gap-y-2 py-4">
+        {[...Array(4)].map((_, idx) => (
+          <div
+            key={idx}
+            className="flex flex-col items-center bg-[#232323] rounded-lg p-4 mx-2 w-40 animate-pulse"
+          >
+            <div className="w-24 h-36 bg-gray-700 rounded mb-3" />
+            <div className="h-4 bg-gray-600 rounded w-3/4 mb-2" />
+            <div className="h-3 bg-gray-700 rounded w-1/2 mb-1" />
+            <div className="h-3 bg-gray-700 rounded w-1/3" />
+          </div>
+        ))}
       </div>
     </div>
   );
