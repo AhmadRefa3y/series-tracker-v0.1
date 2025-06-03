@@ -2,7 +2,8 @@ import "server-only";
 import { BASE_URL } from "@/lib/constants";
 import { Series } from "@/types/seriesT";
 import axios from "axios";
-import { checkEpisodeExists } from "@/lib/actions/seriesActions";
+import prismaDb from "@/lib/prisma";
+import { auth } from "@/auth";
 
 export async function getSeriesDetails(seriesId: string): Promise<Series> {
   try {
@@ -50,3 +51,46 @@ export async function getEpisodeDataWithWatchStatus(
     };
   }
 }
+
+export const checkEpisodeExists = async (episodeData: {
+  seriesID: string;
+  episodeNumber: number;
+  seasonNumber: number;
+}) => {
+  try {
+    const userId = await auth();
+    if (!userId?.user?.id) {
+      throw new Error("User not found");
+    }
+
+    const series = await prismaDb.series.findFirst({
+      where: {
+        seriesTmdbId: episodeData.seriesID,
+        userId: userId.user.id,
+      },
+    });
+
+    if (!series) {
+      throw new Error("Series not found");
+    }
+    const episode = await prismaDb.watchedEpisode.findFirst({
+      where: {
+        episodeNumber: episodeData.episodeNumber,
+        seasonNumber: episodeData.seasonNumber,
+        seriesId: series.id,
+        userId: userId?.user?.id,
+      },
+    });
+
+    if (episode) {
+      return {
+        success: true,
+        data: episode,
+      };
+    } else {
+      return { success: false, data: null };
+    }
+  } catch (error) {
+    return { success: false, data: null, error: error };
+  }
+};

@@ -6,6 +6,7 @@ import UpNext from "./_components/UpNext";
 import RecentlyWatched from "./_components/RecentlyWatched";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
+import { Progress } from "@/components/ui/progress";
 
 const DashBoard = async () => {
   const session = await auth();
@@ -105,14 +106,27 @@ const UpNextSkeleton = () => {
       </div>
       <div className="flex flex-wrap items-center justify-center mt-3 w-full gap-y-2 py-4">
         {[...Array(4)].map((_, idx) => (
-          <div
-            key={idx}
-            className="flex flex-col items-center bg-[#232323] rounded-lg p-4 mx-2 w-40 animate-pulse"
-          >
-            <div className="w-24 h-36 bg-gray-700 rounded mb-3" />
-            <div className="h-4 bg-gray-600 rounded w-3/4 mb-2" />
-            <div className="h-3 bg-gray-700 rounded w-1/2 mb-1" />
-            <div className="h-3 bg-gray-700 rounded w-1/3" />
+          <div className="px-2 w-1/4 min-w-[320px] animate-pulse" key={idx}>
+            <div className="flex flex-col bg-black rounded-sm h-[280px] text-white overflow-hidden gap-1 relative">
+              <div className="flex gap-2 relative flex-1">
+                {/* Poster Image */}
+                <div className="relative min-w-[160px] h-full flex flex-col bg-white/30 animate-pulse ">
+                  {/* Next Episode Button */}
+                  <button>{/* Loader or Check icon */}</button>
+                </div>
+
+                <div className="flex flex-col items-start py-2 w-full pr-2">
+                  {/* Title */}
+                  <div></div>
+
+                  {/* Completion Status or Episode Info */}
+                  <div>{/* Completed badge or current episode info */}</div>
+
+                  {/* Progress Bar */}
+                  <Progress value={0} className="w-full mt-auto rounded-sm" />
+                </div>
+              </div>
+            </div>
           </div>
         ))}
       </div>

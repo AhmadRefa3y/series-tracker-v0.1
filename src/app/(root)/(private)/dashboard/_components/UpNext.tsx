@@ -1,4 +1,3 @@
-import { getUserSeriesWatchlist } from "@/lib/actions/seriesActions";
 import { redirect } from "next/navigation";
 import { WatchListSeries } from "@/types";
 import { auth } from "@/auth";
@@ -6,6 +5,7 @@ import { auth } from "@/auth";
 import SeriesData from "../../watchlist/_components/SeriesData";
 import { fetchEpisodes, fetchSeriesData } from "../../watchlist/WatchListData";
 import { StepForward } from "lucide-react";
+import { getUserSeriesWatchlist } from "@/data/sharedData";
 
 export default async function Watchlist() {
   const session = await auth();

@@ -1,9 +1,9 @@
-import { removeSeriesFromWatchlist } from "@/lib/actions/seriesActions";
 import { cn } from "@/lib/utils";
 import { Loader, RefreshCcw, Text } from "lucide-react";
 import React, { useState } from "react";
 import { toast } from "sonner";
 import { AddSeriesToWatchlist } from "../../actions";
+import { removeSeriesFromWatchlist } from "../../data";
 
 const AddToWatchList = ({
   seriesData,

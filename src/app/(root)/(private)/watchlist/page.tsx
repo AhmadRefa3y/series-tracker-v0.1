@@ -1,9 +1,9 @@
 // app/watchlist/page.tsx
-import { getUserSeriesWatchlist } from "@/lib/actions/seriesActions";
 import { WatchListSeries } from "@/types";
 import SeriesData from "./_components/SeriesData";
 import { fetchEpisodes, fetchSeriesData } from "./WatchListData";
 import { getCurrentUser } from "@/lib/actions/userActions";
+import { getUserSeriesWatchlist } from "@/data/sharedData";
 
 export default async function Watchlist() {
   await getCurrentUser();

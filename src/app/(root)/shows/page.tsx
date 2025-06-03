@@ -4,8 +4,8 @@ import { Check, Star, StarIcon } from "lucide-react";
 import Link from "next/link";
 import AddToWatchListBtn from "@/app/(root)/shows/components/AddToWatchListBtn";
 import { auth } from "@/auth";
-import { IsSeriesTracked } from "@/lib/actions/seriesActions";
 import { getTrendingSeries } from "./data";
+import { IsSeriesTracked } from "@/data/sharedData";
 
 export const revalidate = 3600;
 export default async function Shows() {

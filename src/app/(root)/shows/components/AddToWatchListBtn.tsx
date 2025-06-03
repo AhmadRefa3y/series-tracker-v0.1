@@ -1,13 +1,13 @@
 "use client";
 import { AddSeriesToWatchlist } from "@/app/(root)/shows/actions";
 import { Button } from "@/components/ui/button";
-import { removeSeriesFromWatchlist } from "@/lib/actions/seriesActions";
 import { cn } from "@/lib/utils";
 import { Loader, Text } from "lucide-react";
 import { Session } from "next-auth";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { toast } from "sonner";
+import { removeSeriesFromWatchlist } from "../data";
 
 interface SeriesData {
   id: string;
