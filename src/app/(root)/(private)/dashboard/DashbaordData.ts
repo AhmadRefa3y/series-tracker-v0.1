@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { BASE_URL } from "@/lib/constants";
 import prismaDb from "@/lib/prisma";
+import axios from "axios"; // Add this import
 
 type EpisodeWithDetails = {
   id: string;
@@ -47,27 +48,31 @@ export const getRecentlyWatchedEpisodes = async (
     // Fetch episode details from TMDB for each episode
     const episodesWithPosters = await Promise.all(
       recentEpisodes.map(async (episode) => {
-        const episodeResponse = await fetch(
-          `${BASE_URL}/tv/${episode.Series.seriesTmdbId}/season/${episode.seasonNumber}/episode/${episode.episodeNumber}?api_key=${process.env.TMDB_API_KEY}`,
-          { cache: "force-cache" }
-        );
+        try {
+          const episodeResponse = await axios.get(
+            `${BASE_URL}/tv/${episode.Series.seriesTmdbId}/season/${episode.seasonNumber}/episode/${episode.episodeNumber}`,
+            {
+              params: {
+                api_key: process.env.TMDB_API_KEY,
+              },
+            }
+          );
 
-        if (!episodeResponse.ok) {
+          const episodeData = episodeResponse.data;
+          return {
+            ...episode,
+            stillPath: episodeData.still_path
+              ? `https://image.tmdb.org/t/p/original${episodeData.still_path}`
+              : null,
+            overview: episodeData.overview,
+            name: episodeData.name as string,
+          };
+        } catch {
           return {
             ...episode,
             stillPath: null,
           };
         }
-
-        const episodeData = await episodeResponse.json();
-        return {
-          ...episode,
-          stillPath: episodeData.still_path
-            ? `https://image.tmdb.org/t/p/original${episodeData.still_path}`
-            : null,
-          overview: episodeData.overview,
-          name: episodeData.name as string,
-        };
       })
     );
 

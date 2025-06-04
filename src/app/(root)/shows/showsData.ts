@@ -1,7 +1,6 @@
 import "server-only";
-
-import { BASE_URL } from "@/lib/constants";
 import { TrendingSeriesT } from "@/types";
+import { BASE_URL } from "@/lib/constants";
 
 export async function getTrendingSeries(): Promise<TrendingSeriesT[]> {
   try {

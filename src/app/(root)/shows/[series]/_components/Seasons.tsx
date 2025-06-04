@@ -5,7 +5,7 @@ import Image from "next/image";
 import { IMAGE_BASE_URL } from "@/lib/constants";
 import Link from "next/link";
 import { getEpisodeDataWithWatchStatus } from "../data";
-import { setEpisodWatched } from "../../data";
+import { setEpisodWatched } from "../../actions";
 
 interface SeasonsProps {
   seriesDetails: Series;

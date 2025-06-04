@@ -4,13 +4,13 @@ import { Check, Star, StarIcon } from "lucide-react";
 import Link from "next/link";
 import AddToWatchListBtn from "@/app/(root)/shows/components/AddToWatchListBtn";
 import { auth } from "@/auth";
-import { getTrendingSeries } from "./data";
 import { IsSeriesTracked } from "@/data/sharedData";
+import { getTrendingSeries } from "@/app/(root)/shows/showsData";
 
 export const revalidate = 3600;
 export default async function Shows() {
-  const series = await getTrendingSeries();
   const session = await auth();
+  const series = await getTrendingSeries();
 
   const seriesWithTrackingStatus = await Promise.all(
     series.map(async (s) => {
