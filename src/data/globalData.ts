@@ -1,3 +1,4 @@
+"use server";
 import { BASE_URL } from "@/lib/constants";
 import { Series } from "@/types/seriesT";
 import axios from "axios";

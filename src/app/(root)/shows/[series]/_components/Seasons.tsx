@@ -4,7 +4,7 @@ import { Episode, Series } from "@/types/seriesT";
 import Image from "next/image";
 import { IMAGE_BASE_URL } from "@/lib/constants";
 import Link from "next/link";
-import { getEpisodeDataWithWatchStatus } from "../data";
+import { getEpisodeDataWithWatchStatus } from "../seriesData";
 import { setEpisodWatched } from "../../actions";
 
 interface SeasonsProps {

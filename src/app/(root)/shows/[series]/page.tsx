@@ -5,7 +5,7 @@ import React, { Suspense } from "react";
 import SeriesActionsBtns from "./_components/SeriesActionsBtns";
 import Seasons from "./_components/Seasons";
 import { IMAGE_BASE_URL } from "@/lib/constants";
-import { getSeriesDetails } from "./data";
+import { getSeriesDetails } from "./seriesData";
 import { IsSeriesTracked } from "@/data/sharedData";
 
 export default async function Page({

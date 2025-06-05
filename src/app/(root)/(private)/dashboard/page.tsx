@@ -1,12 +1,10 @@
-import { ChevronRight, RefreshCcw, StepForward } from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
 import React, { Suspense } from "react";
 import UpNext from "./_components/UpNext";
 import RecentlyWatched from "./_components/RecentlyWatched";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
-import { Progress } from "@/components/ui/progress";
+import WelcomeBanner from "@/app/(root)/(private)/dashboard/_components/WelcomeBanner";
+import { UpNextSkeleton } from "@/app/(root)/(private)/dashboard/_components/UpNextSkeleton";
 
 const DashBoard = async () => {
   const session = await auth();
@@ -33,103 +31,3 @@ const DashBoard = async () => {
 };
 
 export default DashBoard;
-
-const WelcomeBanner = () => {
-  return (
-    <div className="flex flex-col w-full mx-auto bg-gray-900  p-4">
-      <div className="flex py-10 justify-between container mx-auto">
-        <div className="flex  gap-4 flex-1">
-          <div>
-            <Image
-              src="https://i2.wp.com/walter-r2.trakt.tv/hotlink-ok/placeholders/medium/fry.png?ssl=1"
-              alt="User profile"
-              width={70}
-              height={70}
-              className="rounded-full"
-            />
-          </div>
-          <div className="flex flex-col font-semibold">
-            <p className="text-2xl">Hello, Ahmed</p>
-            <p>Member since Mar 12, 2019 1:24 AM</p>
-          </div>
-        </div>
-        <div className="flex  flex-wrap uppercase text-sm items-center justify-end  flex-1 w-fit text-nowrap gap-8 font-semibold ">
-          <div className="flex flex-col gap-4  items-end">
-            <Link
-              href="/"
-              className="  hover:bg-[#9f42c6] duration-200 rounded-lg pl-2 flex w-fit justify-between "
-            >
-              2025 Year To Date
-              <ChevronRight />
-            </Link>
-            <Link
-              href="/"
-              className="  hover:bg-[#9f42c6] duration-200 rounded-lg pl-2 flex w-fit justify-between "
-            >
-              apr month in review <ChevronRight />
-            </Link>
-          </div>
-          <div className="flex flex-col gap-4 items-end">
-            <Link
-              href="/"
-              className="  hover:bg-[#9f42c6] duration-200 rounded-lg pl-2 flex w-fit justify-between "
-            >
-              All time stats
-              <ChevronRight />
-            </Link>
-            <Link
-              href="/"
-              className="  hover:bg-[#9f42c6] duration-200 rounded-lg pl-2 flex w-fit justify-between "
-            >
-              your profile
-              <ChevronRight />
-            </Link>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const SectionHeader = ({ title }: { title: string }) => (
-  <div className="flex gap-1 text-xl items-center mt-4">
-    <StepForward width={40} height={40} />
-    {title}
-    {<RefreshCcw className="animate-spin ms-2" size={30} />}
-  </div>
-);
-const UpNextSkeleton = () => {
-  return (
-    <div className="flex flex-col text-white">
-      <div className="flex justify-between items-center">
-        <SectionHeader title="Up next" />
-      </div>
-      <div className="flex flex-wrap items-center justify-center mt-3 w-full gap-y-2 py-4">
-        {[...Array(4)].map((_, idx) => (
-          <div className="px-2 w-1/4 min-w-[320px] animate-pulse" key={idx}>
-            <div className="flex flex-col bg-black rounded-sm h-[280px] text-white overflow-hidden gap-1 relative">
-              <div className="flex gap-2 relative flex-1">
-                {/* Poster Image */}
-                <div className="relative min-w-[160px] h-full flex flex-col bg-white/30 animate-pulse ">
-                  {/* Next Episode Button */}
-                  <button>{/* Loader or Check icon */}</button>
-                </div>
-
-                <div className="flex flex-col items-start py-2 w-full pr-2">
-                  {/* Title */}
-                  <div></div>
-
-                  {/* Completion Status or Episode Info */}
-                  <div>{/* Completed badge or current episode info */}</div>
-
-                  {/* Progress Bar */}
-                  <Progress value={0} className="w-full mt-auto rounded-sm" />
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};

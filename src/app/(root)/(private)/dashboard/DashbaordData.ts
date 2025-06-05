@@ -1,6 +1,13 @@
+import {
+  fetchEpisodes,
+  fetchSeriesData,
+} from "@/app/(root)/(private)/watchlist/WatchListData";
 import { auth } from "@/auth";
+import { getUserSeriesWatchlist } from "@/data/sharedData";
 import { BASE_URL } from "@/lib/constants";
 import prismaDb from "@/lib/prisma";
+import { WatchListSeries } from "@/types";
+import { Series } from "@/types/seriesT";
 import axios from "axios"; // Add this import
 
 type EpisodeWithDetails = {
@@ -85,6 +92,69 @@ export const getRecentlyWatchedEpisodes = async (
     return {
       success: false,
       message: "Failed to fetch recently watched episodes",
+      error,
+    };
+  }
+};
+
+export const getUserUpNextSeries = async (
+  limit: number = 4
+): Promise<{
+  success: boolean;
+  data?: {
+    series: WatchListSeries;
+    seriesData: Series | null;
+    episodes: {
+      id: number;
+      episode_number: number;
+      season_number: number;
+      name: string;
+      overview: string;
+      vote_average: number;
+      runtime: number;
+    }[];
+  }[];
+  message?: string;
+  error?: unknown;
+}> => {
+  try {
+    const userId = await auth();
+    if (!userId?.user?.id) {
+      throw new Error("User not found");
+    }
+
+    const userSeriesWatchlist = await getUserSeriesWatchlist(limit);
+
+    if (!userSeriesWatchlist || userSeriesWatchlist.length === 0) {
+      return {
+        success: true,
+        data: [],
+      };
+    }
+
+    const seriesDataPromises = userSeriesWatchlist.map(async (series) => {
+      const seriesData = await fetchSeriesData(series.seriesID.toString());
+      const episodes = seriesData
+        ? await fetchEpisodes(
+            series.seriesID.toString(),
+            seriesData.number_of_seasons,
+            series.watchedEpisodes[0] || null
+          )
+        : [];
+      return { series, seriesData, episodes };
+    });
+
+    const seriesWithData = await Promise.all(seriesDataPromises);
+
+    return {
+      success: true,
+      data: seriesWithData,
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+      message: "Failed to get user up next series",
       error,
     };
   }

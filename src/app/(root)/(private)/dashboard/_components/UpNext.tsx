@@ -1,11 +1,8 @@
 import { redirect } from "next/navigation";
-import { WatchListSeries } from "@/types";
 import { auth } from "@/auth";
-
 import SeriesData from "../../watchlist/_components/SeriesData";
-import { fetchEpisodes, fetchSeriesData } from "../../watchlist/WatchListData";
-import { StepForward } from "lucide-react";
-import { getUserSeriesWatchlist } from "@/data/sharedData";
+import { SectionHeader } from "@/app/(root)/(private)/dashboard/_components/UpNextSkeleton";
+import { getUserUpNextSeries } from "@/app/(root)/(private)/dashboard/DashbaordData";
 
 export default async function Watchlist() {
   const session = await auth();
@@ -14,26 +11,17 @@ export default async function Watchlist() {
     redirect("/sign-in");
   }
 
-  let watchList: WatchListSeries[] = [];
-  let error: string | null = null;
+  const { success, data, error, message } = await getUserUpNextSeries();
 
-  try {
-    const seriesWatchlist = await getUserSeriesWatchlist(4);
-    watchList = seriesWatchlist || [];
-  } catch (err) {
-    error = "Failed to load watchlist";
-    console.error(err);
-  }
-
-  if (error) {
+  if (error || !success) {
     return (
       <div className="flex h-screen items-center justify-center w-full absolute inset-0 bg-black/60 text-white">
-        <h1 className="text-3xl font-bold">{error}</h1>
+        <h1 className="text-3xl font-bold">{message}</h1>
       </div>
     );
   }
 
-  if (!watchList || watchList.length === 0) {
+  if (!data || data.length === 0) {
     return (
       <div className="flex h-screen items-center justify-center w-full absolute inset-0 bg-black/60 text-white">
         <h1 className="text-3xl font-bold">No Series in Your Watchlist</h1>
@@ -41,28 +29,13 @@ export default async function Watchlist() {
     );
   }
 
-  // Pre-fetch series data and episodes for each series in the watchlist
-  const seriesDataPromises = watchList.map(async (series) => {
-    const seriesData = await fetchSeriesData(series.seriesID.toString());
-    const episodes = seriesData
-      ? await fetchEpisodes(
-          series.seriesID.toString(),
-          seriesData.number_of_seasons,
-          series.watchedEpisodes[0] || null
-        )
-      : [];
-    return { series, seriesData, episodes };
-  });
-
-  const seriesWithData = await Promise.all(seriesDataPromises);
-
   return (
     <div className="flex flex-col text-white">
       <div className="flex justify-between items-center">
-        <SectionHeader title="Up next" />
+        <SectionHeader title="Up next" loading={false} />
       </div>
       <div className="flex flex-wrap items-center justify-center mt-3 w-full gap-y-2 py-4">
-        {seriesWithData.map(({ series, seriesData, episodes }) => (
+        {data.map(({ series, seriesData, episodes }) => (
           <SeriesData
             key={series.seriesID}
             episodeNumber={series.currentEpisodeNumber}
@@ -80,10 +53,3 @@ export default async function Watchlist() {
     </div>
   );
 }
-
-const SectionHeader = ({ title }: { title: string }) => (
-  <div className="flex gap-1 text-xl items-center mt-4">
-    <StepForward width={40} height={40} />
-    {title}
-  </div>
-);
