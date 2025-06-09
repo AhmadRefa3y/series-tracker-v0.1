@@ -5,7 +5,7 @@ import React, { Suspense } from "react";
 import SeriesActionsBtns from "./_components/SeriesActionsBtns";
 import Seasons from "./_components/Seasons";
 import { IMAGE_BASE_URL } from "@/lib/constants";
-import { getSeriesDetails } from "./seriesData";
+import { getSeriesDetails, getSeriesSeasons } from "./seriesData";
 import { IsSeriesTracked } from "@/data/sharedData";
 
 export default async function Page({
@@ -18,13 +18,14 @@ export default async function Page({
   }>;
 }) {
   const { series } = await params;
-  const { season } = await searchParams;
+  const { season = 1 } = await searchParams;
   const seriesId = series.split("-")[1];
+  const currentSeason = await getSeriesSeasons(seriesId, +season);
   const seriesDetails = await getSeriesDetails(seriesId);
 
   return (
-    <div className="w-full flex flex-col  flex-1 contentDIv container mx-auto">
-      <div className="w-full relative h-[500px]">
+    <div className="w-full flex flex-col  flex-1  text-white">
+      <div className="w-full relative h-[500px] ">
         <div className="absolute inset-0 bg-black animate-fadeOut" />
         <Image
           src={`https://image.tmdb.org/t/p/original/${
@@ -42,36 +43,44 @@ export default async function Page({
           priority
         />
         <div className="absolute inset-0 bg-gradient-to-t to-60% from-black/60 to-transparent"></div>
-        <SeriesDetils seriesDetails={seriesDetails} />
       </div>
-      <div className="flex gap-2  xl:mx-35 mx-4 detailsDiv bg-[#ffffff]">
-        <SeriesSidebar
-          seriesDetails={{
-            poster_path: seriesDetails.poster_path || "",
-            name: seriesDetails.name,
-            networks: seriesDetails.networks.map((network) => ({
-              id: network.id,
-              logo_path: network.logo_path || "",
-              name: network.name,
-            })),
-            number_of_seasons: seriesDetails.number_of_seasons,
-          }}
-        />
-        <div className="flex flex-col flex-1 gap-2 pb-5">
-          <SeriesAdditionalDetails
+      <div className="flex gap-2  xl:mx-35 detailsDiv bg-[#ffffff]   relative">
+        <SeriesDetils seriesDetails={seriesDetails} />
+        <div className="flex gap-2 xl:mx-35 container mx-auto">
+          <SeriesSidebar
             seriesDetails={{
-              ...seriesDetails,
-              isTracked: !!(await IsSeriesTracked({ seriesID: seriesId })),
-              tagline: seriesDetails.tagline || undefined,
               poster_path: seriesDetails.poster_path || "",
+              name: seriesDetails.name,
+              networks: seriesDetails.networks.map((network) => ({
+                id: network.id,
+                logo_path: network.logo_path || "",
+                name: network.name,
+              })),
+              number_of_seasons: seriesDetails.number_of_seasons,
             }}
           />
-          <Suspense
-            key={season}
-            fallback={<RefreshCcw className="animate-spin" />}
-          >
-            <Seasons seriesDetails={seriesDetails} season={+season} />
-          </Suspense>
+          <div className="flex flex-col flex-1 gap-2 pb-5">
+            <SeriesAdditionalDetails
+              seriesDetails={{
+                ...seriesDetails,
+                isTracked: !!(await IsSeriesTracked({ seriesID: seriesId })),
+                tagline: seriesDetails.tagline || undefined,
+                poster_path: seriesDetails.poster_path || "",
+              }}
+            />
+            <Suspense
+              key={season}
+              fallback={<RefreshCcw className="animate-spin" />}
+            >
+              <Seasons
+                seasonData={currentSeason!}
+                season={+season}
+                seriesId={+seriesId}
+                SeasonsData={seriesDetails.seasons}
+                seriesName={seriesDetails.name}
+              />
+            </Suspense>
+          </div>
         </div>
       </div>
     </div>
@@ -87,30 +96,35 @@ interface SeriesDetails {
 
 const SeriesDetils = ({ seriesDetails }: { seriesDetails: SeriesDetails }) => {
   return (
-    <div className="absolute inset-x-0 bottom-0  xl:mx-35 mx-4 flex">
-      <div className="md:w-[200px] "></div>
+    <div className="absolute inset-x-0 bottom-[100%]   flex">
       <div className="flex flex-col items-start  flex-1 ml-2">
-        <div className="flex items-center   mb-3">
-          <span className="text-3xl font-bold">{seriesDetails.name || ""}</span>
-          <span className="ml-1 text-xl font-light text-gray-200 pt-2">
-            {seriesDetails.first_air_date.split("-")[0]}
-          </span>
-          <span className="border border-white px-1  ml-1 font-semibold text-xs  mt-2 ">
-            TV-MA
-          </span>
+        <div className=" container  mx-auto">
+          <div className="flex items-center  mb-3 ml-[215px]">
+            <span className="text-3xl font-bold">
+              {seriesDetails.name || ""}
+            </span>
+            <span className="ml-1 text-xl font-light text-gray-200 pt-2">
+              {seriesDetails.first_air_date.split("-")[0]}
+            </span>
+            <span className="border border-white px-1  ml-1 font-semibold text-xs  mt-2 ">
+              TV-MA
+            </span>
+          </div>
         </div>
         <div className="  flex items-center bg-black/40 w-full  py-2">
-          <div className="flex gap-2">
-            <span className="flex items-center justify-center text-red-900">
-              <Heart fill="darkred" size={35} />
-            </span>
-            <div className="flex flex-col ">
-              <span className="font-semibold text-lg leading-5.5">
-                {((seriesDetails.vote_average / 10) * 100).toFixed(0)}%
+          <div className="container  mx-auto ">
+            <div className="flex gap-2 ml-[215px]">
+              <span className="flex items-center justify-center text-red-900">
+                <Heart fill="darkred" size={35} />
               </span>
-              <span className="text-xs ">
-                {seriesDetails.popularity.toFixed(1)}k Votes
-              </span>
+              <div className="flex flex-col ">
+                <span className="font-semibold text-lg leading-5.5">
+                  {((seriesDetails.vote_average / 10) * 100).toFixed(0)}%
+                </span>
+                <span className="text-xs ">
+                  {seriesDetails.popularity.toFixed(1)}k Votes
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -226,7 +240,7 @@ const SeriesSidebar = ({ seriesDetails }: SeriesSidebarProps) => {
   return (
     <div className=" md:w-[200px] h-fit hidden md:block  sticky  top-60 CardDiv">
       <div className="absolute -top-40   inset-0 hidden md:block  ">
-        <div className="flex flex-col shadow-2xl">
+        <div className="flex flex-col shadow-2xl shadow-black">
           <div className="relative aspect-[2/3]  border-4 border-white w-full">
             <div className="absolute inset-0 bg-black animate-fadeOut" />
             <Image

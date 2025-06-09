@@ -1,6 +1,6 @@
 import "server-only";
 import { BASE_URL } from "@/lib/constants";
-import { Series } from "@/types/seriesT";
+import { Season, Series } from "@/types/seriesT";
 import axios from "axios";
 import prismaDb from "@/lib/prisma";
 import { auth } from "@/auth";
@@ -30,6 +30,10 @@ export async function getEpisodeDataWithWatchStatus(
       }
     );
 
+    if (response.status !== 200) {
+      throw new Error("Failed to fetch episode data");
+    }
+
     const episodeData = response.data;
 
     const watchStatus = await checkEpisodeExists({
@@ -43,7 +47,11 @@ export async function getEpisodeDataWithWatchStatus(
       isWatched: watchStatus.success,
     };
   } catch (error) {
-    console.error("Error fetching episode data:", error);
+    if (error instanceof Error) {
+      console.error("Error fetching episode data:", error.message);
+    } else {
+      console.error("Error fetching episode data:", error);
+    }
     return {
       episodeData: null,
       isWatched: false,
@@ -92,5 +100,25 @@ export const checkEpisodeExists = async (episodeData: {
     }
   } catch (error) {
     return { success: false, data: null, error: error };
+  }
+};
+
+export const getSeriesSeasons = async (
+  seriesId: string,
+  seasonNumber: number
+): Promise<Season | undefined> => {
+  try {
+    const response = await axios.get(
+      `${BASE_URL}/tv/${seriesId}/season/${seasonNumber}`,
+      {
+        params: { api_key: process.env.TMDB_API_KEY },
+      }
+    );
+    console.log("Fetching seasons for series ID:", seriesId);
+
+    return response.data;
+  } catch (error) {
+    console.log("Error fetching series seasons:", error);
+    return undefined;
   }
 };

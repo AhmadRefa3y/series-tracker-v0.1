@@ -1,8 +1,7 @@
 "use server";
 import { auth } from "@/auth";
-import { BASE_URL } from "@/lib/constants";
+import { fetchAllEpisodes } from "@/data/globalData";
 import prismaDb from "@/lib/prisma";
-import { Series } from "@/types/seriesT";
 import { revalidatePath } from "next/cache";
 
 export const AddSeriesToWatchlist = async ({
@@ -98,21 +97,6 @@ export const setEpisodWatched = async ({
     if (!userId?.user?.id) {
       throw new Error("User not found");
     }
-    const seriesResponse = await fetch(
-      `${BASE_URL}/tv/${episodeData.seriesID}?api_key=${process.env.TMDB_API_KEY}&append_to_response=credits`,
-      {
-        cache: "force-cache",
-      }
-    );
-
-    if (!seriesResponse.ok) {
-      throw new Error(`Failed to fetch series: ${seriesResponse.statusText}`);
-    }
-
-    const seriesData: Series = await seriesResponse.json();
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const previousEpisodes: any[] = [];
     const seriesExists = await prismaDb.series.findUnique({
       where: {
         seriesTmdbId_userId: {
@@ -127,29 +111,26 @@ export const setEpisodWatched = async ({
         "Series does not exist in the database. Insert it first."
       );
     }
-    // Loop through each season
-    seriesData.seasons.forEach((season) => {
-      if (
-        season.season_number > 0 &&
-        season.season_number <= episodeData.seasonNumber
-      ) {
-        const isCurrentSeason =
-          season.season_number === episodeData.seasonNumber;
+    const allEpisodes = await fetchAllEpisodes(
+      episodeData.seriesID,
+      episodeData.seasonNumber
+    );
 
-        for (let index = 1; index <= season.episode_count; index++) {
-          if (isCurrentSeason && index > episodeData.episodeNumber) {
-            break; // Stop at the selected episode in the current season
-          }
-
-          previousEpisodes.push({
-            seasonNumber: season.season_number,
-            episodeNumber: index,
-            seriesId: seriesExists?.id,
-            userId: userId.user?.id,
-          });
-        }
-      }
-    });
+    const previousEpisodes = allEpisodes
+      .filter(
+        (ep) =>
+          ep.season_number < episodeData.seasonNumber ||
+          (ep.season_number === episodeData.seasonNumber &&
+            ep.episode_number < episodeData.episodeNumber) ||
+          (ep.episode_number === episodeData.episodeNumber &&
+            ep.season_number === episodeData.seasonNumber)
+      )
+      .map((ep) => ({
+        seriesId: seriesExists.id,
+        userId: userId?.user?.id as string,
+        seasonNumber: ep.season_number,
+        episodeNumber: ep.episode_number,
+      }));
 
     const filteredEpisodes = previousEpisodes.filter(
       (episode) =>
