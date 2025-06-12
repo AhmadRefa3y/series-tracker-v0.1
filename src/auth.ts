@@ -2,6 +2,7 @@ import { compareSync } from "bcrypt-ts-edge";
 import type { NextAuthConfig } from "next-auth";
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
 
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import prismaDb from "./lib/prisma";
@@ -59,6 +60,10 @@ export const config = {
         // If user doesn't exist or password is incorrect, return null
         return null;
       },
+    }),
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
   ],
   callbacks: {

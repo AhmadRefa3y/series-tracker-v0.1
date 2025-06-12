@@ -7,6 +7,7 @@ import Seasons from "./_components/Seasons";
 import { IMAGE_BASE_URL } from "@/lib/constants";
 import { getSeriesDetails, getSeriesSeasons } from "./seriesData";
 import { IsSeriesTracked } from "@/data/sharedData";
+import SeasonsShow from "@/app/(root)/shows/[series]/_components/SeasonsShow";
 
 export default async function Page({
   params,
@@ -68,18 +69,25 @@ export default async function Page({
                 poster_path: seriesDetails.poster_path || "",
               }}
             />
-            <Suspense
-              key={season}
-              fallback={<RefreshCcw className="animate-spin" />}
-            >
-              <Seasons
-                seasonData={currentSeason!}
-                season={+season}
-                seriesId={+seriesId}
-                SeasonsData={seriesDetails.seasons}
-                seriesName={seriesDetails.name}
-              />
-            </Suspense>
+            <div className="text-black text-2xl font-bold">Seasons</div>
+            <SeasonsShow
+              SeasonsData={seriesDetails.seasons}
+              seriesName={seriesDetails.name}
+            />
+            <div id="seasons">
+              <Suspense
+                key={season}
+                fallback={<RefreshCcw className="animate-spin text-black" />}
+              >
+                <Seasons
+                  seasonData={currentSeason!}
+                  season={+season}
+                  seriesId={+seriesId}
+                  SeasonsData={seriesDetails.seasons}
+                  seriesName={seriesDetails.name}
+                />
+              </Suspense>
+            </div>
           </div>
         </div>
       </div>

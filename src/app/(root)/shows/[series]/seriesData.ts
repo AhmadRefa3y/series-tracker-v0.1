@@ -22,6 +22,7 @@ export async function getEpisodeDataWithWatchStatus(
   seasonNumber: number,
   episodeNumber: number
 ) {
+  // await new Promise((resolve) => setTimeout(resolve, 50000)); // Simulate delay for testing
   try {
     const response = await axios.get(
       `${BASE_URL}/tv/${seriesId}/season/${seasonNumber}/episode/${episodeNumber}`,

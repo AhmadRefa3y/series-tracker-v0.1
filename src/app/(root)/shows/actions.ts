@@ -92,6 +92,7 @@ export const setEpisodWatched = async ({
   };
   revalaidate?: boolean;
 }) => {
+  // await new Promise((resolve) => setTimeout(resolve, 5000)); // Simulate delay for auth
   try {
     const userId = await auth();
     if (!userId?.user?.id) {

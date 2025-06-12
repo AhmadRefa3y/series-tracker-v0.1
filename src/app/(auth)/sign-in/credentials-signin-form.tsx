@@ -3,12 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 // import { signInDefaultValues } from "@/lib/constants";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useFormStatus } from "react-dom";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signInWithCredentials } from "@/lib/actions/userActions";
 import { signInDefaultValues } from "@/lib/constants";
+import { signIn } from "next-auth/react";
 
 const CredentialsSignInForm = () => {
   const router = useRouter();
@@ -25,7 +26,7 @@ const CredentialsSignInForm = () => {
     );
   };
 
-  const signIn = async (event: React.FormEvent<HTMLFormElement>) => {
+  const signInGet = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError(null);
 
@@ -46,7 +47,7 @@ const CredentialsSignInForm = () => {
   };
 
   return (
-    <form onSubmit={signIn}>
+    <form onSubmit={signInGet}>
       <input type="hidden" name="callbackUrl" value={callbackUrl} />
       <div className="space-y-6">
         {error && <p className="">{error}</p>}
@@ -76,7 +77,13 @@ const CredentialsSignInForm = () => {
         <div>
           <SignInButton />
         </div>
-
+        <button
+          className="w-full mt-4 py-2 px-4 bg-blue-600 text-white rounded"
+          onClick={() => signIn("google")}
+          type="button"
+        >
+          Sign in with Google
+        </button>
         <div className="text-sm text-center text-muted-foreground">
           Don&apos;t have an account?{" "}
           <Link target="_self" className="link" href="/sign-up">
