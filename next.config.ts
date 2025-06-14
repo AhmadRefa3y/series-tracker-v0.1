@@ -7,10 +7,12 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       {
-        hostname: "image.tmdb.org",
+        protocol: "https",
+        hostname: "**",
       },
       {
-        hostname: "i2.wp.com",
+        protocol: "http",
+        hostname: "**",
       },
     ],
   },

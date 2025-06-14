@@ -14,7 +14,7 @@ const DashBoard = async () => {
   return (
     <div className="flex flex-col text-white">
       <WelcomeBanner />
-      <div className="bg-[#1d1d1d]">
+      <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-700">
         <div className="container mx-auto relative min-h-[380px]">
           <Suspense fallback={<UpNextSkeleton />}>
             <UpNext />
