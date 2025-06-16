@@ -1,5 +1,4 @@
 import { auth } from "@/auth";
-import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -114,13 +113,13 @@ function Hero() {
           </p>
 
           {/* CTA Button */}
-          <Button
-            size="lg"
-            className="bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white font-semibold px-8 py-4 text-lg rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
+          <Link
+            href="/sign-up"
+            className="bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white font-semibold px-8 py-4 text-lg rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 flex w-fit mx-auto items-center justify-center"
           >
             JOIN Seenit FOR FREE
             <ArrowRight className="ml-2 w-5 h-5" />
-          </Button>
+          </Link>
         </div>
       </div>
     </div>
@@ -128,7 +127,6 @@ function Hero() {
 }
 
 async function fetchTrendingShowsFromTMDB() {
-  await new Promise((resolve) => setTimeout(resolve, 5000)); // Simulate delay for demo purposes
   const res = await fetch(
     `https://api.themoviedb.org/3/trending/tv/week?api_key=${process.env.TMDB_API_KEY}&language=en-US&page=1`,
     { next: { revalidate: 3600 } }
