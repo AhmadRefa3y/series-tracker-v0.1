@@ -138,8 +138,15 @@ async function fetchTrendingShowsFromTMDB() {
   return (data.results || []).slice(0, 4);
 }
 
+interface Show {
+  id: number;
+  name: string;
+  poster_path?: string | null;
+  first_air_date?: string;
+}
+
 async function TopShows() {
-  const shows = await fetchTrendingShowsFromTMDB();
+  const shows: Show[] = await fetchTrendingShowsFromTMDB();
 
   return (
     <section className="w-full max-w-7xl mx-auto mt-12 px-6">
@@ -159,7 +166,7 @@ async function TopShows() {
         </Link>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 w-full">
-        {shows.map((show: any) => (
+        {shows.map((show: Show) => (
           <a
             key={show.id}
             href={`https://www.themoviedb.org/tv/${show.id}`}

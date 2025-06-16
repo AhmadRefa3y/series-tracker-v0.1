@@ -35,7 +35,6 @@
     "prisma": "^6.8.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-query": "^3.39.3",
     "server-only": "^0.0.1",
     "sonner": "^2.0.1",
     "sqlite3": "^5.1.7",

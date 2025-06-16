@@ -5,6 +5,7 @@ import { fetchEpisodes, fetchSeriesData } from "./WatchListData";
 import { getCurrentUser } from "@/lib/actions/userActions";
 import { getUserSeriesWatchlist } from "@/data/sharedData";
 
+export const dynamic = "force-dynamic";
 export default async function Watchlist() {
   await getCurrentUser();
 
