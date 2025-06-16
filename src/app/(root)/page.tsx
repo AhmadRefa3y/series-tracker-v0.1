@@ -1,9 +1,10 @@
 import { auth } from "@/auth";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Check } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { redirect } from "next/navigation";
-import React from "react";
+import React, { Suspense } from "react";
 
 const bgImages = [
   "https://occ-0-6661-56.1.nflxso.net/dnm/api/v6/Z-WHgqd_TeJxSuha8aZ5WpyLcX8/AAAABTiYSJpsepUiT-DUOeGas2LWa6YuqaE98ljuJbEdZ4jFVlwNAiBTWOo-6Pqq9aVUlz2BaOzyivghnV0heQfozT5ArA8MfslfxvnB.webp?r=dce",
@@ -13,7 +14,6 @@ const bgImages = [
   "https://occ-0-6661-56.1.nflxso.net/dnm/api/v6/Z-WHgqd_TeJxSuha8aZ5WpyLcX8/AAAABbpx1LFdVw5teF05uhn4FULxtwj2CdJRJzYN9g5c3RXMlHYZ0gwiri3fOvvFrWlXATv0RRizhRhrreVzFmF7My2UBrQRDhAT6Sf5.webp?r=611",
   "https://trakt.tv/assets/home/bg/2024/9@2x-56cd807697561fa68eea53b7b22b36c31c8140a86595d6d40b735c8e0d820593.jpg.webp",
   "https://occ-0-6661-56.1.nflxso.net/dnm/api/v6/9pS1daC2n6UGc3dUogvWIPMR_OU/AAAABdbL6ZZEzh-LdCpHAe2PUaZxWGfvYU60NCwsANI6cetf1Mba1UX_VHMgLKWW43j9nMjpIz8dR6_H-0N098JSeOrTxNyMPmBiIoUxvcoibrTngC5DyeB0pmI8mg.jpg?r=92f",
-  "https://occ-0-6661-56.1.nflxso.net/dnm/api/v6/9pS1daC2n6UGc3dUogvWIPMR_OU/AAAABW98FkdmfkvAZDN6JyxHekYIK_U_b8KJONyuH2QUnC37SsKxDXQImGBaGDD21RhbL-UMMc64JZqJgJsbB5mJx4wvNd7K7b77_5znmmbo7TMWpp1GF4vjP_63.webp?r=54a",
   "https://occ-0-6661-56.1.nflxso.net/dnm/api/v6/Z-WHgqd_TeJxSuha8aZ5WpyLcX8/AAAABZ_2jVFGcYWPbW8-ffPxk8BjLVruP0FUW1fGzC6nRXmHDvfD_rP5i9q70pl4HDCvy5NAk-jlwKs8WchMBlGCtzlckWfzl_h9XFtk.webp?r=b86",
 ];
 const HomePage = async () => {
@@ -23,158 +23,22 @@ const HomePage = async () => {
     redirect("/dashboard");
   }
   return (
-    <div>
-      <Component />
-      <HeroSection />
+    <div className="relative flex flex-col items-center justify-center bg-black text-white  h-full ">
+      <Hero />
+      <div className="w-full max-w-7xl mx-auto px-6 py-12">
+        <Suspense fallback={<TopShowsSkeleton />}>
+          <TopShows />
+        </Suspense>
+      </div>
     </div>
   );
 };
 
 export default HomePage;
 
-function HeroSection() {
+function Hero() {
   return (
-    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-amber-800 via-orange-900 to-amber-700">
-      {/* Atmospheric background layers */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20"></div>
-
-      {/* Animated floating particles */}
-      {/* <div className="absolute inset-0">
-        {[...Array(20)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute w-1 h-1 bg-amber-300/30 rounded-full animate-pulse"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 4}s`,
-              animationDuration: `${3 + Math.random() * 2}s`,
-            }}
-          />
-        ))}
-      </div> */}
-
-      {/* Mountain silhouettes */}
-      {/* <div className="absolute bottom-0 w-full h-64">
-        <svg viewBox="0 0 1200 400" className="w-full h-full">
-          <path
-            d="M0,400 L0,200 Q150,150 300,180 T600,160 T900,190 T1200,170 L1200,400 Z"
-            fill="rgba(0,0,0,0.4)"
-          />
-          <path
-            d="M0,400 L0,250 Q200,200 400,230 T800,210 T1200,240 L1200,400 Z"
-            fill="rgba(0,0,0,0.6)"
-          />
-        </svg>
-      </div> */}
-
-      {/* Main silhouette figure */}
-
-      <div className="absolute bottom-32 left-1/2 transform -translate-x-1/2">
-        <div className="relative">
-          {/* Horse silhouette */}
-
-          {/* Flying bird silhouettes */}
-        </div>
-      </div>
-
-      {/* Content */}
-      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen text-center px-6">
-        {/* Logo */}
-        <div className="mb-8 transform hover:scale-105 transition-transform duration-300">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-2xl">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
-                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
-              </svg>
-            </div>
-            <span className="text-4xl font-bold text-white tracking-tight">
-              trakt
-            </span>
-          </div>
-        </div>
-
-        {/* Main heading */}
-        <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
-          <span className="block transform hover:scale-105 transition-transform duration-500">
-            Discover.
-          </span>
-          <span
-            className="block transform hover:scale-105 transition-transform duration-500"
-            style={{ transitionDelay: "0.1s" }}
-          >
-            Track.
-          </span>
-          <span
-            className="block transform hover:scale-105 transition-transform duration-500"
-            style={{ transitionDelay: "0.2s" }}
-          >
-            Share.
-          </span>
-        </h1>
-
-        {/* Description */}
-        <div className="max-w-2xl mb-12 text-lg md:text-xl text-gray-200 leading-relaxed space-y-2">
-          <p>
-            <span className="font-semibold text-white">Discover</span> what's
-            hot and where to stream it.
-            <span className="font-semibold text-white"> Track</span> shows and
-            movies you watch.
-          </p>
-          <p>
-            <span className="font-semibold text-white">Share</span> comments,
-            recommendations, and ratings.
-          </p>
-        </div>
-
-        {/* CTA Button */}
-        <button className="group relative bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-4 px-8 rounded-full text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl">
-          <span className="flex items-center gap-2">
-            JOIN TRAKT FOR FREE
-            <svg
-              className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path
-                fillRule="evenodd"
-                d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </span>
-
-          {/* Button glow effect */}
-          <div className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover:opacity-30 blur-xl transition-opacity duration-300"></div>
-        </button>
-
-        {/* Subtle scroll indicator */}
-        <div className="absolute bottom-8 animate-bounce">
-          <svg
-            className="w-6 h-6 text-white/60"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M19 14l-7 7m0 0l-7-7m7 7V3"
-            />
-          </svg>
-        </div>
-      </div>
-
-      {/* Additional atmospheric effects */}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/20 pointer-events-none"></div>
-    </div>
-  );
-}
-
-function Component() {
-  return (
-    <div className="relative  w-full overflow-hidden">
+    <div className="relative w-full  flex flex-col  h-screen">
       {/* Background Image */}
       <div className="absolute inset-0">
         <Image
@@ -223,12 +87,12 @@ function Component() {
         </svg>
       </div>
       {/* Content */}
-      <div className="relative z-10 flex min-h-screen items-center justify-center px-4 py-12">
+      <div className="relative z-10 flex flex-1 items-center justify-center px-4">
         <div className="text-center max-w-4xl mx-auto">
           {/* Logo */}
           <div className="flex items-center justify-center gap-3 mb-8">
-            <div className="bg-gradient-to-br from-pink-500 to-purple-600 rounded-xl p-3 shadow-lg">
-              <Check className="w-8 h-8 text-white" strokeWidth={3} />
+            <div>
+              <Image src="logo.svg" alt="logo" width={65} height={65} />
             </div>
             <h1 className="text-5xl md:text-6xl font-bold text-white tracking-tight">
               Seenit
@@ -252,13 +116,115 @@ function Component() {
           {/* CTA Button */}
           <Button
             size="lg"
-            className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-semibold px-8 py-4 text-lg rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
+            className="bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white font-semibold px-8 py-4 text-lg rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
           >
-            JOIN TRAKT FOR FREE
+            JOIN Seenit FOR FREE
             <ArrowRight className="ml-2 w-5 h-5" />
           </Button>
         </div>
       </div>
     </div>
+  );
+}
+
+async function fetchTrendingShowsFromTMDB() {
+  await new Promise((resolve) => setTimeout(resolve, 5000)); // Simulate delay for demo purposes
+  const res = await fetch(
+    `https://api.themoviedb.org/3/trending/tv/week?api_key=${process.env.TMDB_API_KEY}&language=en-US&page=1`,
+    { next: { revalidate: 3600 } }
+  );
+  if (!res.ok) return [];
+  const data = await res.json();
+  return (data.results || []).slice(0, 4);
+}
+
+async function TopShows() {
+  const shows = await fetchTrendingShowsFromTMDB();
+
+  return (
+    <section className="w-full max-w-7xl mx-auto mt-12 px-6">
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h2 className="text-3xl font-bold text-white">Top Shows</h2>
+          <p className="text-white/80 mt-1">
+            Here&apos;s what shows are trending now.
+          </p>
+        </div>
+        <Link
+          href="https://www.themoviedb.org/tv"
+          className="text-white/70 hover:text-white text-sm font-medium flex items-center gap-1 transition"
+          target="_blank"
+        >
+          SEE MORE <span className="ml-1">&rarr;</span>
+        </Link>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 w-full">
+        {shows.map((show: any) => (
+          <a
+            key={show.id}
+            href={`https://www.themoviedb.org/tv/${show.id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="relative w-full rounded-2xl overflow-hidden bg-white/5 shadow-lg group flex flex-col"
+          >
+            <Image
+              src={
+                show.poster_path
+                  ? `https://image.tmdb.org/t/p/w500${show.poster_path}`
+                  : "/shows/placeholder.jpg"
+              }
+              alt={show.name}
+              width={320}
+              height={180}
+              className="object-cover w-full h-60"
+            />
+            <div className="absolute bottom-0 left-0 right-0 px-4 py-3 bg-gradient-to-t from-black/80 to-black/0">
+              <span className="text-white font-semibold text-lg">
+                {show.name}
+              </span>
+              <span className="text-white/70 font-medium ml-2">
+                {show.first_air_date?.slice(0, 4)}
+              </span>
+            </div>
+          </a>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+async function TopShowsSkeleton() {
+  return (
+    <section className="w-full max-w-7xl mx-auto mt-12 px-6">
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h2 className="text-3xl font-bold text-white">Top Shows</h2>
+          <p className="text-white/80 mt-1">
+            Here&apos;s what shows are trending now.
+          </p>
+        </div>
+        <Link
+          href="https://www.themoviedb.org/tv"
+          className="text-white/70 hover:text-white text-sm font-medium flex items-center gap-1 transition"
+          target="_blank"
+        >
+          SEE MORE <span className="ml-1">&rarr;</span>
+        </Link>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 w-full">
+        {[...Array(4)].map((_, idx) => (
+          <div
+            key={idx}
+            className="relative w-full rounded-2xl overflow-hidden bg-white/5 shadow-lg group flex flex-col animate-pulse"
+          >
+            <div className="w-full h-60 bg-gray-700/60" />
+            <div className="absolute bottom-0 left-0 right-0 px-4 py-3 bg-gradient-to-t from-black/80 to-black/0">
+              <div className="h-6 w-3/4 bg-gray-600 rounded mb-2" />
+              <div className="h-4 w-1/4 bg-gray-700 rounded" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }

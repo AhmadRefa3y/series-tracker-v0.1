@@ -16,10 +16,10 @@ export async function Header() {
             <Link href="/" className="flex items-center gap-2">
               <div>
                 <Image
-                  src="https://trakt.tv/assets/logos/logomark.square.gradient-b644b16c38ff775861b4b1f58c1230f6a097a2466ab33ae00445a505c33fcb91.svg"
+                  src="logo.svg"
                   alt="logo"
-                  width={100}
-                  height={100}
+                  width={200}
+                  height={200}
                   className="h-10 w-10 "
                 />
               </div>
