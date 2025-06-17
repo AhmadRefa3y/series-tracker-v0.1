@@ -28,7 +28,9 @@ export default async function Shows() {
         <div key={series.id} className="flex flex-col">
           <Link
             key={series.id}
-            href={`shows/${series.name}-${series.id}`}
+            href={`shows/${series.name.replace(/\s+/g, "_").toLowerCase()}-${
+              series.id
+            }`}
             className="relative aspect-[3/2] overflow-hidden group"
           >
             <Image

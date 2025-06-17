@@ -3,7 +3,7 @@ import { signIn } from "next-auth/react";
 import Image from "next/image";
 import React from "react";
 
-const OAuthBtns = () => {
+const OAuthBtns = ({ signUp = false }: { signUp?: boolean }) => {
   return (
     <div className="flex flex-col gap-3 bg-[#eeeeee] w-full p-4 relative border-b">
       <button
@@ -21,7 +21,7 @@ const OAuthBtns = () => {
         <span className="text-gray-700 ">Continue with Google</span>
       </button>
       <div className="absolute top-full px-2 rounded-b-sm left-1/2 normal-case text-xs text-gray-500 border border-t-0  -translate-x-1/2 bg-[#eeeeee]">
-        or sign in with email
+        {signUp ? "or sign up with email" : "or sign in with email"}
       </div>
     </div>
   );

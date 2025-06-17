@@ -24,7 +24,9 @@ const RecentlyWatched = async () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {recentEpisodes.data.map((episode) => (
           <Link
-            href={`/series/${episode.Series.seriesTmdbId}`}
+            href={`/shows/${episode.Series.title
+              .replace(/\s+/g, "_")
+              .toLowerCase()}-${episode.Series.seriesTmdbId}`}
             key={episode.id}
             className="relative bg-gray-800 rounded-lg overflow-hidden group hover:scale-105 transition-transform duration-200"
           >

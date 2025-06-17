@@ -3,14 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-// Card components are no longer needed
-// import {
-//   Card,
-//   CardContent,
-//   CardDescription,
-//   CardHeader,
-//   CardTitle,
-// } from "@/components/ui/card";
+
 import CredentialsSignInForm from "./credentials-signin-form";
 import OAuthBtns from "@/app/(auth)/sign-in/oAuthBtns";
 

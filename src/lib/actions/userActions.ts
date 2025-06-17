@@ -41,6 +41,19 @@ export async function signUp(prevState: unknown, formData: FormData) {
     });
 
     const plainPassword = user.password;
+    // Check if user already exists
+    const existingUser = await prismaDb.user.findUnique({
+      where: {
+        email: user.email,
+      },
+    });
+
+    if (existingUser) {
+      return {
+        success: false,
+        message: "Email already exists",
+      };
+    }
 
     user.password = hashSync(user.password, 10);
 
@@ -59,10 +72,7 @@ export async function signUp(prevState: unknown, formData: FormData) {
 
     return { success: true, message: "User created successfully" };
   } catch (error) {
-    if (isRedirectError(error)) {
-      throw error;
-    }
-
+    console.log("Error in signUp:", error);
     return {
       success: false,
       message: "Something went wrong",

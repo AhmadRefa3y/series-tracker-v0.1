@@ -150,25 +150,25 @@ async function TopShows() {
     <section className="w-full max-w-7xl mx-auto mt-12 px-6">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h2 className="text-3xl font-bold text-white">Top Shows</h2>
+          <h2 className="text-3xl font-bold text-white">Trending Shows</h2>
           <p className="text-white/80 mt-1">
             Here&apos;s what shows are trending now.
           </p>
         </div>
         <Link
-          href="https://www.themoviedb.org/tv"
+          href="/shows"
           className="text-white/70 hover:text-white text-sm font-medium flex items-center gap-1 transition"
-          target="_blank"
         >
           SEE MORE <span className="ml-1">&rarr;</span>
         </Link>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 w-full">
         {shows.map((show: Show) => (
-          <a
+          <Link
             key={show.id}
-            href={`https://www.themoviedb.org/tv/${show.id}`}
-            target="_blank"
+            href={`shows/${show.name.replace(/\s+/g, "_").toLowerCase()}-${
+              show.id
+            }`}
             rel="noopener noreferrer"
             className="relative w-full rounded-2xl overflow-hidden bg-white/5 shadow-lg group flex flex-col"
           >
@@ -191,7 +191,7 @@ async function TopShows() {
                 {show.first_air_date?.slice(0, 4)}
               </span>
             </div>
-          </a>
+          </Link>
         ))}
       </div>
     </section>
