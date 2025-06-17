@@ -11,19 +11,22 @@ import {
 import { signOutUser } from "@/lib/actions/userActions";
 import { Session } from "next-auth";
 import { useRouter } from "next/navigation";
+import { UserCircle2 } from "lucide-react";
+import Image from "next/image";
 
 const UserButton = ({ Session }: { Session: Session | null }) => {
   const router = useRouter();
+  console.log(Session?.user);
+
   const firstInitial = Session?.user?.name?.charAt(0).toUpperCase() ?? "";
   if (!Session?.user)
     return (
-      <Link href="/sign-in">
-        <Button
-          variant="ghost"
-          className="hover:bg-fuchsia-600/10 hover:text-fuchsia-600 font-semibold transition-colors duration-200"
-        >
-          Sign In
-        </Button>
+      <Link
+        href="/sign-in"
+        className="whitespace-nowrap p-2 bg-blue-500 rounded-md mx-2 gap-2 w-full font-bold text-center text-white hover:bg-blue-600 transition-colors duration-200 flex items-center justify-center"
+      >
+        <UserCircle2 className="w-6 h-6" />
+        Sign In
       </Link>
     );
 
@@ -36,7 +39,18 @@ const UserButton = ({ Session }: { Session: Session | null }) => {
               variant="ghost"
               className="relative w-8 h-8 rounded-full ml-2 flex items-center justify-center bg-gray-300 hover:bg-fuchsia-600/20 hover:text-fuchsia-600 transition-colors duration-200"
             >
-              {firstInitial}
+              {Session.user?.image ? (
+                <Image
+                  src={Session.user?.image ?? ""}
+                  alt="User Avatar"
+                  fill
+                  className="rounded-full"
+                />
+              ) : (
+                <span className="text-lg font-bold text-fuchsia-600">
+                  {firstInitial}
+                </span>
+              )}
             </Button>
           </div>
         </DropdownMenuTrigger>

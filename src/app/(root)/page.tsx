@@ -93,8 +93,8 @@ function Hero() {
             <div>
               <Image src="logo.svg" alt="logo" width={65} height={65} />
             </div>
-            <h1 className="text-5xl md:text-6xl font-bold text-white tracking-tight">
-              Seenit
+            <h1 className="text-5xl md:text-6xl normal-case font-bold text-white tracking-tight">
+              seenit
             </h1>
           </div>
 
@@ -117,7 +117,7 @@ function Hero() {
             href="/sign-up"
             className="bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white font-semibold px-8 py-4 text-lg rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 flex w-fit mx-auto items-center justify-center"
           >
-            JOIN Seenit FOR FREE
+            JOIN SEENIT FOR FREE
             <ArrowRight className="ml-2 w-5 h-5" />
           </Link>
         </div>
@@ -141,17 +141,20 @@ interface Show {
   name: string;
   poster_path?: string | null;
   first_air_date?: string;
+  backdrop_path?: string | null;
 }
 
 async function TopShows() {
   const shows: Show[] = await fetchTrendingShowsFromTMDB();
 
   return (
-    <section className="w-full max-w-7xl mx-auto mt-12 px-6">
-      <div className="flex items-center justify-between mb-4">
+    <section className="w-full max-w-7xl mx-auto mt-8 sm:mt-12 px-2 sm:px-4 md:px-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-2 sm:gap-0">
         <div>
-          <h2 className="text-3xl font-bold text-white">Trending Shows</h2>
-          <p className="text-white/80 mt-1">
+          <h2 className="text-2xl sm:text-3xl font-bold text-white">
+            Trending Shows
+          </h2>
+          <p className="text-white/80 mt-1 text-base sm:text-lg">
             Here&apos;s what shows are trending now.
           </p>
         </div>
@@ -162,29 +165,29 @@ async function TopShows() {
           SEE MORE <span className="ml-1">&rarr;</span>
         </Link>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 w-full">
+      <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 w-full">
         {shows.map((show: Show) => (
           <Link
             key={show.id}
             href={`shows/${show.name.replace(/\s+/g, "_").toLowerCase()}-${
               show.id
             }`}
-            rel="noopener noreferrer"
-            className="relative w-full rounded-2xl overflow-hidden bg-white/5 shadow-lg group flex flex-col"
+            className="relative w-full max-w-[335px] aspect-[335/190] rounded-2xl overflow-hidden bg-white/5 shadow-lg    mx-auto"
+            style={{ minWidth: 0 }}
           >
             <Image
               src={
-                show.poster_path
-                  ? `https://image.tmdb.org/t/p/w500${show.poster_path}`
+                show.backdrop_path
+                  ? `https://image.tmdb.org/t/p/w780${show.backdrop_path}`
                   : "/shows/placeholder.jpg"
               }
               alt={show.name}
-              width={320}
-              height={180}
-              className="object-cover w-full h-60"
+              fill
+              className="object-cover w-full h-full"
+              priority={false}
             />
-            <div className="absolute bottom-0 left-0 right-0 px-4 py-3 bg-gradient-to-t from-black/80 to-black/0">
-              <span className="text-white font-semibold text-lg">
+            <div className="absolute bottom-0 left-0 right-0 px-3 sm:px-4 py-2 sm:py-3 bg-gradient-to-t from-black/80 to-black/0">
+              <span className="text-white font-semibold text-base sm:text-lg">
                 {show.name}
               </span>
               <span className="text-white/70 font-medium ml-2">
@@ -200,11 +203,13 @@ async function TopShows() {
 
 async function TopShowsSkeleton() {
   return (
-    <section className="w-full max-w-7xl mx-auto mt-12 px-6">
-      <div className="flex items-center justify-between mb-4">
+    <section className="w-full max-w-7xl mx-auto mt-8 sm:mt-12 px-2 sm:px-4 md:px-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-2 sm:gap-0">
         <div>
-          <h2 className="text-3xl font-bold text-white">Top Shows</h2>
-          <p className="text-white/80 mt-1">
+          <h2 className="text-2xl sm:text-3xl font-bold text-white">
+            Top Shows
+          </h2>
+          <p className="text-white/80 mt-1 text-base sm:text-lg">
             Here&apos;s what shows are trending now.
           </p>
         </div>
@@ -216,16 +221,16 @@ async function TopShowsSkeleton() {
           SEE MORE <span className="ml-1">&rarr;</span>
         </Link>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 w-full">
+      <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 w-full">
         {[...Array(4)].map((_, idx) => (
           <div
             key={idx}
-            className="relative w-full rounded-2xl overflow-hidden bg-white/5 shadow-lg group flex flex-col animate-pulse"
+            className="relative w-full rounded-2xl overflow-hidden bg-white/5 shadow-lg group flex flex-col animate-pulse min-h-[260px] sm:min-h-[300px]"
           >
-            <div className="w-full h-60 bg-gray-700/60" />
-            <div className="absolute bottom-0 left-0 right-0 px-4 py-3 bg-gradient-to-t from-black/80 to-black/0">
-              <div className="h-6 w-3/4 bg-gray-600 rounded mb-2" />
-              <div className="h-4 w-1/4 bg-gray-700 rounded" />
+            <div className="w-full h-48 sm:h-60 bg-gray-700/60" />
+            <div className="absolute bottom-0 left-0 right-0 px-3 sm:px-4 py-2 sm:py-3 bg-gradient-to-t from-black/80 to-black/0">
+              <div className="h-5 sm:h-6 w-2/3 sm:w-3/4 bg-gray-600 rounded mb-2" />
+              <div className="h-3 sm:h-4 w-1/4 bg-gray-700 rounded" />
             </div>
           </div>
         ))}

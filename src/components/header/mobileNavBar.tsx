@@ -1,34 +1,45 @@
-import React from "react";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Menu } from "lucide-react";
 import Link from "next/link";
 
 const MobileNavBar = () => {
   return (
-    <Sheet>
-      <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="md:hidden">
-          <Menu className="h-5 w-5" />
-          <span className="sr-only">Toggle menu</span>
-        </Button>
-      </SheetTrigger>
-      <SheetContent side="left" className="w-[240px] sm:w-[300px] z-[1000]">
-        {" "}
-        {/* Ensured SheetContent is above header */}
-        <nav className="flex flex-col gap-4 pt-4">
-          <Link href="/" className="text-lg font-semibold">
-            Home
+    <DropdownMenu>
+      <DropdownMenuTrigger className="sm:hidden">
+        <Menu />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem className="hover:outline-none  px-0">
+          <Link
+            href="/watchlist"
+            className="font-semibold hover:text-blue-600 duration-200 w-full px-2"
+          >
+            Watchlist
           </Link>
-          <Link href="/shows" className="text-lg font-semibold">
-            TV Shows
+        </DropdownMenuItem>
+        <DropdownMenuItem className="hover:outline-none px-0">
+          <Link
+            href="/shows"
+            className="font-semibold hover:text-blue-600 duration-200 w-full  px-2"
+          >
+            Shows
           </Link>
-          <Link href="/watchlist" className="text-lg font-semibold">
-            My Watchlist
+        </DropdownMenuItem>
+        <DropdownMenuItem className="hover:outline-none px-0">
+          <Link
+            href="/dashboard"
+            className="font-semibold hover:text-blue-600 duration-200 w-full  px-2"
+          >
+            Dashboard
           </Link>
-        </nav>
-      </SheetContent>
-    </Sheet>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
 
