@@ -97,16 +97,19 @@ const Search: React.FC = () => {
               className="relative cursor-pointer"
               onClick={handleTriggerClick}
             >
-              <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 group-hover:text-black" />
+              <SearchIcon
+                className="absolute left-2.5 top-2.5 h-4 w-4 group-hover:text-black"
+                strikethroughThickness={1.5}
+              />
               <Input
                 ref={inputRef}
                 type="search"
                 value={searchQuery}
                 onChange={handleInputChange}
-                placeholder="Search for a series..."
-                className={`w-[200px] pl-8 md:w-[300px] duration-200 focus:ring-0 focus:outline-none border-0 placeholder:text-white hover:placeholder:text-black hover:text-black cursor-pointer placeholder:capitalize ${
+                placeholder="What are you looking for?"
+                className={`w-[200px] pl-8 md:w-[300px] duration-200 focus:ring-0 placeholder:font-extrabold focus:outline-none border-0 placeholder:text-white hover:placeholder:text-black hover:text-black cursor-pointer placeholder:capitalize ${
                   isOpen
-                    ? "placeholder:text-black text-black bg-white rounded-none rounded-t-md focus:border-b focus:border-fuchsia-600"
+                    ? "placeholder:text-black  text-black bg-white rounded-none rounded-t-md focus:border-b focus:border-fuchsia-600"
                     : ""
                 }`}
                 onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
