@@ -36,15 +36,15 @@ const Seasons = async ({ seasonData, seriesId }: SeasonsProps) => {
   );
 
   return (
-    <div className="flex flex-col text-black gap-3 items-start">
-      <div className="flex items-center gap-2 w-full">
+    <div className="flex flex-col text-black gap-3 items-start h-screen">
+      {/* <div className="flex items-center gap-2 w-full">
         <h2 className="text-2xl font-bold">
           Season {seasonData.season_number}
         </h2>
         <span className="text-sm text-gray-500">
           ({episodes.length} episodes)
         </span>
-      </div>
+      </div> */}
       <EpisodesClient episodes={episodes} seriesId={seriesId} />
     </div>
   );

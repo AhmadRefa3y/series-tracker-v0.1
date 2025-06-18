@@ -41,18 +41,18 @@ export default function EpisodesClient({
     };
 
   return (
-    <div className="flex-1 flex gap-y-2 w-full flex-wrap h-full">
+    <div className="flex  w-full flex-wrap  align-top">
       {episodes.map(({ episodeData }, i) => (
         <form
           key={i}
           onSubmit={handleMarkWatched(i, episodeData)}
-          className="w-full sm:w-1/2 lg:w-1/3 p-2"
+          className="w-full sm:w-1/2 lg:w-1/3 p-1 py-0"
         >
           <button
             type="submit"
             disabled={optimisticWatched[i] || pendingIndex === i}
             className={cn(
-              "group w-full h-full focus:outline-none transition-transform transform group-hover:scale-105 group-hover:shadow-2xl",
+              "group w-full  focus:outline-none transition-transform transform group-hover:scale-105 group-hover:shadow-2xl",
               (optimisticWatched[i] || pendingIndex === i) &&
                 "opacity-60 cursor-not-allowed"
             )}
@@ -60,7 +60,7 @@ export default function EpisodesClient({
           >
             <div
               className={cn(
-                "relative w-full min-w-[200px] h-[220px] rounded-xl overflow-hidden shadow-xl bg-gradient-to-br from-white/20 to-white/5"
+                "relative w-full min-w-[200px] h-[220px] rounded-sm  overflow-hidden  bg-gradient-to-br from-white/20 to-white/5"
               )}
             >
               <Image
@@ -69,7 +69,6 @@ export default function EpisodesClient({
                 fill
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                 className="object-cover z-0"
-                style={{ filter: "brightness(0.85) blur(0.5px)" }}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent z-10" />
               <div className="absolute top-3 right-3 z-20">

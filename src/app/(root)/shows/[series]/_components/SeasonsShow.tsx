@@ -17,18 +17,18 @@ interface SeasonsProps {
   SeasonsData: SeasonData[];
   seriesName: string;
 }
-const SeasonsShow = async ({ SeasonsData, seriesName }: SeasonsProps) => {
+const SeasonsShow = async ({ SeasonsData }: SeasonsProps) => {
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 w-full">
+    <div className="flex flex-col w-1/6 gap-2">
       {SeasonsData.filter((season) => season.season_number !== 0).map(
         (season, i) => (
           <Link
             key={i}
-            className="flex flex-col items-center gap-4 hover:scale-110 rounded-sm hover:rotate-2   duration-200 cursor-pointer capitalize w-full group relative"
+            className="flex flex-col items-center gap-4  cursor-pointer capitalize w-full group relative"
             href={`?season=${season.season_number}#seasons`}
             scroll={false}
           >
-            <div className="absolute bottom-[102%] left-1/2 -translate-x-1/2 z-10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none flex flex-col items-center">
+            {/* <div className="absolute bottom-[102%] left-1/2 -translate-x-1/2 z-10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none flex flex-col items-center">
               <div className="bg-black flex flex-col items-center rounded-lg">
                 <span className=" text-white text-sm font-semibold px-3 py-1 rounded shadow-lg whitespace-nowrap">
                   {seriesName}
@@ -38,8 +38,8 @@ const SeasonsShow = async ({ SeasonsData, seriesName }: SeasonsProps) => {
                 </span>
               </div>
               <div className="w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-black mx-auto"></div>
-            </div>
-            <div className="relative w-full aspect-[2/3] max-w-[200px] bg-gray-200 overflow-hidden rounded-sm ">
+            </div> */}
+            <div className="relative w-full aspect-[2/3] max-w-[200px] bg-gray-200 overflow-hidden  ">
               {season.poster_path ? (
                 <Image
                   src={`${IMAGE_BASE_URL}${season.poster_path}`}
@@ -54,14 +54,14 @@ const SeasonsShow = async ({ SeasonsData, seriesName }: SeasonsProps) => {
                 </div>
               )}
             </div>
-            <div className="text-center w-full">
+            {/* <div className="text-center w-full">
               <div className="font-semibold text-base truncate text-gray-800">
                 season {season.season_number}
               </div>
               <div className="text-[15px] text-gray-500">
                 {season.episode_count} episodes
               </div>
-            </div>
+            </div> */}
           </Link>
         )
       )}
