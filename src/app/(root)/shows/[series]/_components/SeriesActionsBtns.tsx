@@ -16,16 +16,25 @@ const SeriesActionsBtns = ({
 }) => {
   return (
     <div className="text-black flex flex-col gap-1 lg:w-1/3">
-      <button className="w-full   border flex items-center border-[#9f42c6] text-[#9f42c6] hover:bg-[#9f42c6] hover:text-white duration-200 p-3 uppercase cursor-pointer ">
+      <AddToWatchList seriesData={seriesData} />
+      <button className="w-full relative group  border flex items-center border-[#9f42c6] text-[#9f42c6] hover:bg-[#9f42c6] hover:text-white duration-200 p-3 uppercase cursor-pointer ">
+        <div className="absolute inset-0 bg-black/80 flex items-center justify-center opacity-0 group-hover:opacity-100">
+          Coming soon
+        </div>
         <Check strokeWidth={2} size={30} />
         <span className="ml-2 font-semibold"> Add to history</span>
       </button>
-      <button className="w-full   border flex items-center border-[#16a085] text-[#16a085] hover:bg-[#16a085] hover:text-white duration-200 p-3 uppercase cursor-pointer ">
+      <button className="w-full   border flex items-center border-[#16a085] text-[#16a085] hover:bg-[#16a085] hover:text-white duration-200 relative group p-3 uppercase cursor-pointer ">
+        <div className="absolute inset-0 bg-black/80 flex items-center justify-center opacity-0 group-hover:opacity-100">
+          Coming soon
+        </div>
         <BookMarked strokeWidth={1} size={30} />
         <span className="ml-2 font-semibold"> Add to collection</span>
       </button>
-      <AddToWatchList seriesData={seriesData} />
-      <button className="w-full   border flex items-center border-[#ff5f06] text-[#ff5f06] hover:bg-[#ff5f06] hover:text-white duration-200 p-3 uppercase cursor-pointer group">
+      <button className="w-full   border flex items-center border-[#ff5f06] text-[#ff5f06] hover:bg-[#ff5f06] hover:text-white duration-200 p-3 relative group uppercase cursor-pointer group">
+        <div className="absolute inset-0 bg-black/80 flex items-center justify-center opacity-0 group-hover:opacity-100">
+          Coming soon
+        </div>
         <StarIcon
           strokeWidth={1}
           size={30}

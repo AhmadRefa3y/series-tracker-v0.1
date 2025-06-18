@@ -57,9 +57,6 @@ export default async function Shows() {
             </div>
           </Link>
           <div className="flex bg-[#2d2d2d] border-r  border-[#414040] ">
-            <span className="text-white p-2  hover:bg-[#0082ce] duration-200">
-              <Check strokeWidth={4} />
-            </span>
             <AddToWatchListBtn
               seriesData={{
                 id: series.id.toString(),
@@ -70,9 +67,12 @@ export default async function Shows() {
               session={session}
               isTracked={series.isTracked}
             />
-            <span className="text-white p-2  hover:bg-[#ff5f06] duration-200">
+            <button className="text-white p-2  hover:bg-[#0082ce] duration-200">
+              <Check strokeWidth={4} />
+            </button>
+            <button className="text-white p-2  hover:bg-[#ff5f06] duration-200">
               <StarIcon strokeWidth={2} />
-            </span>
+            </button>
           </div>
         </div>
       ))}

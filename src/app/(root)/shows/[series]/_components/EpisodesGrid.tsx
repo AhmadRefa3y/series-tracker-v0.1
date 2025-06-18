@@ -1,5 +1,5 @@
 "use client";
-import { useTransition, useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { IMAGE_BASE_URL } from "@/lib/constants";
@@ -7,6 +7,7 @@ import { setEpisodWatched } from "../../actions";
 import { Episode } from "@/types/seriesT";
 import { Check, Loader, StarIcon, Text } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 interface EpisodesClientProps {
   episodes: { episodeData: Episode; isWatched: boolean }[];
@@ -19,37 +20,11 @@ export default function EpisodesClient({
   seriesId,
   seriesImage,
 }: EpisodesClientProps) {
-  const [optimisticWatched, setOptimisticWatched] = useState(
-    episodes.map((ep) => ep.isWatched)
-  );
-  const [pendingIndex, setPendingIndex] = useState<number | null>(null);
-
-  const [, startTransition] = useTransition();
-
-  const handleMarkWatched =
-    (idx: number, episodeData: Episode) => (e: React.FormEvent) => {
-      e.preventDefault();
-      console.log("handleMarkWatched");
-
-      setOptimisticWatched((prev) => {
-        return prev.map((watched, i) => (i <= idx ? true : watched));
-      });
-      setPendingIndex(idx);
-      startTransition(async () => {
-        await setEpisodWatched({
-          episodeData: {
-            seriesID: seriesId.toString(),
-            episodeNumber: episodeData.episode_number,
-            seasonNumber: episodeData.season_number,
-          },
-        });
-        setPendingIndex(null);
-      });
-    };
-
+  const [episodesState, setEpisodesState] =
+    useState<{ episodeData: Episode; isWatched: boolean }[]>(episodes);
   return (
     <div className="  w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 items-start justify-start">
-      {episodes.map(({ episodeData }, i) => (
+      {episodesState.map(({ episodeData, isWatched }, i) => (
         <div key={i}>
           <div
             className={cn(
@@ -92,25 +67,13 @@ export default function EpisodesClient({
             </div>
           </div>
           <div className="flex bg-[#2d2d2d] border-r  border-[#414040] h-10 ">
-            {/* <span className="text-white p-2  hover:bg-[#0082ce] duration-200">
-              <Check strokeWidth={4} />
-            </span> */}
-            <Button
-              className={cn(
-                "text-white p-2 hover:bg-[#6c3384] duration-200 rounded-none m-0 h-full bg-transparent",
-                optimisticWatched[i] && "bg-[#6c3384]"
-              )}
-              onClick={handleMarkWatched(i, episodeData)}
-              disabled={pendingIndex === i}
-            >
-              {pendingIndex === i ? (
-                <Loader className="animate-spin" />
-              ) : optimisticWatched[i] ? (
-                <Check strokeWidth={4} />
-              ) : (
-                <Text strokeWidth={4} />
-              )}
-            </Button>
+            <MarkEpisodeWatchedBtn
+              episodeData={episodeData}
+              isWatched={isWatched}
+              seriesId={seriesId.toString()}
+              setPerviousWatched={setEpisodesState}
+              episodes={episodesState}
+            />
             <span className="text-white p-2  hover:bg-[#ff5f06] duration-200">
               <StarIcon strokeWidth={2} />
             </span>
@@ -120,3 +83,71 @@ export default function EpisodesClient({
     </div>
   );
 }
+
+const MarkEpisodeWatchedBtn = ({
+  episodeData,
+  isWatched,
+  seriesId,
+  episodes,
+  setPerviousWatched,
+}: {
+  episodeData: Episode;
+  isWatched: boolean;
+  seriesId: string;
+  setPerviousWatched: Dispatch<
+    SetStateAction<
+      {
+        episodeData: Episode;
+        isWatched: boolean;
+      }[]
+    >
+  >;
+  episodes: { episodeData: Episode; isWatched: boolean }[];
+}) => {
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const handleMarkWatched = async () => {
+    setLoading(true);
+    const res = await setEpisodWatched({
+      episodeData: {
+        seriesID: seriesId.toString(),
+        episodeNumber: episodeData.episode_number,
+        seasonNumber: episodeData.season_number,
+      },
+    });
+    console.log(res);
+
+    if (res.success) {
+      const newEpisodes = episodes.map((episode) => {
+        if (episode.episodeData.episode_number <= episodeData.episode_number) {
+          return { episodeData: episode.episodeData, isWatched: true };
+        } else {
+          return episode;
+        }
+      });
+      setPerviousWatched(newEpisodes);
+    } else {
+      console.log(res.error);
+      toast.error("Failed to mark episode as watched");
+    }
+    setLoading(false);
+  };
+  return (
+    <Button
+      className={cn(
+        "text-white p-2 hover:bg-[#6c3384] duration-200 rounded-none m-0 h-full bg-transparent",
+        isWatched && "bg-[#6c3384]"
+      )}
+      onClick={handleMarkWatched}
+      disabled={isWatched || loading}
+    >
+      {loading ? (
+        <Loader className="animate-spin" />
+      ) : isWatched ? (
+        <Check strokeWidth={4} />
+      ) : (
+        <Text strokeWidth={4} />
+      )}
+    </Button>
+  );
+};

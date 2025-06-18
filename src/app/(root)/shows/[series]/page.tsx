@@ -106,46 +106,6 @@ export default async function Page({
   );
 }
 
-// const EpisodeSkeleton = () => {
-//   return (
-//     <div className="flex-1 flex w-full flex-wrap  h-screen content-start ">
-//       {[...Array(12)].map((_, i) => (
-//         <div key={i} className="w-full sm:w-1/2 lg:w-1/3 p-1 py-1">
-//           <div className="w-full h-full transition-transform transform">
-//             <div
-//               className={cn(
-//                 "relative w-full min-w-[200px] h-[220px] rounded-sm overflow-hidden bg-gray-800/50 animate-pulse"
-//               )}
-//             >
-//               {/* Image placeholder */}
-//               <div className="absolute inset-0 bg-gradient-to-t from-gray-900/70 via-gray-900/30 to-transparent" />
-
-//               {/* Status button placeholder */}
-//               <div className="absolute top-3 right-3 z-20">
-//                 <span className="inline-flex items-center px-2 py-1 rounded-full bg-gray-700/50 h-6 w-20 animate-pulse" />
-//               </div>
-
-//               {/* Text content placeholder */}
-//               <div className="absolute bottom-0 left-0 right-0 p-4 z-20">
-//                 <div className="backdrop-blur-md bg-gray-700/20 rounded-lg px-3 py-2">
-//                   <div className="flex gap-2">
-//                     <div className="h-6 w-16 bg-gray-600/50 rounded animate-pulse" />
-//                     <div className="h-6 w-24 bg-gray-600/50 rounded animate-pulse" />
-//                   </div>
-//                   <div className="mt-2 flex items-center gap-2">
-//                     <div className="h-4 w-20 bg-gray-600/50 rounded animate-pulse" />
-//                     <div className="h-4 w-4 bg-gray-600/50 rounded animate-pulse" />
-//                     <div className="h-4 w-12 bg-gray-600/50 rounded animate-pulse" />
-//                   </div>
-//                 </div>
-//               </div>
-//             </div>
-//           </div>
-//         </div>
-//       ))}
-//     </div>
-//   );
-// };
 interface SeriesDetails {
   name: string;
   first_air_date: string;

@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { fetchAllEpisodes } from "@/data/globalData";
 import prismaDb from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
 export const AddSeriesToWatchlist = async ({
   seriesData,
@@ -15,12 +16,7 @@ export const AddSeriesToWatchlist = async ({
 }) => {
   const userId = await auth();
   if (!userId?.user?.id) {
-    console.log("User not authenticated, returning error response.");
-    return {
-      success: false,
-      message: "User not authenticated. Please sign in.",
-      errorType: "AUTH_REQUIRED", // Optional: a custom error type
-    };
+    redirect("/sign-in");
   }
 
   try {
@@ -68,6 +64,12 @@ export const removeSeriesFromWatchlist = async (seriesID: string) => {
         id: series.id,
       },
     });
+
+    revalidatePath(
+      `shows/${series.title.replace(/\s+/g, "_").toLowerCase()}-${series.id}`
+    );
+    console.log("Series removed from watchlist");
+
     return {
       success: true,
       message: "Series removed from watchlist",
@@ -83,7 +85,6 @@ export const removeSeriesFromWatchlist = async (seriesID: string) => {
 
 export const setEpisodWatched = async ({
   episodeData,
-  revalaidate = true,
 }: {
   episodeData: {
     seriesID: string;
@@ -92,12 +93,12 @@ export const setEpisodWatched = async ({
   };
   revalaidate?: boolean;
 }) => {
-  // await new Promise((resolve) => setTimeout(resolve, 5000)); // Simulate delay for auth
+  const userId = await auth();
+  if (!userId?.user?.id) {
+    redirect("/sign-in");
+  }
+
   try {
-    const userId = await auth();
-    if (!userId?.user?.id) {
-      throw new Error("User not found");
-    }
     const seriesExists = await prismaDb.series.findUnique({
       where: {
         seriesTmdbId_userId: {
@@ -108,9 +109,7 @@ export const setEpisodWatched = async ({
       include: { watchedEpisodes: true },
     });
     if (!seriesExists) {
-      throw new Error(
-        "Series does not exist in the database. Insert it first."
-      );
+      await AddSeriesToWatchlist({ seriesData: { id: episodeData.seriesID } });
     }
     const allEpisodes = await fetchAllEpisodes(
       episodeData.seriesID,
@@ -158,11 +157,6 @@ export const setEpisodWatched = async ({
         },
       }),
     ]);
-    if (revalaidate) {
-      revalidatePath(
-        `/shows/${`${seriesExists.title}-${episodeData.seriesID}`}`
-      );
-    }
     return {
       success: true,
       message: "Series added to add episode to watchlist",
