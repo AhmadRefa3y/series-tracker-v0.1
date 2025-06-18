@@ -4,13 +4,31 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { IMAGE_BASE_URL } from "@/lib/constants";
 import { setEpisodWatched } from "../../actions";
-import { Episode } from "@/types/seriesT";
 import { Check, Loader, StarIcon, Text } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
+type Episode = {
+  still_path: string;
+  episode_number: number;
+  season_number: number;
+  name: string;
+  runtime: number | null;
+  air_date: string | null;
+};
+
 interface EpisodesClientProps {
-  episodes: { episodeData: Episode; isWatched: boolean }[];
+  episodes: {
+    episodeData: {
+      still_path: string;
+      episode_number: number;
+      season_number: number;
+      name: string;
+      runtime: number | null;
+      air_date: string | null;
+    };
+    isWatched: boolean;
+  }[];
   seriesId: number;
   seriesImage: string;
 }
@@ -22,6 +40,8 @@ export default function EpisodesClient({
 }: EpisodesClientProps) {
   const [episodesState, setEpisodesState] =
     useState<{ episodeData: Episode; isWatched: boolean }[]>(episodes);
+  console.log(episodes);
+
   return (
     <div className="  w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 items-start justify-start">
       {episodesState.map(({ episodeData, isWatched }, i) => (
@@ -51,14 +71,16 @@ export default function EpisodesClient({
                 </div>
                 <div className="text-xs text-gray-200 mt-1 flex items-center gap-2">
                   <span>
-                    {new Date(episodeData.air_date).toLocaleDateString(
-                      "en-US",
-                      {
-                        month: "short",
-                        day: "numeric",
-                        year: "2-digit",
-                      }
-                    )}
+                    {episodeData.air_date
+                      ? new Date(episodeData.air_date).toLocaleDateString(
+                          "en-US",
+                          {
+                            month: "short",
+                            day: "numeric",
+                            year: "2-digit",
+                          }
+                        )
+                      : "N/A"}
                   </span>
                   <span className="mx-1">•</span>
                   <span className="italic">{episodeData.runtime}m</span>
