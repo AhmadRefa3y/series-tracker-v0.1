@@ -109,7 +109,9 @@ export const setEpisodWatched = async ({
       include: { watchedEpisodes: true },
     });
     if (!seriesExists) {
-      await AddSeriesToWatchlist({ seriesData: { id: episodeData.seriesID } });
+      throw new Error(
+        "Series does not exist in the database. Insert it first."
+      );
     }
     const allEpisodes = await fetchAllEpisodes(
       episodeData.seriesID,
