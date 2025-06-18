@@ -3,12 +3,11 @@ import Image from "next/image";
 import Link from "next/link";
 import React, { Suspense } from "react";
 import SeriesActionsBtns from "./_components/SeriesActionsBtns";
-import Seasons from "./_components/Seasons";
 import { IMAGE_BASE_URL } from "@/lib/constants";
 import { getSeriesDetails, getSeriesSeasons } from "./seriesData";
 import { IsSeriesTracked } from "@/data/sharedData";
-import SeasonsShow from "@/app/(root)/shows/[series]/_components/SeasonsShow";
-import { cn } from "@/lib/utils";
+import SeasonsShow from "@/app/(root)/shows/[series]/_components/SeasonsSelect";
+import Episodes from "./_components/Episodes";
 
 export default async function Page({
   params,
@@ -70,34 +69,35 @@ export default async function Page({
                 poster_path: seriesDetails.poster_path || "",
               }}
             />
-            <div className="text-black text-2xl font-bold">Seasons</div>
-            <div className="flex">
-              <SeasonsShow
-                SeasonsData={seriesDetails.seasons}
-                seriesName={seriesDetails.name}
-              />
-              <div id="seasons" className="w-5/6">
-                <Suspense
-                  key={season}
-                  fallback={
-                    <div className="flex w-full  items-center justify-center h-screen">
-                      <RefreshCcw
-                        className="animate-spin text-black "
-                        height={48}
-                        width={48}
-                      />
-                    </div>
-                  }
-                >
-                  <Seasons
-                    seasonData={currentSeason!}
-                    season={+season}
-                    seriesId={+seriesId}
-                    SeasonsData={seriesDetails.seasons}
-                    seriesName={seriesDetails.name}
-                  />
-                </Suspense>
-              </div>
+            <div
+              className="text-black text-2xl font-bold px-2 sm:px-0"
+              id="seasons"
+            >
+              Seasons
+            </div>
+            <SeasonsShow
+              SeasonsData={seriesDetails.seasons}
+              seriesName={seriesDetails.name}
+            />
+            <div className="px-2 sm:px-0">
+              <Suspense
+                key={season}
+                fallback={
+                  <div className="flex w-full  items-center justify-center h-screen">
+                    <RefreshCcw
+                      className="animate-spin text-black "
+                      height={48}
+                      width={48}
+                    />
+                  </div>
+                }
+              >
+                <Episodes
+                  seasonData={currentSeason!}
+                  seriesId={+seriesId}
+                  seriesImage={seriesDetails.backdrop_path || ""}
+                />
+              </Suspense>
             </div>
           </div>
         </div>
@@ -156,9 +156,9 @@ interface SeriesDetails {
 const SeriesDetils = ({ seriesDetails }: { seriesDetails: SeriesDetails }) => {
   return (
     <div className="absolute inset-x-0 bottom-[100%]   flex">
-      <div className="flex flex-col items-start  flex-1 ml-2">
+      <div className="flex flex-col items-start  flex-1 ">
         <div className=" container  mx-auto">
-          <div className="flex items-center  mb-3 ml-[215px]">
+          <div className="flex items-center  mb-3 md:ml-[215px] px-2 sm:px-0">
             <span className="text-3xl font-bold">
               {seriesDetails.name || ""}
             </span>
@@ -172,7 +172,7 @@ const SeriesDetils = ({ seriesDetails }: { seriesDetails: SeriesDetails }) => {
         </div>
         <div className="  flex items-center bg-black/40 w-full  py-2">
           <div className="container  mx-auto ">
-            <div className="flex gap-2 ml-[215px]">
+            <div className="flex gap-2 md:ml-[215px] px-2 sm:px-0">
               <span className="flex items-center justify-center text-red-900">
                 <Heart fill="darkred" size={35} />
               </span>
@@ -299,8 +299,8 @@ const SeriesSidebar = ({ seriesDetails }: SeriesSidebarProps) => {
   return (
     <div className=" md:w-[200px] h-fit hidden md:block  sticky  top-60 CardDiv">
       <div className="absolute -top-40   inset-0 hidden md:block  ">
-        <div className="flex flex-col shadow-2xl shadow-black">
-          <div className="relative aspect-[2/3]  border-4 border-white w-full">
+        <div className="flex flex-col  shadow-lg shadow-black">
+          <div className="relative aspect-[2/3]  border-4 border-white w-full ">
             <div className="absolute inset-0 bg-black animate-fadeOut" />
             <Image
               src={`https://image.tmdb.org/t/p/w780/${seriesDetails.poster_path}`}
@@ -309,7 +309,7 @@ const SeriesSidebar = ({ seriesDetails }: SeriesSidebarProps) => {
               className="object-right-top object-cover opacity-0 animate-fadeIn"
             />
           </div>
-          <div className="flex p-3 items-center justify-center bg-[#2b2b2b] rounded-b-sm flex-wrap gap-2">
+          <div className="flex p-3 items-center justify-center bg-[#2b2b2b]  flex-wrap gap-2">
             {seriesDetails.networks.map((network) => (
               <Image
                 key={network.id}

@@ -14,7 +14,7 @@ export async function Header() {
           <div className="flex items-center gap-4 z-10">
             <Link href="/" className="flex items-center gap-2">
               <Image
-                src="logo.svg"
+                src="/logo.svg"
                 alt="logo"
                 width={200}
                 height={200}
