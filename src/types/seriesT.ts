@@ -100,6 +100,8 @@ export interface Season {
     overview: string;
     vote_average: number;
     runtime: number;
+    air_date: string | null;
+    still_path: string | null;
   }[];
 }
 

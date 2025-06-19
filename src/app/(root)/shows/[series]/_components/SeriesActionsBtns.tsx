@@ -1,7 +1,7 @@
 "use client";
 
 import { BookMarked, Check, StarIcon } from "lucide-react";
-import AddToWatchList from "./addToWatchList";
+import AddToWatchListBtn from "./AddToWatchListBtn";
 
 const SeriesActionsBtns = ({
   seriesData,
@@ -16,7 +16,7 @@ const SeriesActionsBtns = ({
 }) => {
   return (
     <div className="text-black flex flex-col gap-1 lg:w-1/3">
-      <AddToWatchList seriesData={seriesData} />
+      <AddToWatchListBtn seriesData={seriesData} />
       <button className="w-full relative group  border flex items-center border-[#9f42c6] text-[#9f42c6] hover:bg-[#9f42c6] hover:text-white duration-200 p-3 uppercase cursor-pointer ">
         <div className="absolute inset-0 bg-black/80 flex items-center justify-center opacity-0 group-hover:opacity-100">
           Coming soon

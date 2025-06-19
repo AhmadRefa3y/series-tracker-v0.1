@@ -4,7 +4,6 @@ import {
 } from "@/app/(root)/shows/actions";
 import { cn } from "@/lib/utils";
 import { Loader, RefreshCcw, Text } from "lucide-react";
-import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { toast } from "sonner";
 
@@ -21,7 +20,6 @@ const AddToWatchList = ({
 }) => {
   const [loading, setLoading] = useState(false);
   const [added, setAdded] = useState<boolean | null>(seriesData.isTracked);
-  const router = useRouter();
 
   // Check if the series is already added
 
@@ -40,11 +38,9 @@ const AddToWatchList = ({
         const saveSeries = await AddSeriesToWatchlist({ seriesData });
         handleToast(saveSeries.success, "Series added to watchlist");
         if (saveSeries.success) setAdded(true);
-        router.refresh();
       } else {
         const removeSeries = await removeSeriesFromWatchlist(seriesData.id);
         handleToast(removeSeries.success, "Series removed from watchlist");
-        router.refresh();
         if (removeSeries.success) {
           setAdded(false);
         }

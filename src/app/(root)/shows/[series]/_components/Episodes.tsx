@@ -1,7 +1,6 @@
 // seasons.tsx
 import { Season } from "@/types/seriesT";
-import { getEpisodeDataWithWatchStatus } from "../seriesData";
-import EpisodesClient from "@/app/(root)/shows/[series]/_components/EpisodesGrid";
+import EpisodesGrid from "@/app/(root)/shows/[series]/_components/EpisodesGrid";
 import prismaDb from "@/lib/prisma";
 
 interface EpisodesProps {
@@ -31,7 +30,7 @@ const Episodes = async ({
 
   return (
     <div className="flex flex-col text-black gap-3 items-start ">
-      <EpisodesClient
+      <EpisodesGrid
         episodes={episodes}
         seriesId={seriesId}
         seriesImage={seriesImage}

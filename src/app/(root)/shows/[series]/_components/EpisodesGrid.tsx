@@ -1,5 +1,5 @@
 "use client";
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { IMAGE_BASE_URL } from "@/lib/constants";
@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
 type Episode = {
-  still_path: string;
+  still_path: string | null;
   episode_number: number;
   season_number: number;
   name: string;
@@ -20,7 +20,7 @@ type Episode = {
 interface EpisodesClientProps {
   episodes: {
     episodeData: {
-      still_path: string;
+      still_path: string | null;
       episode_number: number;
       season_number: number;
       name: string;
@@ -33,14 +33,17 @@ interface EpisodesClientProps {
   seriesImage: string;
 }
 
-export default function EpisodesClient({
+export default function EpisodesGrid({
   episodes,
   seriesId,
   seriesImage,
 }: EpisodesClientProps) {
   const [episodesState, setEpisodesState] =
     useState<{ episodeData: Episode; isWatched: boolean }[]>(episodes);
-  console.log(episodes);
+
+  useEffect(() => {
+    setEpisodesState(episodes);
+  }, [episodes]);
 
   return (
     <div className="  w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 items-start justify-start">
