@@ -73,7 +73,7 @@ export default async function Watchlist() {
             InitWatchedEpisodes={series.watchedEpisodes.length}
             lastWatchedEpisode={series.watchedEpisodes[0]}
             seriesData={seriesData}
-            nextEpisodes={episodes}
+            nextEpisodes={episodes.newEpsiodes}
           />
         ))}
       </div>

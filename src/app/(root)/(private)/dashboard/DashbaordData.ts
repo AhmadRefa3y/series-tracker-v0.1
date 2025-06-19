@@ -105,14 +105,25 @@ export const getUserUpNextSeries = async (
     series: WatchListSeries;
     seriesData: Series | null;
     episodes: {
-      id: number;
-      episode_number: number;
-      season_number: number;
-      name: string;
-      overview: string;
-      vote_average: number;
-      runtime: number;
-    }[];
+      allEpisodes: {
+        id: number;
+        episode_number: number;
+        season_number: number;
+        name: string;
+        overview: string;
+        vote_average: number;
+        runtime: number;
+      }[];
+      newEpsiodes: {
+        id: number;
+        episode_number: number;
+        season_number: number;
+        name: string;
+        overview: string;
+        vote_average: number;
+        runtime: number;
+      }[];
+    };
   }[];
   message?: string;
   error?: unknown;
@@ -134,13 +145,26 @@ export const getUserUpNextSeries = async (
 
     const seriesDataPromises = userSeriesWatchlist.map(async (series) => {
       const seriesData = await fetchSeriesData(series.seriesID.toString());
-      const episodes = seriesData
-        ? await fetchEpisodes(
-            series.seriesID.toString(),
-            seriesData.number_of_seasons,
-            series.watchedEpisodes[0] || null
-          )
-        : [];
+      let episodes;
+      if (seriesData) {
+        episodes = await fetchEpisodes(
+          series.seriesID.toString(),
+          seriesData.number_of_seasons,
+          series.watchedEpisodes[0] || null
+        );
+        // If fetchEpisodes returns null/undefined, provide default
+        if (!episodes) {
+          episodes = {
+            allEpisodes: [],
+            newEpsiodes: [],
+          };
+        }
+      } else {
+        episodes = {
+          allEpisodes: [],
+          newEpsiodes: [],
+        };
+      }
       return { series, seriesData, episodes };
     });
 
