@@ -21,6 +21,7 @@ const SeriesBackdrop = ({
         }`}
         alt={seriesDetails.name}
         fill
+        sizes="(max-width: 1800px) 100vw, (max-width: 1800px) 50vw, 33vw"
         className={`opacity-0 animate-fadeIn ${
           seriesDetails.backdrop_path
             ? "object-cover object-top"

@@ -25,6 +25,8 @@ const SeriesSidebar = ({ seriesDetails }: SeriesSidebarProps) => {
               src={`https://image.tmdb.org/t/p/w780/${seriesDetails.poster_path}`}
               alt={seriesDetails.name}
               fill
+              quality={100}
+              sizes="(max-width: 1000px) 100vw, (max-width: 1200px) 50vw, 33vw"
               className="object-right-top object-cover opacity-0 animate-fadeIn"
             />
           </div>
@@ -36,6 +38,7 @@ const SeriesSidebar = ({ seriesDetails }: SeriesSidebarProps) => {
                 alt={network.name}
                 width={50}
                 height={50}
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 className="object-right-top object-cover opacity-0 animate-fadeIn"
               />
             ))}

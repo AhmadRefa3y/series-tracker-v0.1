@@ -2,6 +2,8 @@
 import { Season } from "@/types/seriesT";
 import EpisodesGrid from "@/app/(root)/shows/[series]/_components/EpisodesGrid";
 import prismaDb from "@/lib/prisma";
+// import { fetchEpisodes } from "@/app/(root)/(private)/watchlist/WatchListData";
+import { fetchAllEpisodes } from "@/data/globalData";
 
 interface EpisodesProps {
   seasonData: Season;
@@ -10,16 +12,20 @@ interface EpisodesProps {
 }
 
 const Episodes = async ({
-  seasonData,
+  // seasonData,
   seriesId,
   seriesImage,
 }: EpisodesProps) => {
   const watchedEpisodes = await prismaDb.watchedEpisode.findMany({
     where: {
-      seriesId: seriesId.toString(),
+      Series: {
+        seriesTmdbId: seriesId.toString(),
+      },
     },
   });
-  const episodes = seasonData.episodes.map((episode) => ({
+
+  const getEpisodes = await fetchAllEpisodes(seriesId.toString());
+  const episodesWithWatchStatus = getEpisodes.map((episode) => ({
     episodeData: episode,
     isWatched: watchedEpisodes.some(
       (watched) =>
@@ -31,7 +37,7 @@ const Episodes = async ({
   return (
     <div className="flex flex-col text-black gap-3 items-start ">
       <EpisodesGrid
-        episodes={episodes}
+        episodes={episodesWithWatchStatus}
         seriesId={seriesId}
         seriesImage={seriesImage}
       />

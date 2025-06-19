@@ -143,7 +143,7 @@ export const setEpisodWatched = async ({
         )
     );
 
-    await prismaDb.$transaction([
+    const result = await prismaDb.$transaction([
       prismaDb.watchedEpisode.createMany({
         data: filteredEpisodes,
       }),
@@ -159,15 +159,18 @@ export const setEpisodWatched = async ({
         },
       }),
     ]);
+    console.log(result);
+
     return {
       success: true,
-      message: "Series added to add episode to watchlist",
+      message: "Episode marked as watched",
+      data: result,
     };
   } catch (error) {
     console.log(error);
     return {
       success: false,
-      message: "Failed to add series to watchlist",
+      message: "Failed to mark episode as watched",
       error: error,
     };
   }

@@ -29,8 +29,8 @@ export async function fetchEpisodes(
   seriesId: string,
   numberOfSeasons: number,
   lastWatchedEpisode: { episodeNumber: number; seasonNumber: number } | null
-): Promise<
-  {
+): Promise<{
+  allEpisodes: {
     id: number;
     episode_number: number;
     season_number: number;
@@ -38,8 +38,17 @@ export async function fetchEpisodes(
     overview: string;
     vote_average: number;
     runtime: number;
-  }[]
-> {
+  }[];
+  newEpsiodes: {
+    id: number;
+    episode_number: number;
+    season_number: number;
+    name: string;
+    overview: string;
+    vote_average: number;
+    runtime: number;
+  }[];
+} | null> {
   try {
     const seasonPromises = Array.from(
       { length: numberOfSeasons },
@@ -60,7 +69,7 @@ export async function fetchEpisodes(
     );
 
     const seasons = await Promise.all(seasonPromises);
-    const newEpisodes: {
+    const allEpisodes: {
       id: number;
       episode_number: number;
       season_number: number;
@@ -71,10 +80,10 @@ export async function fetchEpisodes(
     }[] = [];
 
     for (const season of seasons) {
-      newEpisodes.push(...(season.episodes || []));
+      allEpisodes.push(...(season.episodes || []));
     }
 
-    return newEpisodes.filter((episode) => {
+    const newEpsiodes = allEpisodes.filter((episode) => {
       if (!lastWatchedEpisode) return true;
       return (
         episode.season_number > lastWatchedEpisode.seasonNumber ||
@@ -82,8 +91,12 @@ export async function fetchEpisodes(
           episode.episode_number > lastWatchedEpisode.episodeNumber)
       );
     });
+    return {
+      newEpsiodes,
+      allEpisodes,
+    };
   } catch (error) {
     console.error("Error fetching episodes:", error);
-    return [];
+    return null;
   }
 }

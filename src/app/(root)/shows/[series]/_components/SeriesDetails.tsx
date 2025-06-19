@@ -20,7 +20,7 @@ const SeriesDetails = ({
   };
 }) => {
   return (
-    <div className="flex flex-col lg:flex-row  justify-between p-4 flex-1 gap-2">
+    <div className="flex flex-col lg:flex-row  justify-between p-4 flex-1 gap-2 font-bold">
       <div className="flex flex-col lg:w-2/3 ">
         <div className="flex  gap-2 text-black flex-wrap h-fit">
           {seriesDetails.production_countries.length > 0 && (

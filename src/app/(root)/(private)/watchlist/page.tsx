@@ -39,13 +39,12 @@ export default async function Watchlist() {
   // Pre-fetch series data and episodes for each series in the watchlist
   const seriesDataPromises = watchList.map(async (series) => {
     const seriesData = await fetchSeriesData(series.seriesID.toString());
-    const episodes = seriesData
-      ? await fetchEpisodes(
-          series.seriesID.toString(),
-          seriesData.number_of_seasons,
-          series.watchedEpisodes[0] || null
-        )
-      : [];
+
+    const episodes = await fetchEpisodes(
+      series.seriesID.toString(),
+      seriesData!.number_of_seasons,
+      series.watchedEpisodes[0] || null
+    );
     return { series, seriesData, episodes };
   });
 
@@ -64,7 +63,7 @@ export default async function Watchlist() {
           InitWatchedEpisodes={series.watchedEpisodes.length}
           lastWatchedEpisode={series.watchedEpisodes[0]}
           seriesData={seriesData}
-          nextEpisodes={episodes}
+          nextEpisodes={episodes?.newEpsiodes || []}
         />
       ))}
     </div>

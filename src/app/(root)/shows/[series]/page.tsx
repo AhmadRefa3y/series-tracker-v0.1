@@ -3,7 +3,6 @@ import { RefreshCcw } from "lucide-react";
 import React, { Suspense } from "react";
 import { getSeriesDetails, getSeriesSeasons } from "./seriesData";
 import { IsSeriesTracked } from "@/data/sharedData";
-import SeasonsShow from "@/app/(root)/shows/[series]/_components/SeasonsSelect";
 import Episodes from "./_components/Episodes";
 import SeriesHeader from "@/app/(root)/shows/[series]/_components/SeriesHeader";
 import SeriesDetails from "@/app/(root)/shows/[series]/_components/SeriesDetails";
@@ -52,16 +51,7 @@ export default async function Page({
                 poster_path: seriesDetails.poster_path || "",
               }}
             />
-            <div
-              className="text-black text-2xl font-bold px-2 sm:px-0"
-              id="seasons"
-            >
-              Seasons
-            </div>
-            <SeasonsShow
-              SeasonsData={seriesDetails.seasons}
-              seriesName={seriesDetails.name}
-            />
+
             <div className="px-2 sm:px-0">
               <Suspense
                 key={season}

@@ -1,6 +1,6 @@
 "use server";
 import { BASE_URL } from "@/lib/constants";
-import { Series } from "@/types/seriesT";
+import { Episode, Series } from "@/types/seriesT";
 import axios from "axios";
 
 interface TMDBResponse {
@@ -10,16 +10,6 @@ interface TMDBResponse {
   total_results: number;
 }
 
-export interface Episode {
-  id: number;
-  episode_number: number;
-  season_number: number;
-  name: string;
-  overview: string;
-  vote_average: number;
-  runtime: number;
-  // add other fields as needed
-}
 export async function SearchSeries(query: string): Promise<TMDBResponse> {
   try {
     const response = await axios.get(`${BASE_URL}/search/tv`, {
