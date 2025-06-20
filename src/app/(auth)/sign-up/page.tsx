@@ -46,7 +46,7 @@ const SignUp = async (props: {
               alt="Sennit Logo"
               width={100}
               height={100}
-              className="mx-auto"
+              className="mx-auto bg-black rounded-full "
               priority
             />
           </Link>

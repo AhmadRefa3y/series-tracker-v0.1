@@ -37,14 +37,14 @@ const SignIn = async (props: {
         <div className="text-center">
           <Link
             href="/"
-            className="inline-block absolute left-1/2 -translate-x-1/2 -top-10 "
+            className="inline-block absolute left-1/2 -translate-x-1/2 -top-10 rounded-full  "
           >
             <Image
               src="/logo.png"
               alt="Sennit Logo"
               width={100} // Adjusted size for a cleaner look
               height={100}
-              className="mx-auto"
+              className="mx-auto bg-black rounded-full "
               priority
             />
           </Link>

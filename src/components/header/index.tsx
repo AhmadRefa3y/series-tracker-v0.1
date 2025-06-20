@@ -13,7 +13,7 @@ export async function Header() {
         <div className="flex justify-between items-center gap-2 md:gap-4 w-full">
           <div className="flex items-center gap-4 z-10">
             <Link href="/" className="flex items-center gap-2">
-              <Image src="/logo.png" alt="logo" width={200} height={200} />
+              <Image src="/logo.png" alt="logo" width={100} height={100} />
             </Link>
             <Search />
           </div>

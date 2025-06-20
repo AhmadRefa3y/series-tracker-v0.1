@@ -67,9 +67,18 @@ export default function Hero() {
       <div className="relative z-10 flex flex-1 items-center justify-center px-4">
         <div className="text-center max-w-4xl mx-auto">
           {/* Logo */}
-          <div className="flex flex-col items-center justify-center  mb-8">
-            <div>
-              <Image src="/logo.png" alt="logo" width={200} height={200} />
+          <div className="flex flex-col items-center justify-center  mb-8 ">
+            <div className="relative">
+              <div className="absolute w-[100px] h-[110px] rounded-sm bg-black z-0 left-[40%] -translate-x-1/2 top-[42%] -translate-y-1/2 skew-x-[25deg] "></div>
+              <div>
+                <Image
+                  src="/logo.png"
+                  alt="logo"
+                  width={200}
+                  height={200}
+                  className="z-10 relative"
+                />
+              </div>
             </div>
           </div>
 
