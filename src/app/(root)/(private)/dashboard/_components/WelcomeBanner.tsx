@@ -1,8 +1,25 @@
+import { auth } from "@/auth";
+import prismaDb from "@/lib/prisma";
 import { ChevronRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
-const WelcomeBanner = () => {
+const WelcomeBanner = async () => {
+  const session = await auth();
+
+  if (!session?.user) {
+    redirect("/sign-in");
+  }
+
+  const user = await prismaDb.user.findUnique({
+    where: {
+      id: session?.user.id,
+    },
+  });
+  if (!user) {
+    redirect("/sign-in");
+  }
   return (
     <div className="flex flex-col w-full mx-auto bg-gray-900  p-4">
       <div className="flex py-10 justify-between container mx-auto">
@@ -17,8 +34,8 @@ const WelcomeBanner = () => {
             />
           </div>
           <div className="flex flex-col font-semibold">
-            <p className="text-2xl">Hello, Ahmed</p>
-            <p>Member since Mar 12, 2019 1:24 AM</p>
+            <p className="text-2xl">Hello, {`${user?.name}`}</p>
+            <p>Member since {new Date(user?.createdAt).toDateString()}</p>
           </div>
         </div>
         <div className="flex  flex-wrap uppercase text-sm items-center justify-end  flex-1 w-fit text-nowrap gap-8 font-semibold ">
