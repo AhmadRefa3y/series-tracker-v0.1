@@ -40,8 +40,8 @@ const SignIn = async (props: {
             className="inline-block absolute left-1/2 -translate-x-1/2 -top-10 "
           >
             <Image
-              src="logo.svg"
-              alt="TV Time Logo"
+              src="/logo.png"
+              alt="Sennit Logo"
               width={100} // Adjusted size for a cleaner look
               height={100}
               className="mx-auto"

@@ -1,14 +1,12 @@
 "use client";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { IMAGE_BASE_URL } from "@/lib/constants";
-import { setEpisodWatched } from "../../actions";
-import { Check, Loader, StarIcon, Text } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
+import { StarIcon } from "lucide-react";
 import { Episode } from "@/types/seriesT";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import MarkEpisodeWatchedBtn from "./MarkEpisodeWatchedBtn";
 
 interface EpisodesClientProps {
   episodes: {
@@ -66,6 +64,7 @@ export default function EpisodesGrid({
                       }`}
                       alt={episodeData.name}
                       fill
+                      quality={100}
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                       className="object-cover z-0"
                     />
@@ -120,71 +119,3 @@ export default function EpisodesGrid({
     </Tabs>
   );
 }
-
-const MarkEpisodeWatchedBtn = ({
-  episodeData,
-  isWatched,
-  seriesId,
-  episodes,
-  setPerviousWatched,
-}: {
-  episodeData: Episode;
-  isWatched: boolean;
-  seriesId: string;
-  setPerviousWatched: Dispatch<
-    SetStateAction<
-      {
-        episodeData: Episode;
-        isWatched: boolean;
-      }[]
-    >
-  >;
-  episodes: { episodeData: Episode; isWatched: boolean }[];
-}) => {
-  const [loading, setLoading] = useState<boolean>(false);
-
-  const handleMarkWatched = async () => {
-    setLoading(true);
-    const res = await setEpisodWatched({
-      episodeData: {
-        seriesID: seriesId.toString(),
-        episodeNumber: episodeData.episode_number,
-        seasonNumber: episodeData.season_number,
-      },
-    });
-    console.log(res);
-
-    if (res.success) {
-      const newEpisodes = episodes.map((episode) => {
-        if (episode.episodeData.episode_number <= episodeData.episode_number) {
-          return { episodeData: episode.episodeData, isWatched: true };
-        } else {
-          return episode;
-        }
-      });
-      setPerviousWatched(newEpisodes);
-    } else {
-      console.log(res.error);
-      toast.error("Failed to mark episode as watched");
-    }
-    setLoading(false);
-  };
-  return (
-    <Button
-      className={cn(
-        "text-white p-2 hover:bg-[#6c3384] duration-200 rounded-none m-0 h-full bg-transparent",
-        isWatched && "bg-[#6c3384]"
-      )}
-      onClick={handleMarkWatched}
-      disabled={isWatched || loading}
-    >
-      {loading ? (
-        <Loader className="animate-spin" />
-      ) : isWatched ? (
-        <Check strokeWidth={4} />
-      ) : (
-        <Text strokeWidth={4} />
-      )}
-    </Button>
-  );
-};

@@ -87,7 +87,7 @@ const SeriesData = ({
 
   return (
     <div className="px-2 w-1/4 min-w-[320px]">
-      <div className="flex flex-col bg-black rounded-sm h-[280px] text-white overflow-hidden gap-1 relative hover:perspective-distant duration-200">
+      <div className="flex flex-col bg-black  h-[280px] text-white overflow-hidden gap-1 relative hover:perspective-distant duration-200">
         <div className="flex gap-2 relative flex-1">
           {/* Poster Image */}
           <div className="relative min-w-[160px] h-full flex flex-col">
@@ -121,8 +121,8 @@ const SeriesData = ({
 
             {/* Completion Status */}
             {completed ? (
-              <p className="font-bold bg-[#bf80d9] text-[#fff8ff] px-2 flex items-center justify-center mt-2 rounded-md">
-                Completed
+              <p className=" bg-[#51106d] text-[#fff8ff] p-2 w-full normal-case flex items-center justify-center mt-2 ">
+                finished
               </p>
             ) : (
               <div className="flex flex-col overflow-hidden w-full relative z-50 my-2">
@@ -201,7 +201,7 @@ const SeriesData = ({
                   ? (watchedEpisodes / seriesData.number_of_episodes) * 100
                   : 0
               }
-              className="w-full mt-auto rounded-sm"
+              className="w-full mt-auto rounded-none"
             />
           </div>
         </div>

@@ -24,7 +24,7 @@ export default async function Watchlist() {
 
   if (!data || data.length === 0) {
     return (
-      <div className="flex  items-center justify-center w-full my-10  text-white">
+      <div className="flex  items-center justify-center w-full my-10  text-white ">
         <div className="flex flex-col items-center space-y-4">
           <svg
             className="w-16 h-16 text-gray-400 mb-2"

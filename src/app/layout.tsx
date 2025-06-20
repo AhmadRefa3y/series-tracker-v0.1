@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { Raleway } from "next/font/google";
+import { Josefin_Sans } from "next/font/google";
 import "./globals.css";
 import Providers from "@/components/providers";
 import { SessionProvider } from "next-auth/react";
 import { auth } from "@/auth";
 
-const raleway = Raleway({
+const josefin_Sans = Josefin_Sans({
   subsets: ["latin"],
   weight: ["400"],
 });
@@ -25,7 +25,7 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${raleway.className} antialiased capitalize overflow-y-scroll `}
+        className={`${josefin_Sans.className} antialiased capitalize overflow-y-scroll `}
       >
         <SessionProvider session={session} key={session?.user?.id}>
           <Providers>{children}</Providers>

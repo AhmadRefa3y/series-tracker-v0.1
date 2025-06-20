@@ -42,7 +42,7 @@ const SignUp = async (props: {
             className="inline-block absolute left-1/2 -translate-x-1/2 -top-10 "
           >
             <Image
-              src="/logo.svg" // Changed to local logo
+              src="/logo.png"
               alt="Sennit Logo"
               width={100}
               height={100}
