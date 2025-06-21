@@ -12,7 +12,8 @@ export async function Header() {
       <div className="container flex h-16 items-center justify-between mx-auto">
         <div className="flex justify-between items-center gap-2 md:gap-4 w-full">
           <div className="flex items-center gap-4 z-10">
-            <Link href="/" className="flex items-center gap-2">
+            <Link href="/" className="flex items-center gap-2 relative">
+              <div className="absolute inset-0 rounded-sm z-0 left-[40%] -translate-x-1/2 top-[45%] -translate-y-1/2 skew-x-[27deg] bg-gradient-to-br from-red-500 via-rose-500 to-orange-400 blur-xl opacity-60 animate-pulse shadow-2xl"></div>
               <Image src="/logo.png" alt="logo" width={100} height={100} />
             </Link>
             <Search />
