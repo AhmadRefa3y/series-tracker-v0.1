@@ -16,7 +16,7 @@ const RecentlyWatched = async () => {
         <h2 className="text-2xl font-semibold">Recently Watched</h2>
         <Link
           href="/history"
-          className="text-sm hover:text-[#9f42c6] transition-colors"
+          className="text-sm hover:text-primaryColor transition-colors"
         >
           View All
         </Link>
@@ -30,7 +30,7 @@ const RecentlyWatched = async () => {
             key={episode.id}
             className="relative bg-gray-800 rounded-lg overflow-hidden group hover:scale-105 transition-transform duration-200"
           >
-            <div className="absolute top-2 left-2 bg-[#9f42c6] text-white text-sm px-2 py-1 rounded z-10">
+            <div className="absolute top-2 left-2 bg-primaryColor text-white text-sm px-2 py-1 rounded z-10">
               {format(new Date(episode.watchedAt), "MMM dd, yyyy h:mm a")}
             </div>
             <div className="relative aspect-video">

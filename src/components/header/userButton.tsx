@@ -23,7 +23,7 @@ const UserButton = ({ Session }: { Session: Session | null }) => {
     return (
       <Link
         href="/sign-in"
-        className="whitespace-nowrap p-2 bg-blue-500 rounded-md mx-2 gap-2 w-full font-bold text-center text-white hover:bg-blue-600 transition-colors duration-200 flex items-center justify-center"
+        className="font-semibold  duration-200 text-neutralColor    hover:bg-primaryColor hover:text-secondaryColor h-full flex items-center justify-center   px-3 hover:border-primaryColor text-nowrap  gap-2"
       >
         <UserCircle2 className="w-6 h-6" />
         Sign In

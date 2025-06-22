@@ -105,7 +105,7 @@ const SeriesData = ({
             </Link>
             <button
               className={cn(
-                "h-[30px] bg-white text-[#9f42c6] duration-400 flex items-center justify-center",
+                "h-[30px] bg-white text-primaryColor duration-400 flex items-center justify-center",
                 isAction || !currentEpisode || completed ? "opacity-30" : ""
               )}
               onClick={handleNextEpisode}
@@ -121,7 +121,7 @@ const SeriesData = ({
 
             {/* Completion Status */}
             {completed ? (
-              <p className=" bg-[#51106d] text-[#fff8ff] p-2 w-full normal-case flex items-center justify-center mt-2 ">
+              <p className=" bg-primaryColor text-[#fff8ff] p-2 w-full normal-case flex items-center justify-center mt-2 ">
                 finished
               </p>
             ) : (

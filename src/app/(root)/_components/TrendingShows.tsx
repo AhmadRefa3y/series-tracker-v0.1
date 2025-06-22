@@ -26,7 +26,7 @@ export default async function TrendingShows() {
     <section className="w-full max-w-7xl mx-auto mt-8 sm:mt-12 px-2 sm:px-4 md:px-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-2 sm:gap-0">
         <div>
-          <h2 className="text-2xl sm:text-3xl font-bold text-white">
+          <h2 className="text-2xl sm:text-3xl font-bold text-primaryColor">
             Trending Shows
           </h2>
           <p className="text-white/80 mt-1 text-base sm:text-lg">
@@ -35,7 +35,7 @@ export default async function TrendingShows() {
         </div>
         <Link
           href="/shows"
-          className="text-white/70 hover:text-white text-sm font-medium flex items-center gap-1 transition"
+          className="text-primaryColor/70 hover:text-primaryColor text-sm font-medium flex items-center gap-1 transition"
         >
           SEE MORE <span className="ml-1">&rarr;</span>
         </Link>

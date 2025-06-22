@@ -84,22 +84,25 @@ export default function Hero() {
 
           {/* Main Headline */}
           <h2 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
-            Discover. Track. Share.
+            <span className="text-primaryColor">Discover.</span>{" "}
+            <span>Track.</span>{" "}
+            <span className="text-primaryColor">Share.</span>
           </h2>
 
           {/* Description */}
           <p className="text-lg md:text-xl text-white/90 mb-8 max-w-3xl mx-auto leading-relaxed">
-            <span className="font-semibold">Discover</span> what&#39;s hot and
-            where to stream it. <span className="font-semibold">Track</span>{" "}
-            shows and movies you watch.{" "}
-            <span className="font-semibold">Share</span> comments,
-            recommendations, and ratings.
+            <span className="font-semibold text-primaryColor">Discover</span>{" "}
+            what&#39;s hot and where to stream it.{" "}
+            <span className="font-semibold text-primaryColor">Track</span> shows
+            and movies you watch.{" "}
+            <span className="font-semibold text-primaryColor">Share</span>{" "}
+            comments, recommendations, and ratings.
           </p>
 
           {/* CTA Button */}
           <Link
             href="/sign-up"
-            className="bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white font-semibold px-8 py-4 text-lg rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 flex w-fit mx-auto items-center justify-center"
+            className="bg-primaryColor text-secondaryColor   font-semibold px-8 py-4 text-lg rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 flex w-fit mx-auto items-center justify-center"
           >
             JOIN SEENIT FOR FREE
             <ArrowRight className="ml-2 w-5 h-5" />
