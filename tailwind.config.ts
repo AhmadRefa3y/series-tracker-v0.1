@@ -26,7 +26,7 @@ export default {
           foreground: "hsl(var(--primary-foreground))",
         },
         primaryColor: {
-          DEFAULT: "#f70102",
+          DEFAULT: "#fcd34d",
         },
         secondaryColor: {
           DEFAULT: "#252A34",
@@ -34,6 +34,15 @@ export default {
         neutralColor: {
           DEFAULT: "#F0F5F9",
         },
+        // primaryColor: {
+        //   DEFAULT: "#f70102",
+        // },
+        // secondaryColor: {
+        //   DEFAULT: "#252A34",
+        // },
+        // neutralColor: {
+        //   DEFAULT: "#F0F5F9",
+        // },
         FourthColor: {
           DEFAULT: "#BBE1FA",
         },

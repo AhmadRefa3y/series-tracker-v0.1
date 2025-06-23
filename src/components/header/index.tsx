@@ -13,7 +13,6 @@ export async function Header() {
         <div className="flex justify-between items-center gap-2 md:gap-4 w-full h-full">
           <div className="flex items-center gap-4 z-10">
             <Link href="/" className="flex items-center gap-2 relative">
-              <div className="absolute inset-0 rounded-sm z-0 left-[40%] -translate-x-1/2 top-[45%] -translate-y-1/2 skew-x-[27deg] bg-gradient-to-br from-red-500 via-rose-500 to-orange-400 blur-xl opacity-60 animate-pulse shadow-2xl"></div>
               <Image src="/logo.png" alt="logo" width={100} height={100} />
             </Link>
             <Search />
@@ -22,19 +21,19 @@ export async function Header() {
           <nav className="hidden md:flex items-center  font-bold h-full justify-center text-neutralColor">
             <Link
               href="/watchlist"
-              className="font-semibold  duration-200     hover:bg-primaryColor hover:text-secondaryColor h-full flex items-center justify-center   px-3 hover:border-primaryColor"
+              className="font-semibold  duration-200     hover:bg-neutralColor hover:text-secondaryColor h-full flex items-center justify-center   px-3 hover:border-primaryColor"
             >
-              My Watchlist
+              Watchlist
             </Link>
             <Link
               href="/shows"
-              className="font-semibold  duration-200     hover:bg-primaryColor hover:text-secondaryColor h-full flex items-center justify-center   px-3 hover:border-primaryColor"
+              className="font-semibold  duration-200     hover:bg-neutralColor hover:text-secondaryColor h-full flex items-center justify-center   px-3 hover:border-primaryColor"
             >
               Shows
             </Link>
             <Link
               href="/dashboard"
-              className="font-semibold  duration-200    hover:bg-primaryColor hover:text-secondaryColor h-full flex items-center justify-center   px-3 hover:border-primaryColor"
+              className="font-semibold  duration-200    hover:bg-neutralColor hover:text-secondaryColor h-full flex items-center justify-center   px-3 hover:border-primaryColor"
             >
               Dashboard
             </Link>

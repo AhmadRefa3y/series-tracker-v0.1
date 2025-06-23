@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Progress } from "@/components/ui/progress";
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { Check, Loader } from "lucide-react";
+import { Check, Loader, Text } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { Series } from "@/types/seriesT";
@@ -86,14 +86,14 @@ const SeriesData = ({
   };
 
   return (
-    <div className="px-2 w-1/4 min-w-[320px]">
-      <div className="flex flex-col bg-black  h-[280px] text-white overflow-hidden gap-1 relative hover:perspective-distant duration-200">
-        <div className="flex gap-2 relative flex-1">
+    <div className="px-1 w-1/6   ">
+      <div className="flex flex-col bg-black h-[350px] text-white overflow-hidden group relative hover:perspective-distant duration-200 ">
+        <div className="flex flex-col relative flex-1 h-[310px] overflow-hidden ">
           {/* Poster Image */}
-          <div className="relative min-w-[160px] h-full flex flex-col">
+          <div className="relative   h-full flex flex-col">
             <Link
               href={`/shows/${title}-${seriesId}`}
-              className="relative min-w-[160px] flex-1"
+              className="relative min-w-[160px] h-full"
             >
               <div className="absolute inset-0 bg-black animate-fadeOut" />
               <Image
@@ -103,59 +103,14 @@ const SeriesData = ({
                 className="object-cover opacity-0 animate-fadeIn"
               />
             </Link>
-            <button
-              className={cn(
-                "h-[30px] bg-white text-primaryColor duration-400 flex items-center justify-center",
-                isAction || !currentEpisode || completed ? "opacity-30" : ""
-              )}
-              onClick={handleNextEpisode}
-              disabled={isAction || !currentEpisode || completed}
-            >
-              {isAction ? <Loader className="animate-spin" /> : <Check />}
-            </button>
           </div>
 
-          <div className="flex flex-col items-start py-2 w-full pr-2">
-            {/* Title */}
-            <div className="whitespace-normal text-start">{title}</div>
-
-            {/* Completion Status */}
-            {completed ? (
-              <p className=" bg-primaryColor text-[#fff8ff] p-2 w-full normal-case flex items-center justify-center mt-2 ">
-                finished
-              </p>
-            ) : (
-              <div className="flex flex-col overflow-hidden w-full relative z-50 my-2">
-                {/* Season and Episode Number */}
+          {!completed && (
+            <div className="flex flex-col items-start py-2 w-full pr-2  z-10 absolute bottom-0 opacity-0 duration-200 group-hover:opacity-100">
+              <div className="absolute inset-0 bg-gradient-to-b from-transparent from-0% via-10% via-black/70 to-100%  to-black " />
+              <div className="flex flex-col overflow-hidden w-full  z-50 h-fit pl-2 ">
                 {currentEpisode && (
-                  <div className="font-semibold -z-10">
-                    <div className="bg-white text-black w-fit px-1 rounded-sm">
-                      <AnimatePresence mode="wait">
-                        <motion.div
-                          key={`season-${currentEpisode?.season_number}`}
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          exit={{ opacity: 0 }}
-                          transition={{ duration: 0.3 }}
-                          className="inline-flex"
-                        >
-                          S{currentEpisode?.season_number}
-                        </motion.div>
-                      </AnimatePresence>
-                      <AnimatePresence mode="wait">
-                        <motion.div
-                          key={`episode-${currentEpisode?.season_number}-${currentEpisode?.episode_number}`}
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          exit={{ opacity: 0 }}
-                          transition={{ duration: 0.3 }}
-                          className="inline-flex"
-                        >
-                          <span className="mx-1 text-gray-400">|</span>E
-                          {currentEpisode?.episode_number}
-                        </motion.div>
-                      </AnimatePresence>
-                    </div>
+                  <div className="font-semibold -z-10 flex-col flex gap-2 items-start text-primaryColor">
                     <AnimatePresence mode="wait">
                       <motion.div
                         key={`title-${currentEpisode?.season_number}-${currentEpisode?.episode_number}`}
@@ -165,9 +120,6 @@ const SeriesData = ({
                         transition={{ duration: 0.3 }}
                         className="block w-full"
                       >
-                        <span className="block text-amber-300">
-                          {currentEpisode?.vote_average?.toFixed(1)} / 10
-                        </span>
                         <span className="text-sm line-clamp-2">
                           {currentEpisode?.name}
                         </span>
@@ -175,8 +127,6 @@ const SeriesData = ({
                     </AnimatePresence>
                   </div>
                 )}
-
-                {/* Episode Overview */}
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={`title-${currentEpisode?.season_number}-${currentEpisode?.episode_number}`}
@@ -186,24 +136,73 @@ const SeriesData = ({
                     transition={{ duration: 0.3 }}
                     className="block w-full"
                   >
-                    <span className="whitespace-pre-wrap font-light text-sm text-gray-400 line-clamp-6 capitalize">
+                    <span className="whitespace-pre-wrap font-light text-sm max-h-full capitalize line-clamp-[4]">
                       {currentEpisode?.overview}
                     </span>
                   </motion.div>
                 </AnimatePresence>
               </div>
+            </div>
+          )}
+        </div>
+        <Progress
+          value={
+            seriesData?.number_of_episodes
+              ? (watchedEpisodes / seriesData.number_of_episodes) * 100
+              : 0
+          }
+          className="w-full mt-auto rounded-none"
+        />
+        <div className="flex items-center bg-[#2d2d2d] border-r  border-[#414040] h-[40px] ">
+          <button
+            className={cn(
+              "h-full hover:bg-primaryColor hover:text-secondaryColor  duration-200 p-2 flex items-center justify-center",
+              isAction || !currentEpisode || completed ? "opacity-30" : ""
             )}
-
-            {/* Progress Bar */}
-            <Progress
-              value={
-                seriesData?.number_of_episodes
-                  ? (watchedEpisodes / seriesData.number_of_episodes) * 100
-                  : 0
-              }
-              className="w-full mt-auto rounded-none"
-            />
-          </div>
+            onClick={handleNextEpisode}
+            disabled={isAction || !currentEpisode || completed}
+          >
+            {isAction ? <Loader className="animate-spin" /> : <Check />}
+          </button>
+          <button className="text-white p-2  hover:bg-[#ff5f06] duration-200">
+            <Text strokeWidth={2} />
+          </button>
+          {/* <span className="block text-amber-300 ">
+            {currentEpisode?.vote_average?.toFixed(1)} / 10
+          </span> */}
+          {completed ? (
+            <p className=" text-primaryColor px-2 ml-auto normal-case flex items-center justify-center ">
+              Finished
+            </p>
+          ) : (
+            <div className="text-primaryColor ml-auto px-2 font-bold ">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={`season-${currentEpisode?.season_number}`}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="inline-flex"
+                >
+                  S{currentEpisode?.season_number}
+                </motion.div>
+              </AnimatePresence>
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={`episode-${currentEpisode?.season_number}-${currentEpisode?.episode_number}`}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="inline-flex"
+                >
+                  <span className="mx-1 text-gray-400">|</span>E
+                  {currentEpisode?.episode_number}
+                </motion.div>
+              </AnimatePresence>
+            </div>
+          )}
         </div>
       </div>
     </div>

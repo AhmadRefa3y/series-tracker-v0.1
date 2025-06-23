@@ -42,6 +42,7 @@ export const getUserSeriesWatchlist = async (
         title: series.title,
       };
     });
+    console.log("Fetched series from watchlist:", series);
 
     return series;
   } catch (error) {

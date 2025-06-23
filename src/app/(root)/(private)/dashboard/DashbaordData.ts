@@ -98,7 +98,7 @@ export const getRecentlyWatchedEpisodes = async (
 };
 
 export const getUserUpNextSeries = async (
-  limit: number = 4
+  limit: number = 6
 ): Promise<{
   success: boolean;
   data?: {
@@ -134,7 +134,7 @@ export const getUserUpNextSeries = async (
       throw new Error("User not found");
     }
 
-    const userSeriesWatchlist = await getUserSeriesWatchlist(limit);
+    const userSeriesWatchlist = await getUserSeriesWatchlist();
 
     if (!userSeriesWatchlist || userSeriesWatchlist.length === 0) {
       return {
@@ -170,9 +170,17 @@ export const getUserUpNextSeries = async (
 
     const seriesWithData = await Promise.all(seriesDataPromises);
 
+    const filteredSeries = seriesWithData
+      .filter(
+        (item) =>
+          item.seriesData &&
+          item.series.watchedEpisodes.length <
+            item.seriesData.number_of_episodes / 1
+      )
+      .slice(0, limit);
     return {
       success: true,
-      data: seriesWithData,
+      data: filteredSeries,
     };
   } catch (error) {
     console.error(error);

@@ -29,7 +29,7 @@ export default async function TrendingShows() {
           <h2 className="text-2xl sm:text-3xl font-bold text-primaryColor">
             Trending Shows
           </h2>
-          <p className="text-white/80 mt-1 text-base sm:text-lg">
+          <p className=" mt-1 text-base sm:text-lg text-neutralColor">
             Here&apos;s what shows are trending now.
           </p>
         </div>

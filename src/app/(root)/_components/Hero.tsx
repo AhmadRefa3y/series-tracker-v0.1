@@ -69,7 +69,7 @@ export default function Hero() {
           {/* Logo */}
           <div className="flex flex-col items-center justify-center  mb-8 ">
             <div className="relative">
-              <div className="absolute w-[100px] h-[110px] rounded-sm z-0 left-[40%] -translate-x-1/2 top-[45%] -translate-y-1/2 skew-x-[27deg] bg-gradient-to-br from-red-500 via-rose-500 to-orange-400 blur-xl opacity-60 animate-pulse shadow-2xl"></div>
+              {/* <div className="absolute w-[95px] h-[75px] rounded-sm bg-black z-0 left-[50%] -translate-x-1/2 top-[49%] -translate-y-1/2 skew-x-[27deg] "></div> */}
               <div>
                 <Image
                   src="/logo.png"
@@ -84,25 +84,23 @@ export default function Hero() {
 
           {/* Main Headline */}
           <h2 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
-            <span className="text-primaryColor">Discover.</span>{" "}
-            <span>Track.</span>{" "}
-            <span className="text-primaryColor">Share.</span>
+            <span className="">Discover.</span> <span>Track.</span>{" "}
+            <span className="">Share.</span>
           </h2>
 
           {/* Description */}
           <p className="text-lg md:text-xl text-white/90 mb-8 max-w-3xl mx-auto leading-relaxed">
-            <span className="font-semibold text-primaryColor">Discover</span>{" "}
-            what&#39;s hot and where to stream it.{" "}
-            <span className="font-semibold text-primaryColor">Track</span> shows
-            and movies you watch.{" "}
-            <span className="font-semibold text-primaryColor">Share</span>{" "}
-            comments, recommendations, and ratings.
+            <span className="font-semibold ">Discover</span> what&#39;s hot and
+            where to stream it. <span className="font-semibold ">Track</span>{" "}
+            shows and movies you watch.{" "}
+            <span className="font-semibold ">Share</span> comments,
+            recommendations, and ratings.
           </p>
 
           {/* CTA Button */}
           <Link
             href="/sign-up"
-            className="bg-primaryColor text-secondaryColor   font-semibold px-8 py-4 text-lg rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 flex w-fit mx-auto items-center justify-center"
+            className="bg-neutralColor text-secondaryColor hover:text-neutralColor hover:bg-secondaryColor   font-semibold px-8 py-4 text-lg rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 flex w-fit mx-auto items-center justify-center"
           >
             JOIN SEENIT FOR FREE
             <ArrowRight className="ml-2 w-5 h-5" />
