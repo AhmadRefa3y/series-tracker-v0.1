@@ -84,8 +84,9 @@ export default function Hero() {
 
           {/* Main Headline */}
           <h2 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
-            <span className="">Discover.</span> <span>Track.</span>{" "}
-            <span className="">Share.</span>
+            <span className="text-primaryColor">Discover.</span>{" "}
+            <span>Track.</span>{" "}
+            <span className="text-primaryColor">Share.</span>
           </h2>
 
           {/* Description */}
@@ -100,7 +101,7 @@ export default function Hero() {
           {/* CTA Button */}
           <Link
             href="/sign-up"
-            className="bg-neutralColor text-secondaryColor hover:text-neutralColor hover:bg-secondaryColor   font-semibold px-8 py-4 text-lg rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 flex w-fit mx-auto items-center justify-center"
+            className="bg-primaryColor text-secondaryColor hover:text-neutralColor hover:bg-secondaryColor   font-semibold px-8 py-4 text-lg rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 flex w-fit mx-auto items-center justify-center"
           >
             JOIN SEENIT FOR FREE
             <ArrowRight className="ml-2 w-5 h-5" />
