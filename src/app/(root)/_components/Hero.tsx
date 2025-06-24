@@ -69,7 +69,7 @@ export default function Hero() {
           {/* Logo */}
           <div className="flex flex-col items-center justify-center  mb-8 ">
             <div className="relative">
-              {/* <div className="absolute w-[95px] h-[75px] rounded-sm bg-black z-0 left-[50%] -translate-x-1/2 top-[49%] -translate-y-1/2 skew-x-[27deg] "></div> */}
+              <div className="absolute w-[100px] h-[110px] rounded-sm z-0 left-[40%] -translate-x-1/2 top-[45%] -translate-y-1/2 skew-x-[27deg] bg-gradient-to-br from-red-500 via-rose-500 to-orange-400 blur-xl opacity-60 animate-pulse shadow-2xl"></div>
               <div>
                 <Image
                   src="/logo.png"
