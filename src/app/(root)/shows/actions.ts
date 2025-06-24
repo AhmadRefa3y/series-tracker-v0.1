@@ -180,3 +180,57 @@ export const setEpisodWatched = async ({
     };
   }
 };
+
+export const unMarkEpisodeWatched = async ({
+  episodeData,
+}: {
+  episodeData: {
+    seriesID: string;
+    episodeNumber: number;
+    seasonNumber: number;
+  };
+}) => {
+  const userId = await auth();
+  if (!userId?.user?.id) {
+    redirect("/sign-in");
+  }
+
+  try {
+    const seriesExists = await prismaDb.series.findUnique({
+      where: {
+        seriesTmdbId_userId: {
+          userId: userId.user.id,
+          seriesTmdbId: episodeData.seriesID,
+        },
+      },
+    });
+
+    if (!seriesExists) {
+      throw new Error(
+        "Series does not exist in the database. Insert it first."
+      );
+    }
+
+    const result = await prismaDb.watchedEpisode.deleteMany({
+      where: {
+        seriesId: seriesExists.id,
+        userId: userId.user.id,
+        seasonNumber: episodeData.seasonNumber,
+        episodeNumber: episodeData.episodeNumber,
+      },
+    });
+
+    return {
+      success: true,
+      message: "Episode unmarked as watched",
+      data: result,
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      message: "Failed to unmark episode as watched",
+      error: error,
+    };
+  }
+};

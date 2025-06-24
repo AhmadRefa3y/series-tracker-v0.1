@@ -40,8 +40,6 @@ const MarkEpisodeWatchedBtn = ({
         seasonNumber: episodeData.season_number,
       },
     });
-    console.log(res);
-
     if (res.success) {
       const newEpisodes = episodes.map((episode) => {
         if (episode.episodeData.episode_number <= episodeData.episode_number) {
@@ -52,8 +50,38 @@ const MarkEpisodeWatchedBtn = ({
       });
       setPerviousWatched(newEpisodes);
     } else {
-      console.log(res.error);
       toast.error("Failed to mark episode as watched");
+    }
+    setLoading(false);
+  };
+
+  const handleUnmarkWatched = async () => {
+    setLoading(true);
+    try {
+      const { unMarkEpisodeWatched } = await import("../../actions");
+      const res = await unMarkEpisodeWatched({
+        episodeData: {
+          seriesID: seriesId.toString(),
+          episodeNumber: episodeData.episode_number,
+          seasonNumber: episodeData.season_number,
+        },
+      });
+      if (res.success) {
+        const newEpisodes = episodes.map((episode) => {
+          if (
+            episode.episodeData.episode_number === episodeData.episode_number
+          ) {
+            return { episodeData: episode.episodeData, isWatched: false };
+          } else {
+            return episode;
+          }
+        });
+        setPerviousWatched(newEpisodes);
+      } else {
+        toast.error("Failed to remove episode from watch list");
+      }
+    } catch {
+      toast.error("An error occurred");
     }
     setLoading(false);
   };
@@ -63,8 +91,8 @@ const MarkEpisodeWatchedBtn = ({
         "text-white p-2 hover:bg-[#6c3384] duration-200 rounded-none m-0 h-full bg-transparent",
         isWatched && "bg-[#6c3384]"
       )}
-      onClick={handleMarkWatched}
-      disabled={isWatched || loading}
+      onClick={isWatched ? handleUnmarkWatched : handleMarkWatched}
+      disabled={loading}
     >
       {loading ? (
         <Loader className="animate-spin" />
