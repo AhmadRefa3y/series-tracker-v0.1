@@ -6,7 +6,6 @@ import prismaDb from "@/lib/prisma";
 import { auth } from "@/auth";
 
 export async function getSeriesDetails(seriesId: string): Promise<Series> {
-  console.log("Fetching series details for ID:", seriesId);
   try {
     const response = await axios.get(`${BASE_URL}/tv/${seriesId}`, {
       params: { api_key: process.env.TMDB_API_KEY },
@@ -50,9 +49,9 @@ export async function getEpisodeDataWithWatchStatus(
     };
   } catch (error) {
     if (error instanceof Error) {
-      console.error("Error fetching episode data:", error.message);
+      console.log("Error fetching episode data:", error.message);
     } else {
-      console.error("Error fetching episode data:", error);
+      console.log("Error fetching episode data:", error);
     }
     return {
       episodeData: null,
@@ -116,7 +115,6 @@ export const getSeriesSeasons = async (
         params: { api_key: process.env.TMDB_API_KEY },
       }
     );
-    console.log("Fetching seasons for series ID:", seriesId);
 
     return response.data;
   } catch (error) {

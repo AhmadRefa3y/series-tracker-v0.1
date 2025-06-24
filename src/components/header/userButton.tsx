@@ -16,7 +16,6 @@ import Image from "next/image";
 
 const UserButton = ({ Session }: { Session: Session | null }) => {
   const router = useRouter();
-  console.log(Session?.user);
 
   const firstInitial = Session?.user?.name?.charAt(0).toUpperCase() ?? "";
   if (!Session?.user)
