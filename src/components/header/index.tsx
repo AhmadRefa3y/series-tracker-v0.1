@@ -21,19 +21,19 @@ export async function Header() {
           <nav className="hidden md:flex items-center  font-bold h-full justify-center text-neutralColor">
             <Link
               href="/watchlist"
-              className="font-semibold  duration-200     hover:bg-neutralColor hover:text-secondaryColor h-full flex items-center justify-center   px-3 hover:border-primaryColor"
+              className="font-semibold  duration-200     hover:bg-primaryColor hover:text-secondaryColor h-full flex items-center justify-center   px-3 hover:border-primaryColor"
             >
               Watchlist
             </Link>
             <Link
               href="/shows"
-              className="font-semibold  duration-200     hover:bg-neutralColor hover:text-secondaryColor h-full flex items-center justify-center   px-3 hover:border-primaryColor"
+              className="font-semibold  duration-200     hover:bg-primaryColor hover:text-secondaryColor h-full flex items-center justify-center   px-3 hover:border-primaryColor"
             >
               Shows
             </Link>
             <Link
               href="/dashboard"
-              className="font-semibold  duration-200    hover:bg-neutralColor hover:text-secondaryColor h-full flex items-center justify-center   px-3 hover:border-primaryColor"
+              className="font-semibold  duration-200    hover:bg-primaryColor hover:text-secondaryColor h-full flex items-center justify-center   px-3 hover:border-primaryColor"
             >
               Dashboard
             </Link>

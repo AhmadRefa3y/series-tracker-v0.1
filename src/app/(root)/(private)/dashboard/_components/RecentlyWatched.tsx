@@ -30,7 +30,7 @@ const RecentlyWatched = async () => {
             key={episode.id}
             className="relative bg-gray-800 rounded-lg overflow-hidden group hover:scale-105 transition-transform duration-200"
           >
-            <div className="absolute top-2 left-2 bg-primaryColor text-white text-sm px-2 py-1 rounded z-10">
+            <div className="absolute top-2 left-2 bg-secondaryColor text-white text-sm px-2 py-1 rounded z-10">
               {format(new Date(episode.watchedAt), "MMM dd, yyyy h:mm a")}
             </div>
             <div className="relative aspect-video">

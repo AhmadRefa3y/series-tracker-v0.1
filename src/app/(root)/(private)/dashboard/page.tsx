@@ -9,7 +9,7 @@ import { UpNextSkeleton } from "@/app/(root)/(private)/dashboard/_components/UpN
 const DashBoard = async () => {
   const session = await auth();
   if (!session) {
-    return redirect("/");
+    return redirect("/sign-in");
   }
   return (
     <div className="flex flex-col text-white">
