@@ -13,10 +13,15 @@ export const AddSeriesToWatchlist = async ({
     title: string;
     poster: string;
   };
+  callbackUrl?: string;
 }) => {
   const userId = await auth();
   if (!userId?.user?.id) {
-    redirect("/sign-in");
+    redirect(
+      `/sign-in?callbackUrl=shows/${seriesData.title
+        .replace(/\s+/g, "_")
+        .toLowerCase()}-${seriesData.id}`
+    );
   }
 
   try {

@@ -13,13 +13,9 @@ const RecentlyWatched = async () => {
   return (
     <div className="py-8">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-2xl font-semibold">Recently Watched</h2>
-        <Link
-          href="/history"
-          className="text-sm hover:text-primaryColor transition-colors"
-        >
-          View All
-        </Link>
+        <h2 className="text-2xl font-semibold text-primaryColor">
+          Recently Watched
+        </h2>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {recentEpisodes.data.map((episode) => (
@@ -30,7 +26,7 @@ const RecentlyWatched = async () => {
             key={episode.id}
             className="relative bg-gray-800 rounded-lg overflow-hidden group hover:scale-105 transition-transform duration-200"
           >
-            <div className="absolute top-2 left-2 bg-secondaryColor text-white text-sm px-2 py-1 rounded z-10">
+            <div className="absolute top-2 left-2 bg-secondaryColor text-primaryColor text-sm px-2 py-1 rounded z-10">
               {format(new Date(episode.watchedAt), "MMM dd, yyyy h:mm a")}
             </div>
             <div className="relative aspect-video">

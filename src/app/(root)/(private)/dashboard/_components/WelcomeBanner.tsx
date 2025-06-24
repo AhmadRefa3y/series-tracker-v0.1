@@ -34,7 +34,10 @@ const WelcomeBanner = async () => {
             />
           </div>
           <div className="flex flex-col font-semibold">
-            <p className="text-2xl">Hello, {`${user?.name}`}</p>
+            <p className="text-2xl">
+              Hello,{" "}
+              <span className="text-primaryColor">{`${user?.name}`}</span>
+            </p>
             <p>Member since {new Date(user?.createdAt).toDateString()}</p>
           </div>
         </div>
@@ -42,14 +45,14 @@ const WelcomeBanner = async () => {
           <div className="flex flex-col gap-4  items-end">
             <Link
               href="/"
-              className="  hover:bg-[#9f42c6] duration-200 rounded-lg pl-2 flex w-fit justify-between "
+              className="  hover:bg-primaryColor hover:text-secondaryColor duration-200 rounded-lg pl-2 flex w-fit justify- items-center "
             >
               2025 Year To Date
               <ChevronRight />
             </Link>
             <Link
               href="/"
-              className="  hover:bg-[#9f42c6] duration-200 rounded-lg pl-2 flex w-fit justify-between "
+              className="  hover:bg-primaryColor hover:text-secondaryColor duration-200 rounded-lg pl-2 flex w-fit justify-between items-center "
             >
               apr month in review <ChevronRight />
             </Link>
@@ -57,14 +60,14 @@ const WelcomeBanner = async () => {
           <div className="flex flex-col gap-4 items-end">
             <Link
               href="/"
-              className="  hover:bg-[#9f42c6] duration-200 rounded-lg pl-2 flex w-fit justify-between "
+              className="  hover:bg-primaryColor hover:text-secondaryColor duration-200 rounded-lg pl-2 flex w-fit justify-between items-center "
             >
               All time stats
               <ChevronRight />
             </Link>
             <Link
               href="/"
-              className="  hover:bg-[#9f42c6] duration-200 rounded-lg pl-2 flex w-fit justify-between "
+              className="  hover:bg-primaryColor hover:text-secondaryColor duration-200 rounded-lg pl-2 flex w-fit justify-between items-center"
             >
               your profile
               <ChevronRight />

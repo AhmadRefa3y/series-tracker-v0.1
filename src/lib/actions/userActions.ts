@@ -80,16 +80,16 @@ export async function signUp(prevState: unknown, formData: FormData) {
   }
 }
 
-export async function getCurrentUser() {
+export async function getCurrentUser(callbackUrl?: string) {
   try {
     const session = await auth();
 
     if (!session?.user) {
-      redirect("/sign-in");
+      redirect(`/sign-in?callbackUrl=${callbackUrl}`);
     }
     return session.user;
   } catch (error) {
     console.log("Something went wrong", error);
-    redirect("/sign-in");
+    redirect(`/sign-in?callbackUrl=${callbackUrl}`);
   }
 }

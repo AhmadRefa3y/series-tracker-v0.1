@@ -7,7 +7,7 @@ import { getUserSeriesWatchlist } from "@/data/sharedData";
 
 export const dynamic = "force-dynamic";
 export default async function Watchlist() {
-  await getCurrentUser();
+  await getCurrentUser("/watchlist");
 
   let watchList: WatchListSeries[] = [];
   let error: string | null = null;
