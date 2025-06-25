@@ -22,7 +22,7 @@ const WelcomeBanner = async () => {
   }
   return (
     <div className="flex flex-col w-full mx-auto bg-gray-900  p-4">
-      <div className="flex py-10 justify-between container mx-auto">
+      <div className="flex flex-col gap-2 sm:flex-row sm:py-10 items-center sm:justify-between container mx-auto">
         <div className="flex  gap-4 flex-1">
           <div>
             <Image
@@ -41,7 +41,7 @@ const WelcomeBanner = async () => {
             <p>Member since {new Date(user?.createdAt).toDateString()}</p>
           </div>
         </div>
-        <div className="flex  flex-wrap uppercase text-sm items-center justify-end  flex-1 w-fit text-nowrap gap-8 font-semibold ">
+        <div className="flex  flex-wrap uppercase text-sm items-center justify-end  flex-1 w-fit text-nowrap sm:gap-8 gap-2 font-semibold ">
           <div className="flex flex-col gap-4  items-end">
             <Link
               href="/"

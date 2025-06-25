@@ -114,7 +114,7 @@ export const getUserUpNextSeries = async (
         vote_average: number;
         runtime: number;
       }[];
-      newEpsiodes: {
+      newEpisodes: {
         id: number;
         episode_number: number;
         season_number: number;
@@ -150,19 +150,20 @@ export const getUserUpNextSeries = async (
         episodes = await fetchEpisodes(
           series.seriesID.toString(),
           seriesData.number_of_seasons,
-          series.watchedEpisodes[0] || null
+          series.watchedEpisodes[0] || null,
+          series.watchedEpisodes
         );
         // If fetchEpisodes returns null/undefined, provide default
         if (!episodes) {
           episodes = {
             allEpisodes: [],
-            newEpsiodes: [],
+            newEpisodes: [],
           };
         }
       } else {
         episodes = {
           allEpisodes: [],
-          newEpsiodes: [],
+          newEpisodes: [],
         };
       }
       return { series, seriesData, episodes };

@@ -86,8 +86,8 @@ const SeriesData = ({
   };
 
   return (
-    <div className="px-1 w-1/6   ">
-      <div className="flex flex-col bg-black h-[350px] text-white overflow-hidden group relative hover:perspective-distant duration-200 ">
+    <div className="px-1 w-1/6 min-w-[190px] h-[350px]">
+      <div className="flex flex-col bg-black h-full  text-white overflow-hidden group relative hover:perspective-distant duration-200 ">
         <div className="flex flex-col relative flex-1 h-[310px] overflow-hidden ">
           {/* Poster Image */}
           <div className="relative   h-full flex flex-col">
@@ -118,10 +118,13 @@ const SeriesData = ({
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.3 }}
-                        className="block w-full"
+                        className=" w-full flex gap-1 "
                       >
-                        <span className="text-sm line-clamp-2">
+                        <span className="text-sm line-clamp-4">
                           {currentEpisode?.name}
+                        </span>
+                        <span className=" text-red-500 text-nowrap ">
+                          {currentEpisode?.vote_average?.toFixed(1)} / 10
                         </span>
                       </motion.div>
                     </AnimatePresence>
@@ -136,7 +139,7 @@ const SeriesData = ({
                     transition={{ duration: 0.3 }}
                     className="block w-full"
                   >
-                    <span className="whitespace-pre-wrap font-light text-sm max-h-full capitalize line-clamp-[4]">
+                    <span className="whitespace-pre-wrap font-light text-sm max-h-full capitalize line-clamp-[4] hover:line-clamp-[10] ">
                       {currentEpisode?.overview}
                     </span>
                   </motion.div>
@@ -167,9 +170,7 @@ const SeriesData = ({
           <button className="text-white p-2  hover:bg-[#ff5f06] duration-200">
             <Text strokeWidth={2} />
           </button>
-          {/* <span className="block text-amber-300 ">
-            {currentEpisode?.vote_average?.toFixed(1)} / 10
-          </span> */}
+
           {completed ? (
             <p className=" text-primaryColor px-2 ml-auto normal-case flex items-center justify-center ">
               Finished

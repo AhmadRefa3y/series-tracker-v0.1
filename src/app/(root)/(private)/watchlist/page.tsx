@@ -43,7 +43,8 @@ export default async function Watchlist() {
     const episodes = await fetchEpisodes(
       series.seriesID.toString(),
       seriesData!.number_of_seasons,
-      series.watchedEpisodes[0] || null
+      series.watchedEpisodes[0] || null,
+      series.watchedEpisodes
     );
     return { series, seriesData, episodes };
   });
@@ -63,7 +64,7 @@ export default async function Watchlist() {
           InitWatchedEpisodes={series.watchedEpisodes.length}
           lastWatchedEpisode={series.watchedEpisodes[0]}
           seriesData={seriesData}
-          nextEpisodes={episodes?.newEpsiodes || []}
+          nextEpisodes={episodes?.newEpisodes || []}
         />
       ))}
     </div>

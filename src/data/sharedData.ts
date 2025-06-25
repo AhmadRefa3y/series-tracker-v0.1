@@ -21,6 +21,10 @@ export const getUserSeriesWatchlist = async (
             { seasonNumber: "desc" },
             { episodeNumber: "desc" }, // If seasons are the same, get the highest episode number
           ],
+          select: {
+            episodeNumber: true,
+            seasonNumber: true,
+          },
         },
       },
       orderBy: {

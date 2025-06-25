@@ -30,7 +30,7 @@ const UserButton = ({ Session }: { Session: Session | null }) => {
     );
 
   return (
-    <div className="flex gap-2 items-center w-20 justify-center">
+    <div className="flex gap-2 items-center w-20 justify-center ">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <div className="flex items-center">
@@ -53,7 +53,7 @@ const UserButton = ({ Session }: { Session: Session | null }) => {
             </Button>
           </div>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-56 z-[1000]" align="end">
+        <DropdownMenuContent className="w-56 z-[110]" align="end">
           {" "}
           {/* Added z-[1000] here */}
           <DropdownMenuLabel className="font-normal">

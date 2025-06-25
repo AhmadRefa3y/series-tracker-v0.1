@@ -61,7 +61,7 @@ export default async function Watchlist() {
       <div className="flex justify-between items-center">
         <SectionHeader title="Up next" loading={false} />
       </div>
-      <div className="flex flex-wrap items-center justify-start mt-3 w-full gap-y-2 py-4">
+      <div className="flex flex-wrap items-center justify-center sm:justify-start mt-3 w-full gap-y-2 py-4">
         {data.map(({ series, seriesData, episodes }) => (
           <SeriesData
             key={series.seriesID}
@@ -73,7 +73,7 @@ export default async function Watchlist() {
             InitWatchedEpisodes={series.watchedEpisodes.length}
             lastWatchedEpisode={series.watchedEpisodes[0]}
             seriesData={seriesData}
-            nextEpisodes={episodes.newEpsiodes}
+            nextEpisodes={episodes.newEpisodes}
           />
         ))}
       </div>

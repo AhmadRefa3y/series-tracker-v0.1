@@ -28,7 +28,8 @@ export async function fetchSeriesData(
 export async function fetchEpisodes(
   seriesId: string,
   numberOfSeasons: number,
-  lastWatchedEpisode: { episodeNumber: number; seasonNumber: number } | null
+  lastWatchedEpisode: { episodeNumber: number; seasonNumber: number } | null,
+  watchedEpisodes: { episodeNumber: number; seasonNumber: number }[] | null
 ): Promise<{
   allEpisodes: {
     id: number;
@@ -39,7 +40,7 @@ export async function fetchEpisodes(
     vote_average: number;
     runtime: number;
   }[];
-  newEpsiodes: {
+  newEpisodes: {
     id: number;
     episode_number: number;
     season_number: number;
@@ -83,16 +84,19 @@ export async function fetchEpisodes(
       allEpisodes.push(...(season.episodes || []));
     }
 
-    const newEpsiodes = allEpisodes.filter((episode) => {
-      if (!lastWatchedEpisode) return true;
-      return (
-        episode.season_number > lastWatchedEpisode.seasonNumber ||
-        (episode.season_number === lastWatchedEpisode.seasonNumber &&
-          episode.episode_number > lastWatchedEpisode.episodeNumber)
-      );
-    });
+    const newEpisodes = allEpisodes.filter(
+      (episode) =>
+        !watchedEpisodes?.some(
+          (watched) =>
+            watched.episodeNumber === episode.episode_number &&
+            watched.seasonNumber === episode.season_number
+        )
+    );
+    console.log("New Episodes:", newEpisodes.length);
+    console.log("watchedEpisodes:", watchedEpisodes);
+
     return {
-      newEpsiodes,
+      newEpisodes,
       allEpisodes,
     };
   } catch (error) {
