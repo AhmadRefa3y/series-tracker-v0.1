@@ -1,11 +1,12 @@
 import Image from "next/image";
-import { Check, Star, StarIcon } from "lucide-react";
+import { Star, StarIcon } from "lucide-react";
 
 import Link from "next/link";
 import AddToWatchListBtn from "@/app/(root)/shows/components/AddToWatchListBtn";
 import { auth } from "@/auth";
 import { IsSeriesTracked } from "@/data/sharedData";
 import { getTrendingSeries } from "@/app/(root)/shows/showsData";
+import AddToWatchedHistoryBtn from "@/app/(root)/shows/components/AddToWatchedHistoryBtn";
 
 export const revalidate = 3600;
 export default async function Shows() {
@@ -67,9 +68,12 @@ export default async function Shows() {
               session={session}
               isTracked={series.isTracked}
             />
-            <button className="text-white p-2  hover:bg-[#0082ce] duration-200">
-              <Check strokeWidth={4} />
-            </button>
+            <AddToWatchedHistoryBtn
+              isWatched={series.isTracked}
+              seriesData={{ id: series.id.toString(), title: series.name }}
+              session={session}
+              key={`watched-${series.id}`}
+            />
             <button className="text-white p-2  hover:bg-[#ff5f06] duration-200">
               <StarIcon strokeWidth={2} />
             </button>
