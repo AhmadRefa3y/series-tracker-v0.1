@@ -2,7 +2,9 @@ import "server-only";
 import { TrendingSeriesT } from "@/types";
 import { BASE_URL } from "@/lib/constants";
 
-export async function getTrendingSeries(): Promise<TrendingSeriesT[]> {
+export async function getTrendingSeries(
+  isLoggedIn: boolean
+): Promise<TrendingSeriesT[]> {
   try {
     const response = await fetch(
       `${BASE_URL}/trending/tv/week?api_key=${process.env.TMDB_API_KEY}`,
@@ -24,7 +26,32 @@ export async function getTrendingSeries(): Promise<TrendingSeriesT[]> {
 
     const data = await response.json();
 
-    return data.results;
+    if (!isLoggedIn) {
+      return data.results;
+    }
+
+    // Fetch number of episodes for each series only if logged in
+    const seriesWithEpisodes = await Promise.all(
+      data.results.map(async (series: TrendingSeriesT) => {
+        const detailsRes = await fetch(
+          `${BASE_URL}/tv/${series.id}?api_key=${process.env.TMDB_API_KEY}`,
+          {
+            headers: {
+              Accept: "application/json",
+            },
+            cache: "force-cache",
+            next: { revalidate: 86400 },
+          }
+        );
+        const details = await detailsRes.json();
+        return {
+          ...series,
+          number_of_episodes: details.number_of_episodes,
+        };
+      })
+    );
+
+    return seriesWithEpisodes;
   } catch (error) {
     console.error("Error fetching trending series:", error);
     throw new Error("Failed to load trending series", { cause: error });

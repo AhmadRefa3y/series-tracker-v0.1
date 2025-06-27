@@ -6,6 +6,9 @@ import { redirect } from "next/navigation";
 import WelcomeBanner from "@/app/(root)/(private)/dashboard/_components/WelcomeBanner";
 import { UpNextSkeleton } from "@/app/(root)/(private)/dashboard/_components/UpNextSkeleton";
 
+export const metadata = {
+  title: "Dashboard - Sennit",
+};
 const DashBoard = async () => {
   const session = await auth();
   if (!session) {

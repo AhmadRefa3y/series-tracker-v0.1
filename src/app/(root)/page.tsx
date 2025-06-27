@@ -6,6 +6,10 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import React, { Suspense } from "react";
 
+export const metadata = {
+  title: "Home - Sennit",
+  description: "Discover the latest and trending shows on Sennit.",
+};
 const HomePage = async () => {
   const session = await auth();
 

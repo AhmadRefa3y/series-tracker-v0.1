@@ -1,11 +1,12 @@
 "use client";
 import { Dispatch, SetStateAction, useState } from "react";
-import { setEpisodWatched } from "../../actions";
 import { Check, Loader } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Episode } from "@/types/seriesT";
 import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
+import { markEpisodWatched } from "@/app/(root)/(private)/watchlist/actions";
 
 interface MarkEpisodeWatchedBtnProps {
   episodeData: Episode;
@@ -30,6 +31,7 @@ const MarkEpisodeWatchedBtn = ({
   setPerviousWatched,
 }: MarkEpisodeWatchedBtnProps) => {
   const [loading, setLoading] = useState<boolean>(false);
+  const router = useRouter();
 
   const handleUnmarkWatched = async () => {
     setLoading(true);
@@ -45,7 +47,8 @@ const MarkEpisodeWatchedBtn = ({
       if (res.success) {
         const newEpisodes = episodes.map((episode) => {
           if (
-            episode.episodeData.episode_number === episodeData.episode_number
+            episode.episodeData.episode_number === episodeData.episode_number &&
+            episode.episodeData.season_number === episodeData.season_number
           ) {
             return { episodeData: episode.episodeData, isWatched: false };
           } else {
@@ -53,6 +56,8 @@ const MarkEpisodeWatchedBtn = ({
           }
         });
         setPerviousWatched(newEpisodes);
+        toast.success("Episode removed from watch list");
+        router.refresh();
       } else {
         toast.error("Failed to remove episode from watch list");
       }
@@ -63,8 +68,10 @@ const MarkEpisodeWatchedBtn = ({
   };
 
   const handleMarkWatchedSingle = async () => {
+    console.log("Marking episode as watched:", episodeData.episode_number);
+
     setLoading(true);
-    const res = await setEpisodWatched({
+    const res = await markEpisodWatched({
       episodeData: {
         seriesID: seriesId.toString(),
         episodeNumber: episodeData.episode_number,
@@ -83,6 +90,8 @@ const MarkEpisodeWatchedBtn = ({
         }
       });
       setPerviousWatched(newEpisodes);
+      toast.success("Episode marked as watched");
+      router.refresh();
     } else {
       toast.error("Failed to mark episode as watched");
     }

@@ -1,5 +1,5 @@
 "use client";
-import { Check, Loader, History } from "lucide-react";
+import { Check, Loader } from "lucide-react";
 import React, { useState } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -8,19 +8,20 @@ import { addSeriesToWatchedHistory } from "@/lib/actions/sharedActions";
 interface SeriesData {
   id: string;
   title: string;
+  posterPath: string; // Optional, if you want to include poster path
 }
 
 const AddToWatchedHistoryBtn = ({
   seriesData,
-  isWatched,
   session,
+  Finished,
 }: {
   seriesData: SeriesData;
-  isWatched: boolean;
   session: { user?: { id?: string } } | null;
+  Finished: boolean;
 }) => {
   const [isLoading, setIsLoading] = useState(false);
-  const [added, setAdded] = useState<boolean>(isWatched);
+  const [added, setAdded] = useState<boolean>(Finished);
   const router = useRouter();
 
   const handleAddToHistory = async () => {
@@ -34,7 +35,8 @@ const AddToWatchedHistoryBtn = ({
     try {
       const result = await addSeriesToWatchedHistory(
         seriesData.id,
-        seriesData.title
+        seriesData.title,
+        seriesData.posterPath
       );
       if (result.success) {
         toast.success("Series marked as watched", {
@@ -56,7 +58,7 @@ const AddToWatchedHistoryBtn = ({
 
   return (
     <button
-      className={`text-white p-2 hover:bg-[#0082ce] duration-200 rounded-full ${
+      className={`text-white p-2 hover:bg-[#0082ce] duration-200  ${
         added ? "bg-[#0082ce]" : ""
       }`}
       onClick={handleAddToHistory}
@@ -65,10 +67,8 @@ const AddToWatchedHistoryBtn = ({
     >
       {isLoading ? (
         <Loader className="animate-spin" />
-      ) : added ? (
-        <Check strokeWidth={4} />
       ) : (
-        <History strokeWidth={4} />
+        <Check strokeWidth={4} />
       )}
     </button>
   );

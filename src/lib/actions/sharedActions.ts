@@ -13,7 +13,8 @@ type AddSeriesToWatchedHistoryResult = {
 
 export const addSeriesToWatchedHistory = async (
   seriesId: string,
-  title: string
+  title: string,
+  posterPath: string
 ): Promise<AddSeriesToWatchedHistoryResult> => {
   try {
     const userId = await auth();
@@ -22,6 +23,22 @@ export const addSeriesToWatchedHistory = async (
     }
     if (!seriesId || !title) {
       throw new Error("Series ID and title are required");
+    }
+
+    // Check if the series is already in the user's watched history
+    const existingSeries = await prismaDb.series.findFirst({
+      where: {
+        seriesTmdbId: seriesId,
+        userId: userId.user.id as string,
+      },
+    });
+
+    if (existingSeries) {
+      await prismaDb.series.delete({
+        where: {
+          id: existingSeries.id,
+        },
+      });
     }
 
     const allEpisodes = await fetchAllEpisodes(seriesId);
@@ -43,6 +60,7 @@ export const addSeriesToWatchedHistory = async (
             })),
           },
         },
+        posterPath: posterPath,
       },
     });
     if (!createSeries) {

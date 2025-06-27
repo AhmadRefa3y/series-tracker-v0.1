@@ -4,25 +4,47 @@ import { Star, StarIcon } from "lucide-react";
 import Link from "next/link";
 import AddToWatchListBtn from "@/app/(root)/shows/components/AddToWatchListBtn";
 import { auth } from "@/auth";
-import { IsSeriesTracked } from "@/data/sharedData";
 import { getTrendingSeries } from "@/app/(root)/shows/showsData";
 import AddToWatchedHistoryBtn from "@/app/(root)/shows/components/AddToWatchedHistoryBtn";
+import prismaDb from "@/lib/prisma";
 
-export const revalidate = 3600;
+export const metadata = {
+  title: "Trending Shows - Sennit ",
+};
 export default async function Shows() {
   const session = await auth();
-  const series = await getTrendingSeries();
+  const TrendingShows = await getTrendingSeries(!!session?.user);
 
-  const seriesWithTrackingStatus = await Promise.all(
-    series.map(async (s) => {
-      const isTracked = await IsSeriesTracked({ seriesID: s.id.toString() });
-      return {
-        ...s,
-        isTracked: !!isTracked,
-      };
-    })
-  );
+  const UserShows = session?.user
+    ? await prismaDb.series.findMany({
+        where: {
+          userId: session.user.id,
+        },
+        include: {
+          watchedEpisodes: true,
+        },
+      })
+    : [];
+  const seriesWithTrackingStatus = TrendingShows.map((TShow) => ({
+    ...TShow,
+    isTracked: UserShows.some(
+      (UserShows) => UserShows.seriesTmdbId === TShow.id.toString()
+    ),
+    Finished: UserShows.some(
+      (Show) =>
+        Show.seriesTmdbId === TShow.id.toString() &&
+        Show.watchedEpisodes.length === TShow.number_of_episodes
+    ),
+    watchedEpisodes:
+      UserShows.find((Show) => Show.seriesTmdbId === TShow.id.toString())
+        ?.watchedEpisodes.length || 0,
+  }));
 
+  seriesWithTrackingStatus.map((series) => {
+    console.log(
+      `Series: ${series.name}, watchedEpisodes: ${series.watchedEpisodes}, number_of_episodes: ${series.number_of_episodes}`
+    );
+  });
   return (
     <div className="grid w-full grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4  ">
       {seriesWithTrackingStatus.map((series) => (
@@ -69,8 +91,12 @@ export default async function Shows() {
               isTracked={series.isTracked}
             />
             <AddToWatchedHistoryBtn
-              isWatched={series.isTracked}
-              seriesData={{ id: series.id.toString(), title: series.name }}
+              Finished={series.Finished}
+              seriesData={{
+                id: series.id.toString(),
+                title: series.name,
+                posterPath: `https://image.tmdb.org/t/p/w780/${series.poster_path}`,
+              }}
               session={session}
               key={`watched-${series.id}`}
             />

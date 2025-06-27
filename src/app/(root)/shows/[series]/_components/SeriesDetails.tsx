@@ -17,6 +17,8 @@ const SeriesDetails = ({
     poster_path: string;
     name: string;
     isTracked: boolean;
+    Finished: boolean;
+    watchedEpisodes: number;
   };
 }) => {
   return (
@@ -85,6 +87,8 @@ const SeriesDetails = ({
           poster: `${IMAGE_BASE_URL}${seriesDetails.poster_path}`,
           title: seriesDetails.name,
           isTracked: seriesDetails.isTracked,
+          Finished: seriesDetails.Finished,
+          watchedEpisodes: seriesDetails.watchedEpisodes,
         }}
       />
     </div>

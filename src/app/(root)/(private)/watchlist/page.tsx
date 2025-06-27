@@ -6,6 +6,9 @@ import { getCurrentUser } from "@/lib/actions/userActions";
 import { getUserSeriesWatchlist } from "@/data/sharedData";
 
 export const dynamic = "force-dynamic";
+export const metadata = {
+  title: "Watchlist - Sennit ",
+};
 export default async function Watchlist() {
   await getCurrentUser("/watchlist");
 

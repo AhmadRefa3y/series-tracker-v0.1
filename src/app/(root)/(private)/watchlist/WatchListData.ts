@@ -92,9 +92,6 @@ export async function fetchEpisodes(
             watched.seasonNumber === episode.season_number
         )
     );
-    console.log("New Episodes:", newEpisodes.length);
-    console.log("watchedEpisodes:", watchedEpisodes);
-
     return {
       newEpisodes,
       allEpisodes,

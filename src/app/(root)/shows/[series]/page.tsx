@@ -8,6 +8,22 @@ import SeriesHeader from "@/app/(root)/shows/[series]/_components/SeriesHeader";
 import SeriesDetails from "@/app/(root)/shows/[series]/_components/SeriesDetails";
 import SeriesSidebar from "@/app/(root)/shows/[series]/_components/SeriesSidebar";
 import SeriesBackdrop from "@/app/(root)/shows/[series]/_components/SeriesBackdrop";
+import { auth } from "@/auth";
+import prismaDb from "@/lib/prisma";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ series: string }>;
+}) {
+  const { series } = await params;
+  const seriesId = series.split("-")[1];
+  const seriesDetails = await getSeriesDetails(seriesId);
+
+  return {
+    title: `${seriesDetails.name} - Sennit`,
+  };
+}
 
 export default async function Page({
   params,
@@ -18,11 +34,25 @@ export default async function Page({
     season: string;
   }>;
 }) {
+  const user = await auth();
   const { series } = await params;
   const { season = 1 } = await searchParams;
   const seriesId = series.split("-")[1];
   const currentSeason = await getSeriesSeasons(seriesId, +season);
   const seriesDetails = await getSeriesDetails(seriesId);
+  console.log("Series Details:", seriesDetails);
+
+  const seriesDB = user?.user
+    ? await prismaDb.series.findFirst({
+        where: {
+          seriesTmdbId: seriesId,
+          userId: user?.user.id,
+        },
+        include: {
+          watchedEpisodes: true,
+        },
+      })
+    : null;
 
   return (
     <div className="w-full flex flex-col flex-1  text-white">
@@ -49,6 +79,10 @@ export default async function Page({
                 isTracked: !!(await IsSeriesTracked({ seriesID: seriesId })),
                 tagline: seriesDetails.tagline || undefined,
                 poster_path: seriesDetails.poster_path || "",
+                Finished:
+                  seriesDetails.number_of_episodes ===
+                  seriesDB?.watchedEpisodes.length,
+                watchedEpisodes: seriesDB?.watchedEpisodes.length || 0,
               }}
             />
 
