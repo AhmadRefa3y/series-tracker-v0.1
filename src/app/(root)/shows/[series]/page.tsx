@@ -36,9 +36,7 @@ export default async function Page({
 }) {
   const user = await auth();
   const { series } = await params;
-  const { season = 1 } = await searchParams;
   const seriesId = series.split("-")[1];
-  const currentSeason = await getSeriesSeasons(seriesId, +season);
   const seriesDetails = await getSeriesDetails(seriesId);
   console.log("Series Details:", seriesDetails);
 
@@ -88,7 +86,6 @@ export default async function Page({
 
             <div className="px-2 sm:px-0">
               <Suspense
-                key={season}
                 fallback={
                   <div className="flex w-full  items-center justify-center h-screen">
                     <RefreshCcw
@@ -100,7 +97,6 @@ export default async function Page({
                 }
               >
                 <Episodes
-                  seasonData={currentSeason!}
                   seriesId={+seriesId}
                   seriesImage={seriesDetails.backdrop_path || ""}
                 />

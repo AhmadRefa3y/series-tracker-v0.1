@@ -7,16 +7,11 @@ import { fetchAllEpisodes } from "@/data/globalData";
 import { auth } from "@/auth";
 
 interface EpisodesProps {
-  seasonData: Season;
   seriesId: number;
   seriesImage: string;
 }
 
-const Episodes = async ({
-  // seasonData,
-  seriesId,
-  seriesImage,
-}: EpisodesProps) => {
+const Episodes = async ({ seriesId, seriesImage }: EpisodesProps) => {
   const user = await auth();
   const watchedEpisodes = user?.user?.id
     ? await prismaDb.watchedEpisode.findMany({
