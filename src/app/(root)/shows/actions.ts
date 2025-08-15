@@ -243,9 +243,10 @@ export const markSeasonAsWatched = async ({
   seasonNumber: number;
 }) => {
   const userId = await auth();
-  if (!userId?.user?.id) {
+  if (!userId?.user?.id || !userId.user) {
     redirect("/sign-in");
   }
+  const loggedInUserId = userId.user.id;
 
   try {
     // 1. Fetch all episodes for the series and season
@@ -275,7 +276,7 @@ export const markSeasonAsWatched = async ({
     const watchedEpisodesForSeason = seriesExists.watchedEpisodes.filter(
       (watched) => watched.seasonNumber === seasonNumber
     );
-    
+
     const episodesToMark = allEpisodes
       .filter(
         (episode) =>
@@ -285,7 +286,7 @@ export const markSeasonAsWatched = async ({
       )
       .map((episode) => ({
         seriesId: seriesExists.id,
-        userId: userId.user.id,
+        userId: loggedInUserId,
         seasonNumber: episode.season_number,
         episodeNumber: episode.episode_number,
       }));
@@ -319,6 +320,59 @@ export const markSeasonAsWatched = async ({
     return {
       success: false,
       message: "Failed to mark season as watched",
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
+};
+
+export const unmarkSeasonAsWatched = async ({
+  seriesID,
+  seasonNumber,
+}: {
+  seriesID: string;
+  seasonNumber: number;
+}) => {
+  const userId = await auth();
+  if (!userId?.user?.id) {
+    redirect("/sign-in");
+  }
+
+  try {
+    // 1. Find the series in the database
+    const seriesExists = await prismaDb.series.findUnique({
+      where: {
+        seriesTmdbId_userId: {
+          userId: userId.user.id,
+          seriesTmdbId: seriesID,
+        },
+      },
+    });
+
+    if (!seriesExists) {
+      throw new Error(
+        "Series does not exist in the database. Insert it first."
+      );
+    }
+
+    // 2. Delete all WatchedEpisode records for the season
+    const result = await prismaDb.watchedEpisode.deleteMany({
+      where: {
+        seriesId: seriesExists.id,
+        userId: userId.user.id,
+        seasonNumber: seasonNumber,
+      },
+    });
+
+    return {
+      success: true,
+      message: `Season ${seasonNumber} unmarked as watched`,
+      data: result,
+    };
+  } catch (error) {
+    console.error("Error in unmarkSeasonAsWatched:", error);
+    return {
+      success: false,
+      message: "Failed to unmark season as watched",
       error: error instanceof Error ? error.message : "Unknown error",
     };
   }
