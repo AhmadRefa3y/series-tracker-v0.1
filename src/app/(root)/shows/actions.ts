@@ -234,3 +234,92 @@ export const unMarkEpisodeWatched = async ({
     };
   }
 };
+
+export const markSeasonAsWatched = async ({
+  seriesID,
+  seasonNumber,
+}: {
+  seriesID: string;
+  seasonNumber: number;
+}) => {
+  const userId = await auth();
+  if (!userId?.user?.id) {
+    redirect("/sign-in");
+  }
+
+  try {
+    // 1. Fetch all episodes for the series and season
+    const allEpisodes = await fetchAllEpisodes(seriesID, seasonNumber);
+    if (!allEpisodes || allEpisodes.length === 0) {
+      throw new Error("No episodes found for this season");
+    }
+
+    // 2. Find the series in the database
+    const seriesExists = await prismaDb.series.findUnique({
+      where: {
+        seriesTmdbId_userId: {
+          userId: userId.user.id,
+          seriesTmdbId: seriesID,
+        },
+      },
+      include: { watchedEpisodes: true },
+    });
+
+    if (!seriesExists) {
+      throw new Error(
+        "Series does not exist in the database. Insert it first."
+      );
+    }
+
+    // 3. Prepare data for new WatchedEpisode records
+    const watchedEpisodesForSeason = seriesExists.watchedEpisodes.filter(
+      (watched) => watched.seasonNumber === seasonNumber
+    );
+    
+    const episodesToMark = allEpisodes
+      .filter(
+        (episode) =>
+          !watchedEpisodesForSeason.some(
+            (watched) => watched.episodeNumber === episode.episode_number
+          )
+      )
+      .map((episode) => ({
+        seriesId: seriesExists.id,
+        userId: userId.user.id,
+        seasonNumber: episode.season_number,
+        episodeNumber: episode.episode_number,
+      }));
+
+    // 4. Create WatchedEpisode records and update series timestamp
+    const result = await prismaDb.$transaction([
+      prismaDb.watchedEpisode.createMany({
+        data: episodesToMark,
+        skipDuplicates: true, // In case of race conditions or other issues
+      }),
+      prismaDb.series.update({
+        where: {
+          seriesTmdbId_userId: {
+            userId: userId.user.id,
+            seriesTmdbId: seriesID,
+          },
+        },
+        data: {
+          latestWatchedAt: new Date(),
+        },
+      }),
+    ]);
+
+    return {
+      success: true,
+      message: `Season ${seasonNumber} marked as watched`,
+      data: result,
+    };
+  } catch (error) {
+    console.error("Error in markSeasonAsWatched:", error);
+    return {
+      success: false,
+      message: "Failed to mark season as watched",
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
+};
