@@ -1,5 +1,4 @@
 // seasons.tsx
-import { Season } from "@/types/seriesT";
 import EpisodesGrid from "@/app/(root)/shows/[series]/_components/EpisodesGrid";
 import prismaDb from "@/lib/prisma";
 // import { fetchEpisodes } from "@/app/(root)/(private)/watchlist/WatchListData";

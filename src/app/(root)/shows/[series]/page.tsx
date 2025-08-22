@@ -1,7 +1,7 @@
 import { RefreshCcw } from "lucide-react";
 
 import React, { Suspense } from "react";
-import { getSeriesDetails, getSeriesSeasons } from "./seriesData";
+import { getSeriesDetails } from "./seriesData";
 import { IsSeriesTracked } from "@/data/sharedData";
 import Episodes from "./_components/Episodes";
 import SeriesHeader from "@/app/(root)/shows/[series]/_components/SeriesHeader";
@@ -27,7 +27,6 @@ export async function generateMetadata({
 
 export default async function Page({
   params,
-  searchParams,
 }: {
   params: Promise<{ series: string }>;
   searchParams: Promise<{
