@@ -3,11 +3,10 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { IMAGE_BASE_URL } from "@/lib/constants";
-import { StarIcon, Check, X } from "lucide-react";
+import { StarIcon, Check } from "lucide-react";
 import { Episode } from "@/types/seriesT";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import MarkEpisodeWatchedBtn from "./MarkEpisodeWatchedBtn";
-import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import {
