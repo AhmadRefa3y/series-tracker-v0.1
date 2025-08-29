@@ -106,7 +106,7 @@ const SeriesData = ({
           </div>
 
           {!completed && (
-            <div className="flex flex-col items-start py-2 w-full pr-2  z-10 absolute bottom-0 opacity-0 duration-200 group-hover:opacity-100">
+            <div className="flex flex-col items-start py-2 w-full pr-2  z-10 absolute bottom-0 md:opacity-0 duration-200 md:group-hover:opacity-100">
               <div className="absolute inset-0 bg-gradient-to-b from-transparent from-0% via-10% via-black/70 to-100%  to-black " />
               <div className="flex flex-col overflow-hidden w-full  z-50 h-fit pl-2 ">
                 {currentEpisode && (
@@ -118,7 +118,7 @@ const SeriesData = ({
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.3 }}
-                        className=" w-full flex gap-1 "
+                        className=" w-full flex justify-between gap-1 "
                       >
                         <span className="text-sm line-clamp-4">
                           {currentEpisode?.name}
@@ -139,7 +139,7 @@ const SeriesData = ({
                     transition={{ duration: 0.3 }}
                     className="block w-full"
                   >
-                    <span className="whitespace-pre-wrap font-light text-sm max-h-full capitalize line-clamp-[4] hover:line-clamp-[10] ">
+                    <span className="whitespace-pre-wrap font-light text-sm max-h-full capitalize line-clamp-[4] md:hover:line-clamp-[10] ">
                       {currentEpisode?.overview}
                     </span>
                   </motion.div>
