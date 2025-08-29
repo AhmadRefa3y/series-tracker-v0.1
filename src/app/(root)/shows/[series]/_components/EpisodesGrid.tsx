@@ -155,7 +155,7 @@ export default function EpisodesGrid({
       {uniqSeasons.map((season) => {
         return (
           <TabsContent key={season} value={season.toString()}>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 items-start justify-start gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 items-start justify-start sm:gap-2">
               {episodesState
                 .filter(
                   ({ episodeData }) => episodeData.season_number === season
