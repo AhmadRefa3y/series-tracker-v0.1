@@ -43,6 +43,7 @@ export default function EpisodesGrid({
   const uniqSeasons = Array.from(
     new Set(episodesState.map(({ episodeData }) => episodeData.season_number))
   ).sort((a, b) => a - b);
+  const [activeSeason, setActiveSeason] = useState(uniqSeasons[0].toString()); // default active
 
   const handleSeasonWatchToggle = async (seasonNumber: number) => {
     // Check if all episodes in the season are currently watched
@@ -98,62 +99,63 @@ export default function EpisodesGrid({
   };
 
   return (
-    <Tabs defaultValue={uniqSeasons[0].toString()} className="w-full">
-      <TabsList className="flex flex-wrap h-full w-full">
-        {uniqSeasons.map((season) => (
-          <TabsTrigger
-            key={season}
-            value={season.toString()}
-            className="w-[100px] font-bold"
-          >
-            Season {season}
-          </TabsTrigger>
-        ))}
+    <Tabs
+      defaultValue={uniqSeasons[0].toString()}
+      className="w-full"
+      onValueChange={(val) => setActiveSeason(val)}
+    >
+      <TabsList className="flex flex-wrap h-full w-full mt-4 ">
+        {uniqSeasons.map((season) => {
+          // Check if all episodes in the current season are watched
+          const episodesInSeason = episodesState.filter(
+            (ep) => ep.episodeData.season_number === season
+          );
+          const allWatched = episodesInSeason.every((ep) => ep.isWatched);
+
+          return (
+            <TabsTrigger
+              key={season}
+              value={season.toString()}
+              className="w-[100px] font-bold relative"
+            >
+              <span> Season {season}</span>
+              {/* Mark/Unmark Season as Watched Button */}
+              {season === parseInt(activeSeason) && (
+                <div className="absolute bottom-[90%] left-1/2 -translate-x-1/2">
+                  <button
+                    onClick={() => handleSeasonWatchToggle(season)}
+                    disabled={
+                      seasonLoading[season] ||
+                      !markSeasonAsWatched ||
+                      !unmarkSeasonAsWatched
+                    }
+                    className={`flex items-center justify-center rounded-full p-2 hover:opacity-80 disabled:opacity-50 transition
+                     ${
+                       !allWatched
+                         ? "bg-primary border border-black"
+                         : "bg-purple-600 hover:bg-purple-700"
+                     }
+                     `}
+                  >
+                    {seasonLoading[season] ? (
+                      <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                    ) : (
+                      <Check
+                        className={`w-4 h-4 ${
+                          allWatched ? "text-white" : "text-white"
+                        }`}
+                      />
+                    )}
+                  </button>
+                </div>
+              )}
+            </TabsTrigger>
+          );
+        })}
       </TabsList>
       {uniqSeasons.map((season) => {
-        // Check if all episodes in the current season are watched
-        const episodesInSeason = episodesState.filter(
-          (ep) => ep.episodeData.season_number === season
-        );
-        const allWatched = episodesInSeason.every((ep) => ep.isWatched);
-
         return (
           <TabsContent key={season} value={season.toString()}>
-            {/* Mark/Unmark Season as Watched Button */}
-            <div className="mb-4">
-              <Button
-                onClick={() => handleSeasonWatchToggle(season)}
-                disabled={
-                  seasonLoading[season] ||
-                  !markSeasonAsWatched ||
-                  !unmarkSeasonAsWatched
-                }
-                className={
-                  allWatched
-                    ? "bg-red-600 hover:bg-red-700 text-white"
-                    : "bg-purple-600 hover:bg-purple-700 text-white"
-                }
-              >
-                {seasonLoading[season] ? (
-                  <span className="flex items-center">
-                    <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-solid border-white border-t-transparent"></span>
-                    {allWatched ? "Unmarking..." : "Marking..."}
-                  </span>
-                ) : (
-                  <span className="flex items-center">
-                    {allWatched ? (
-                      <X className="mr-2 h-4 w-4" />
-                    ) : (
-                      <Check className="mr-2 h-4 w-4" />
-                    )}
-                    {allWatched
-                      ? `Unmark Season ${season} as Watched`
-                      : `Mark Season ${season} as Watched`}
-                  </span>
-                )}
-              </Button>
-            </div>
-
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 items-start justify-start gap-2">
               {episodesState
                 .filter(

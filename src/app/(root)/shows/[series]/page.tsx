@@ -69,7 +69,7 @@ export default async function Page({
               number_of_seasons: seriesDetails.number_of_seasons,
             }}
           />
-          <div className="flex flex-col flex-1 gap-2 pb-5">
+          <div className="flex flex-col flex-1 gap-2 sm:pb-5">
             <SeriesDetails
               seriesDetails={{
                 ...seriesDetails,
@@ -83,7 +83,7 @@ export default async function Page({
               }}
             />
 
-            <div className="px-2 sm:px-0">
+            <div className="sm:px-0">
               <Suspense
                 fallback={
                   <div className="flex w-full  items-center justify-center h-screen">
