@@ -27,33 +27,41 @@ export async function getTrendingSeries(
     const data = await response.json();
 
     if (!isLoggedIn) {
-      return data.results;
+      return data.results || [];
     }
 
     // Fetch number of episodes for each series only if logged in
     const seriesWithEpisodes = await Promise.all(
-      data.results.map(async (series: TrendingSeriesT) => {
-        const detailsRes = await fetch(
-          `${BASE_URL}/tv/${series.id}?api_key=${process.env.TMDB_API_KEY}`,
-          {
-            headers: {
-              Accept: "application/json",
-            },
-            cache: "force-cache",
-            next: { revalidate: 86400 },
-          }
-        );
-        const details = await detailsRes.json();
-        return {
-          ...series,
-          number_of_episodes: details.number_of_episodes,
-        };
+      (data.results || []).map(async (series: TrendingSeriesT) => {
+        try {
+          const detailsRes = await fetch(
+            `${BASE_URL}/tv/${series.id}?api_key=${process.env.TMDB_API_KEY}`,
+            {
+              headers: {
+                Accept: "application/json",
+              },
+              cache: "force-cache",
+              next: { revalidate: 86400 },
+            }
+          );
+          const details = await detailsRes.json();
+          return {
+            ...series,
+            number_of_episodes: details.number_of_episodes || 0,
+          };
+        } catch (error) {
+          // If we can't fetch details, return the series with 0 episodes
+          return {
+            ...series,
+            number_of_episodes: 0,
+          };
+        }
       })
     );
 
     return seriesWithEpisodes;
   } catch (error) {
     console.error("Error fetching trending series:", error);
-    throw new Error("Failed to load trending series", { cause: error });
+    return []; // Return empty array instead of throwing error
   }
 }
