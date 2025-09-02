@@ -120,7 +120,7 @@ export default async function Shows({
       </Suspense>
 
       <Suspense fallback={<ShowsSkeleton />} key={JSON.stringify(searchParams)}>
-        <div className="grid w-full grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="grid w-full grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 ">
           {seriesWithTrackingStatus.length === 0 ? (
             <div className="text-center py-10 col-span-full">
               <h2 className="text-xl font-bold">No shows found</h2>
