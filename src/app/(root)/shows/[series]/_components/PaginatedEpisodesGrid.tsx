@@ -1,7 +1,5 @@
-// This file is kept for backward compatibility but is no longer used in the main flow
-// The PaginatedEpisodesGrid component is now used instead
-
 "use client";
+
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
@@ -38,6 +36,10 @@ export default function EpisodesGrid({
   ); // Track loading state per season
   const router = useRouter();
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const episodesPerPage = 25; // Show 12 episodes per page
+
   useEffect(() => {
     setEpisodesState(episodes);
   }, [episodes]);
@@ -46,6 +48,17 @@ export default function EpisodesGrid({
     new Set(episodesState.map(({ episodeData }) => episodeData.season_number))
   ).sort((a, b) => a - b);
   const [activeSeason, setActiveSeason] = useState(uniqSeasons[0].toString()); // default active
+
+  // Get episodes for the active season
+  const episodesInActiveSeason = episodesState.filter(
+    ({ episodeData }) => episodeData.season_number === parseInt(activeSeason)
+  );
+
+  // Calculate pagination for the active season
+  const totalPages = Math.ceil(episodesInActiveSeason.length / episodesPerPage);
+  const startIndex = (currentPage - 1) * episodesPerPage;
+  const endIndex = startIndex + episodesPerPage;
+  const currentEpisodes = episodesInActiveSeason.slice(startIndex, endIndex);
 
   const handleSeasonWatchToggle = async (seasonNumber: number) => {
     // Check if all episodes in the season are currently watched
@@ -100,13 +113,28 @@ export default function EpisodesGrid({
     }
   };
 
+  // Handle page change
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    // Scroll to top of episodes grid
+    const gridElement = document.getElementById("episodes-grid");
+    if (gridElement) {
+      gridElement.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  // Reset to first page when season changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeSeason]);
+
   return (
     <Tabs
       defaultValue={uniqSeasons[0].toString()}
       className="w-full"
       onValueChange={(val) => setActiveSeason(val)}
     >
-      <TabsList className="flex flex-wrap h-full w-full mt-4 ">
+      <TabsList className="flex flex-wrap h-full w-full mt-4">
         {uniqSeasons.map((season) => {
           // Check if all episodes in the current season are watched
           const episodesInSeason = episodesState.filter(
@@ -158,12 +186,9 @@ export default function EpisodesGrid({
       {uniqSeasons.map((season) => {
         return (
           <TabsContent key={season} value={season.toString()}>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 items-start justify-start sm:gap-2">
-              {episodesState
-                .filter(
-                  ({ episodeData }) => episodeData.season_number === season
-                )
-                .map(({ episodeData, isWatched }, i) => (
+            <div id="episodes-grid">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 items-start justify-start sm:gap-2">
+                {currentEpisodes.map(({ episodeData, isWatched }, i) => (
                   <div key={i}>
                     <div
                       className={cn(
@@ -227,6 +252,46 @@ export default function EpisodesGrid({
                     </div>
                   </div>
                 ))}
+              </div>
+
+              {/* Pagination Controls */}
+              {totalPages > 1 && (
+                <div className="flex justify-center items-center mt-6 gap-2">
+                  <button
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className="px-3 py-1 rounded bg-gray-700 text-white disabled:opacity-50"
+                  >
+                    Previous
+                  </button>
+
+                  <div className="flex gap-1">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                      (page) => (
+                        <button
+                          key={page}
+                          onClick={() => handlePageChange(page)}
+                          className={`px-3 py-1 rounded ${
+                            currentPage === page
+                              ? "bg-[#ff5f06] text-white"
+                              : "bg-gray-700 text-white"
+                          }`}
+                        >
+                          {page}
+                        </button>
+                      )
+                    )}
+                  </div>
+
+                  <button
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className="px-3 py-1 rounded bg-gray-700 text-white disabled:opacity-50"
+                  >
+                    Next
+                  </button>
+                </div>
+              )}
             </div>
           </TabsContent>
         );

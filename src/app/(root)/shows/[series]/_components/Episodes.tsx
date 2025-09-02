@@ -1,5 +1,5 @@
 // seasons.tsx
-import EpisodesGrid from "@/app/(root)/shows/[series]/_components/EpisodesGrid";
+import PaginatedEpisodesGrid from "@/app/(root)/shows/[series]/_components/PaginatedEpisodesGrid";
 import prismaDb from "@/lib/prisma";
 // import { fetchEpisodes } from "@/app/(root)/(private)/watchlist/WatchListData";
 import { fetchAllEpisodes } from "@/data/globalData";
@@ -34,8 +34,8 @@ const Episodes = async ({ seriesId, seriesImage }: EpisodesProps) => {
   }));
 
   return (
-    <div className="flex flex-col text-black gap-3 items-start ">
-      <EpisodesGrid
+    <div className="flex flex-col text-black gap-3 items-start">
+      <PaginatedEpisodesGrid
         episodes={episodesWithWatchStatus}
         seriesId={seriesId}
         seriesImage={seriesImage}
