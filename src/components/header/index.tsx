@@ -8,7 +8,7 @@ import MobileNavBar from "@/components/header/mobileNavBar";
 export async function Header() {
   const session = await auth();
   return (
-    <header className="sticky top-0 z-50 w-full bg-black/30 backdrop-blur-sm h-16 text-neutralColor font-extrabold text-lg ">
+    <header className="sticky top-0 z-50 w-full bg-black backdrop-blur-sm h-16 text-neutralColor font-extrabold text-lg ">
       <div className="container flex h-16 items-center justify-between mx-auto">
         <div className="flex justify-between items-center gap-2 md:gap-4 w-full h-full">
           <div className="flex items-center gap-4 z-10">

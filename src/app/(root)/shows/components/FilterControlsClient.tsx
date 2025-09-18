@@ -10,28 +10,34 @@ interface FilterControlsProps {
   genres: Genre[];
 }
 
-export default function FilterControlsClient({
-  genres,
-}: FilterControlsProps) {
+export default function FilterControlsClient({ genres }: FilterControlsProps) {
   const searchParams = useSearchParams();
   const { isPending, updateFilters } = useFilterTransition();
   const debounceTimer = useRef<NodeJS.Timeout | null>(null);
-  
+
   const [selectedGenreIds, setSelectedGenreIds] = useState<number[]>(() => {
     const genreIds = searchParams.get("genreIds");
     return genreIds ? genreIds.split(",").map(Number) : [];
   });
-  
+
   const [startDate, setStartDate] = useState<string>(() => {
-    return searchParams.get("startDate") || "";
+    return searchParams.get("first_air_date.gte") || "";
   });
-  
+
   const [endDate, setEndDate] = useState<string>(() => {
-    return searchParams.get("endDate") || "";
+    return searchParams.get("first_air_date.lte") || "";
   });
-  
-  const [sortBy, setSortBy] = useState<string>(() => {
-    return searchParams.get("sortBy") || "popularity.desc";
+
+  const [sort_by, setSort_by] = useState<string>(() => {
+    return searchParams.get("sort_by") || "popularity.desc";
+  });
+
+  const [voteAverageGte, setVoteAverageGte] = useState<string>(() => {
+    return searchParams.get("vote_average.gte") || "";
+  });
+
+  const [voteAverageLte, setVoteAverageLte] = useState<string>(() => {
+    return searchParams.get("vote_average.lte") || "";
   });
 
   // Update URL when filters change (with debounce)
@@ -40,44 +46,56 @@ export default function FilterControlsClient({
     if (debounceTimer.current) {
       clearTimeout(debounceTimer.current);
     }
-    
+
     // Set new timer
     debounceTimer.current = setTimeout(() => {
       const params: Record<string, string | undefined> = {};
-      
+
       if (selectedGenreIds.length > 0) {
         params.genreIds = selectedGenreIds.join(",");
       } else {
         params.genreIds = undefined;
       }
-      
+
       if (startDate) {
-        params.startDate = startDate;
+        params["first_air_date.gte"] = startDate;
       } else {
-        params.startDate = undefined;
+        params["first_air_date.gte"] = undefined;
       }
-      
+
       if (endDate) {
-        params.endDate = endDate;
+        params["first_air_date.lte"] = endDate;
       } else {
-        params.endDate = undefined;
+        params["first_air_date.lte"] = undefined;
       }
-      
-      if (sortBy && sortBy !== "popularity.desc") {
-        params.sortBy = sortBy;
+
+      if (sort_by && sort_by !== "popularity.desc") {
+        params.sort_by = sort_by;
       } else {
-        params.sortBy = undefined;
+        params.sort_by = undefined;
       }
-      
+
+      if (voteAverageGte) {
+        params["vote_average.gte"] = voteAverageGte;
+      } else {
+        params["vote_average.gte"] = undefined;
+      }
+
+      if (voteAverageLte) {
+        params["vote_average.lte"] = voteAverageLte;
+      } else {
+        params["vote_average.lte"] = undefined;
+      }
+
       updateFilters(params);
     }, 300);
-    
+
     return () => {
       if (debounceTimer.current) {
         clearTimeout(debounceTimer.current);
       }
     };
-  }, [selectedGenreIds, startDate, endDate, sortBy]);
+  }, [selectedGenreIds, startDate, endDate, sort_by, voteAverageGte, voteAverageLte]);
 
   const handleGenreChange = (genreId: number) => {
     setSelectedGenreIds((prev) =>
@@ -91,30 +109,52 @@ export default function FilterControlsClient({
     setSelectedGenreIds([]);
     setStartDate("");
     setEndDate("");
-    setSortBy("popularity.desc");
+    setSort_by("popularity.desc");
+    setVoteAverageGte("");
+    setVoteAverageLte("");
   };
 
-  const isFilterActive = selectedGenreIds.length > 0 || startDate || endDate;
+  const isFilterActive = selectedGenreIds.length > 0 || startDate || endDate || voteAverageGte || voteAverageLte;
 
   return (
-    <div className="mb-6 p-4 bg-[#1a1a1a] rounded-lg">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <h2 className="text-xl font-bold">Filter Shows</h2>
+    <div className=" p-4 bg-[#1a1a1a] w-[300px] flex flex-col h-full">
+      <div className="flex flex-col  gap-4">
+        <h2 className="text-xl font-bold text-white">Filter Shows</h2>
         {isFilterActive && (
           <button
             onClick={clearFilters}
-            className="px-3 py-1 text-sm bg-red-600 hover:bg-red-700 rounded-md transition-colors"
+            className="px-3 py-1 text-sm text-white bg-red-600 hover:bg-red-700 rounded-md transition-colors"
           >
             Clear All Filters
           </button>
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+      <div className="flex flex-col gap-4 mt-4">
+        {/* Sort By Filter */}
+        <div>
+          <label className="block text-sm font-medium mb-1 text-primaryColor">
+            Sort By
+          </label>
+          <select
+            value={sort_by}
+            onChange={(e) => setSort_by(e.target.value)}
+            className="w-full bg-[#343434] border border-[#444444] rounded-md p-2 text-white"
+          >
+            <option value="popularity.desc">Popularity (High to Low)</option>
+            <option value="popularity.asc">Popularity (Low to High)</option>
+            <option value="vote_count.desc">Vote Count (High to Low)</option>
+            <option value="vote_count.asc">Vote Count (Low to High)</option>
+            <option value="first_air_date.desc">Release Date (Newest)</option>
+            <option value="first_air_date.asc">Release Date (Oldest)</option>
+          </select>
+        </div>
         {/* Genre Filter */}
         <div>
-          <label className="block text-sm font-medium mb-1">Genres</label>
-          <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto p-1">
+          <label className="block text-sm font-medium mb-1 text-primaryColor">
+            Genres
+          </label>
+          <div className="flex flex-wrap gap-2 ">
             {genres.map((genre) => (
               <button
                 key={genre.id}
@@ -133,7 +173,9 @@ export default function FilterControlsClient({
 
         {/* Date Range Filter */}
         <div>
-          <label className="block text-sm font-medium mb-1">Release Date</label>
+          <label className="block text-sm font-medium mb-1 text-primaryColor">
+            Release Date
+          </label>
           <div className="flex flex-col gap-2">
             <input
               type="date"
@@ -150,23 +192,34 @@ export default function FilterControlsClient({
           </div>
         </div>
 
-        {/* Sort By Filter */}
+        {/* Vote Average Filter */}
         <div>
-          <label className="block text-sm font-medium mb-1">Sort By</label>
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-            className="w-full bg-[#343434] border border-[#444444] rounded-md p-2 text-white"
-          >
-            <option value="popularity.desc">Popularity (High to Low)</option>
-            <option value="popularity.asc">Popularity (Low to High)</option>
-            <option value="first_air_date.desc">Release Date (Newest)</option>
-            <option value="first_air_date.asc">Release Date (Oldest)</option>
-            <option value="vote_average.desc">Rating (High to Low)</option>
-            <option value="vote_average.asc">Rating (Low to High)</option>
-          </select>
+          <label className="block text-sm font-medium mb-1 text-primaryColor">
+            Vote Average
+          </label>
+          <div className="flex gap-2">
+            <input
+              type="number"
+              min="0"
+              max="10"
+              step="0.1"
+              placeholder="Min"
+              value={voteAverageGte}
+              onChange={(e) => setVoteAverageGte(e.target.value)}
+              className="w-full bg-[#343434] border border-[#444444] rounded-md p-2 text-white"
+            />
+            <input
+              type="number"
+              min="0"
+              max="10"
+              step="0.1"
+              placeholder="Max"
+              value={voteAverageLte}
+              onChange={(e) => setVoteAverageLte(e.target.value)}
+              className="w-full bg-[#343434] border border-[#444444] rounded-md p-2 text-white"
+            />
+          </div>
         </div>
-        
         {/* Loading indicator */}
         {isPending && (
           <div className="flex items-center justify-center md:col-span-1 lg:col-span-1">

@@ -7,8 +7,8 @@ export interface DiscoverTvParams {
   language?: string;
   sort_by?: string;
   first_air_date_year?: number;
-  first_air_date_gte?: string; // Format: YYYY-MM-DD
-  first_air_date_lte?: string; // Format: YYYY-MM-DD
+  "first_air_date.gte"?: string; // Format: YYYY-MM-DD
+  "first_air_date.lte"?: string; // Format: YYYY-MM-DD
   with_genres?: string; // Comma separated genre IDs
   without_genres?: string; // Comma separated genre IDs
   with_runtime_gte?: number;
@@ -16,8 +16,8 @@ export interface DiscoverTvParams {
   with_original_language?: string;
   without_keywords?: string;
   vote_count_gte?: number;
-  vote_average_gte?: number;
-  vote_average_lte?: number;
+  "vote_average.gte"?: number;
+  "vote_average.lte"?: number;
   with_networks?: string;
   with_status?: number; // 0: Returning, 1: Planned, 2: In Production, 3: Ended, 4: Cancelled, 5: Pilot
   include_null_first_air_dates?: boolean;
@@ -37,6 +37,7 @@ export async function discoverTvShows(
         )
       ),
     });
+    console.log("Discover TV shows with params:", params);
 
     const url = `${BASE_URL}/discover/tv?${queryParams.toString()}?api_key=${
       process.env.TMDB_API_KEY

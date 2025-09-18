@@ -11,7 +11,7 @@ export function useFilterTransition() {
 
   const updateFilters = (newParams: Record<string, string | undefined>) => {
     const params = new URLSearchParams(searchParams.toString());
-    
+
     // Update params
     Object.entries(newParams).forEach(([key, value]) => {
       if (value) {
@@ -20,14 +20,14 @@ export function useFilterTransition() {
         params.delete(key);
       }
     });
-    
+
     // Only navigate if params have changed
     const newParamsString = params.toString();
     const currentParamsString = searchParams.toString();
-    
+
     if (newParamsString !== currentParamsString) {
       startTransition(() => {
-        router.push(`${pathname}?${newParamsString}`, { scroll: false });
+        router.replace(`${pathname}?${newParamsString}`, { scroll: false });
       });
     }
   };

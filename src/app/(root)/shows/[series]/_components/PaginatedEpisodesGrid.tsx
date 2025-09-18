@@ -152,13 +152,13 @@ export default function EpisodesGrid({
               {/* Mark/Unmark Season as Watched Button */}
               {season === parseInt(activeSeason) && (
                 <div className="absolute bottom-[90%] left-1/2 -translate-x-1/2">
-                  <button
+                  <span
                     onClick={() => handleSeasonWatchToggle(season)}
-                    disabled={
-                      seasonLoading[season] ||
-                      !markSeasonAsWatched ||
-                      !unmarkSeasonAsWatched
-                    }
+                    // disabled={
+                    //   seasonLoading[season] ||
+                    //   !markSeasonAsWatched ||
+                    //   !unmarkSeasonAsWatched
+                    // }
                     className={`flex items-center justify-center rounded-full p-2 hover:opacity-80 disabled:opacity-50 transition
                      ${
                        !allWatched
@@ -176,7 +176,7 @@ export default function EpisodesGrid({
                         }`}
                       />
                     )}
-                  </button>
+                  </span>
                 </div>
               )}
             </TabsTrigger>

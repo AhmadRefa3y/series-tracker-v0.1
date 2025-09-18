@@ -17,12 +17,17 @@ export async function generateMetadata({
   params: Promise<{ series: string }>;
 }) {
   const { series } = await params;
-  const seriesId = series.split("-")[1];
+  const parts = series.split("-");
+  const seriesId = parts[parts.length - 1];
   const seriesDetails = await getSeriesDetails(seriesId);
 
-  return {
-    title: `${seriesDetails.name} - Sennit`,
-  };
+  if (!seriesDetails) {
+    return {
+      title: "Series Not Found - Sennit",
+    };
+  } else {
+    console.log("Generating metadata for series:", seriesDetails.name);
+  }
 }
 
 export default async function Page({
@@ -35,9 +40,17 @@ export default async function Page({
 }) {
   const user = await auth();
   const { series } = await params;
-  const seriesId = series.split("-")[1];
+  const parts = series.split("-");
+  const seriesId = parts[parts.length - 1];
   const seriesDetails = await getSeriesDetails(seriesId);
-  console.log("Series Details:", seriesDetails);
+  if (!seriesDetails) {
+    return (
+      <div className="flex w-full h-screen items-center justify-center">
+        <p className="text-white text-lg">Series not found.</p>
+      </div>
+    );
+  }
+  console.log("Series Details:", seriesDetails.name);
 
   const seriesDB = user?.user
     ? await prismaDb.series.findFirst({

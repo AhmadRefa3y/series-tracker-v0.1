@@ -5,7 +5,9 @@ import axios from "axios";
 import prismaDb from "@/lib/prisma";
 import { auth } from "@/auth";
 
-export async function getSeriesDetails(seriesId: string): Promise<Series> {
+export async function getSeriesDetails(
+  seriesId: string
+): Promise<Series | null> {
   try {
     const response = await axios.get(`${BASE_URL}/tv/${seriesId}`, {
       params: { api_key: process.env.TMDB_API_KEY },
@@ -13,7 +15,8 @@ export async function getSeriesDetails(seriesId: string): Promise<Series> {
 
     return response.data;
   } catch (error) {
-    throw new Error("Failed to fetch series details", { cause: error });
+    console.log("Error fetching series details:", error);
+    return null;
   }
 }
 

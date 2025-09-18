@@ -51,34 +51,56 @@ function FilterControlsSkeleton() {
 export default async function Shows({
   searchParams,
 }: {
-  searchParams?: {
+  searchParams: Promise<{
     genreIds?: string;
-    startDate?: string;
-    endDate?: string;
-    sortBy?: string;
-  };
+    "first_air_date.gte"?: string;
+    "first_air_date.lte"?: string;
+    "vote_average.gte"?: string;
+    "vote_average.lte"?: string;
+    sort_by?: string;
+    page?: number;
+  }>;
 }) {
   const session = await auth();
 
   // Get filters from search params
-  const genreIds = searchParams?.genreIds || "";
-  const startDate = searchParams?.startDate;
-  const endDate = searchParams?.endDate;
-  const sortBy = searchParams?.sortBy || "popularity.desc";
+  const params = await searchParams;
+
+  const genreIds = params?.genreIds || "";
+  const startDate = params?.["first_air_date.gte"] || "";
+  const endDate = params?.["first_air_date.lte"] || "";
+  const voteAverageGte = params?.["vote_average.gte"] || "";
+  const voteAverageLte = params?.["vote_average.lte"] || "";
+  const sortBy = params?.sort_by || "popularity.desc";
+  const page = params?.page || 1;
 
   // Fetch genres for filter controls
   const genres = await getTvGenres();
 
   // Fetch shows based on filters
   let shows;
-  if (genreIds || startDate || endDate || sortBy !== "popularity.desc") {
+  if (
+    genreIds ||
+    startDate ||
+    endDate ||
+    voteAverageGte ||
+    voteAverageLte ||
+    sortBy !== "popularity.desc"
+  ) {
     // Use discover endpoint when filters are applied
     shows = await discoverTvShows(
       {
         with_genres: genreIds,
-        first_air_date_gte: startDate,
-        first_air_date_lte: endDate,
+        "first_air_date.gte": startDate,
+        "first_air_date.lte": endDate,
+        "vote_average.gte": voteAverageGte
+          ? parseFloat(voteAverageGte)
+          : undefined,
+        "vote_average.lte": voteAverageLte
+          ? parseFloat(voteAverageLte)
+          : undefined,
         sort_by: sortBy,
+        page: page,
       },
       !!session?.user
     );
@@ -114,12 +136,12 @@ export default async function Shows({
   }));
 
   return (
-    <div>
+    <div className="flex bg-[#1a1a1a]">
       <Suspense fallback={<FilterControlsSkeleton />}>
         <FilterControls genres={genres} />
       </Suspense>
 
-      <Suspense fallback={<ShowsSkeleton />} key={JSON.stringify(searchParams)}>
+      <Suspense fallback={<ShowsSkeleton />} key={JSON.stringify(params)}>
         <div className="grid w-full grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 ">
           {seriesWithTrackingStatus.length === 0 ? (
             <div className="text-center py-10 col-span-full">
@@ -133,7 +155,7 @@ export default async function Shows({
               <div key={series.id} className="flex flex-col">
                 <Link
                   href={`shows/${series.name
-                    .replace(/\s+/g, "_")
+                    .replace(/\s+/g, "")
                     .toLowerCase()}-${series.id}`}
                   className="relative aspect-[3/2] overflow-hidden group"
                 >
