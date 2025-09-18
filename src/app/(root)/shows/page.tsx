@@ -11,6 +11,7 @@ import { getTvGenres } from "@/app/(root)/shows/genresData";
 import AddToWatchedHistoryBtn from "@/app/(root)/shows/components/AddToWatchedHistoryBtn";
 import prismaDb from "@/lib/prisma";
 import FilterControls from "@/app/(root)/shows/components/FilterControls";
+import Pagination from "@/app/(root)/shows/components/Pagination";
 
 export const metadata = {
   title: "Trending Shows - Sennit ",
@@ -80,10 +81,10 @@ export default async function Shows({
   const genres = await getTvGenres();
 
   // Fetch shows based on filters
-  let shows;
+  let showsData;
   if (genreIds || startDate || endDate || voteAverageGte || voteAverageLte || language || sortBy !== "popularity.desc") {
     // Use discover endpoint when filters are applied
-    shows = await discoverTvShows(
+    showsData = await discoverTvShows(
       {
         with_genres: genreIds,
         "first_air_date.gte": startDate,
@@ -98,8 +99,16 @@ export default async function Shows({
     );
   } else {
     // Use trending endpoint when no filters are applied
-    shows = await getTrendingSeries(!!session?.user);
+    const trendingShows = await getTrendingSeries(!!session?.user);
+    showsData = {
+      results: trendingShows,
+      page: 1,
+      total_pages: 1,
+      total_results: trendingShows.length
+    };
   }
+
+  const { results: shows, page: currentPage, total_pages } = showsData;
 
   const UserShows = session?.user
     ? await prismaDb.series.findMany({
@@ -200,6 +209,9 @@ export default async function Shows({
               </div>
             ))
           )}
+
+          {/* Pagination Controls */}
+          <Pagination currentPage={currentPage} totalPages={total_pages} />
         </div>
       </Suspense>
     </div>

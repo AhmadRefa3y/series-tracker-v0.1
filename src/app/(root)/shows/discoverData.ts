@@ -26,7 +26,7 @@ export interface DiscoverTvParams {
 export async function discoverTvShows(
   params: DiscoverTvParams = {},
   isLoggedIn: boolean
-): Promise<TrendingSeriesT[]> {
+): Promise<{ results: TrendingSeriesT[]; page: number; total_pages: number; total_results: number }> {
   try {
     // Build query string from params
     const queryParams = new URLSearchParams({
@@ -39,9 +39,7 @@ export async function discoverTvShows(
     });
     console.log("Discover TV shows with params:", params);
 
-    const url = `${BASE_URL}/discover/tv?${queryParams.toString()}?api_key=${
-      process.env.TMDB_API_KEY
-    }`;
+    const url = `${BASE_URL}/discover/tv?${queryParams.toString()}`;
     console.log("Fetching TV shows with URL:", url);
 
     const response = await fetch(url, {
@@ -61,7 +59,12 @@ export async function discoverTvShows(
     console.log(`Found ${data.results?.length || 0} TV shows`);
 
     if (!isLoggedIn) {
-      return data.results || [];
+      return {
+        results: data.results || [],
+        page: data.page || 1,
+        total_pages: data.total_pages || 1,
+        total_results: data.total_results || 0
+      };
     }
 
     // Fetch number of episodes for each series only if logged in
@@ -97,9 +100,19 @@ export async function discoverTvShows(
       })
     );
 
-    return seriesWithEpisodes;
+    return {
+      results: seriesWithEpisodes,
+      page: data.page || 1,
+      total_pages: data.total_pages || 1,
+      total_results: data.total_results || 0
+    };
   } catch (error) {
     console.error("Error discovering TV shows:", error);
-    return []; // Return empty array instead of throwing error
+    return {
+      results: [],
+      page: 1,
+      total_pages: 1,
+      total_results: 0
+    }; // Return empty array instead of throwing error
   }
 }

@@ -105,7 +105,15 @@ export default function FilterControlsClient({ genres }: FilterControlsProps) {
         clearTimeout(debounceTimer.current);
       }
     };
-  }, [selectedGenreIds, startDate, endDate, sort_by, voteAverageGte, voteAverageLte, language]);
+  }, [
+    selectedGenreIds,
+    startDate,
+    endDate,
+    sort_by,
+    voteAverageGte,
+    voteAverageLte,
+    language,
+  ]);
 
   const handleGenreChange = (genreId: number) => {
     setSelectedGenreIds((prev) =>
@@ -125,7 +133,13 @@ export default function FilterControlsClient({ genres }: FilterControlsProps) {
     setLanguage("");
   };
 
-  const isFilterActive = selectedGenreIds.length > 0 || startDate || endDate || voteAverageGte || voteAverageLte || language;
+  const isFilterActive =
+    selectedGenreIds.length > 0 ||
+    startDate ||
+    endDate ||
+    voteAverageGte ||
+    voteAverageLte ||
+    language;
 
   return (
     <div className=" p-4 bg-[#1a1a1a] w-[300px] flex flex-col h-full">
@@ -244,6 +258,7 @@ export default function FilterControlsClient({ genres }: FilterControlsProps) {
           >
             <option value="">All Languages</option>
             <option value="en">English</option>
+            <option value="ar">Arabic</option>
             <option value="es">Spanish</option>
             <option value="fr">French</option>
             <option value="ja">Japanese</option>
