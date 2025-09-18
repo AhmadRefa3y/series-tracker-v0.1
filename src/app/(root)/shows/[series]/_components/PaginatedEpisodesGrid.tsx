@@ -38,7 +38,7 @@ export default function EpisodesGrid({
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const episodesPerPage = 25; // Show 12 episodes per page
+  const episodesPerPage = 30;
 
   useEffect(() => {
     setEpisodesState(episodes);

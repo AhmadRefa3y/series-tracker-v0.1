@@ -57,6 +57,7 @@ export default async function Shows({
     "first_air_date.lte"?: string;
     "vote_average.gte"?: string;
     "vote_average.lte"?: string;
+    with_original_language?: string;
     sort_by?: string;
     page?: number;
   }>;
@@ -71,6 +72,7 @@ export default async function Shows({
   const endDate = params?.["first_air_date.lte"] || "";
   const voteAverageGte = params?.["vote_average.gte"] || "";
   const voteAverageLte = params?.["vote_average.lte"] || "";
+  const language = params?.with_original_language || "";
   const sortBy = params?.sort_by || "popularity.desc";
   const page = params?.page || 1;
 
@@ -79,26 +81,16 @@ export default async function Shows({
 
   // Fetch shows based on filters
   let shows;
-  if (
-    genreIds ||
-    startDate ||
-    endDate ||
-    voteAverageGte ||
-    voteAverageLte ||
-    sortBy !== "popularity.desc"
-  ) {
+  if (genreIds || startDate || endDate || voteAverageGte || voteAverageLte || language || sortBy !== "popularity.desc") {
     // Use discover endpoint when filters are applied
     shows = await discoverTvShows(
       {
         with_genres: genreIds,
         "first_air_date.gte": startDate,
         "first_air_date.lte": endDate,
-        "vote_average.gte": voteAverageGte
-          ? parseFloat(voteAverageGte)
-          : undefined,
-        "vote_average.lte": voteAverageLte
-          ? parseFloat(voteAverageLte)
-          : undefined,
+        "vote_average.gte": voteAverageGte ? parseFloat(voteAverageGte) : undefined,
+        "vote_average.lte": voteAverageLte ? parseFloat(voteAverageLte) : undefined,
+        with_original_language: language,
         sort_by: sortBy,
         page: page,
       },

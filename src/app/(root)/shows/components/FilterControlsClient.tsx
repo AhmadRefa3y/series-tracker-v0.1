@@ -40,6 +40,10 @@ export default function FilterControlsClient({ genres }: FilterControlsProps) {
     return searchParams.get("vote_average.lte") || "";
   });
 
+  const [language, setLanguage] = useState<string>(() => {
+    return searchParams.get("with_original_language") || "";
+  });
+
   // Update URL when filters change (with debounce)
   useEffect(() => {
     // Clear previous timer
@@ -87,6 +91,12 @@ export default function FilterControlsClient({ genres }: FilterControlsProps) {
         params["vote_average.lte"] = undefined;
       }
 
+      if (language) {
+        params["with_original_language"] = language;
+      } else {
+        params["with_original_language"] = undefined;
+      }
+
       updateFilters(params);
     }, 300);
 
@@ -95,7 +105,7 @@ export default function FilterControlsClient({ genres }: FilterControlsProps) {
         clearTimeout(debounceTimer.current);
       }
     };
-  }, [selectedGenreIds, startDate, endDate, sort_by, voteAverageGte, voteAverageLte]);
+  }, [selectedGenreIds, startDate, endDate, sort_by, voteAverageGte, voteAverageLte, language]);
 
   const handleGenreChange = (genreId: number) => {
     setSelectedGenreIds((prev) =>
@@ -112,9 +122,10 @@ export default function FilterControlsClient({ genres }: FilterControlsProps) {
     setSort_by("popularity.desc");
     setVoteAverageGte("");
     setVoteAverageLte("");
+    setLanguage("");
   };
 
-  const isFilterActive = selectedGenreIds.length > 0 || startDate || endDate || voteAverageGte || voteAverageLte;
+  const isFilterActive = selectedGenreIds.length > 0 || startDate || endDate || voteAverageGte || voteAverageLte || language;
 
   return (
     <div className=" p-4 bg-[#1a1a1a] w-[300px] flex flex-col h-full">
@@ -219,6 +230,29 @@ export default function FilterControlsClient({ genres }: FilterControlsProps) {
               className="w-full bg-[#343434] border border-[#444444] rounded-md p-2 text-white"
             />
           </div>
+        </div>
+
+        {/* Language Filter */}
+        <div>
+          <label className="block text-sm font-medium mb-1 text-primaryColor">
+            Original Language
+          </label>
+          <select
+            value={language}
+            onChange={(e) => setLanguage(e.target.value)}
+            className="w-full bg-[#343434] border border-[#444444] rounded-md p-2 text-white"
+          >
+            <option value="">All Languages</option>
+            <option value="en">English</option>
+            <option value="es">Spanish</option>
+            <option value="fr">French</option>
+            <option value="ja">Japanese</option>
+            <option value="ko">Korean</option>
+            <option value="zh">Chinese</option>
+            <option value="de">German</option>
+            <option value="it">Italian</option>
+            <option value="pt">Portuguese</option>
+          </select>
         </div>
         {/* Loading indicator */}
         {isPending && (
