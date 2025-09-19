@@ -3,11 +3,17 @@ import { TrendingSeriesT } from "@/types";
 import { BASE_URL } from "@/lib/constants";
 
 export async function getTrendingSeries(
-  isLoggedIn: boolean
-): Promise<TrendingSeriesT[]> {
+  isLoggedIn: boolean,
+  page: number = 1
+): Promise<{
+  results: TrendingSeriesT[];
+  page: number;
+  total_pages: number;
+  total_results: number;
+} | null> {
   try {
     const response = await fetch(
-      `${BASE_URL}/trending/tv/week?api_key=${process.env.TMDB_API_KEY}`,
+      `${BASE_URL}/trending/tv/week?api_key=${process.env.TMDB_API_KEY}&page=${page}`,
       {
         headers: {
           Accept: "application/json",
@@ -59,9 +65,14 @@ export async function getTrendingSeries(
       })
     );
 
-    return seriesWithEpisodes;
+    return {
+      results: seriesWithEpisodes,
+      page: data.page || 1,
+      total_pages: data.total_pages > 500 ? 500 : data.total_pages || 1,
+      total_results: data.total_results || 0,
+    };
   } catch (error) {
     console.error("Error fetching trending series:", error);
-    return []; // Return empty array instead of throwing error
+    return null; // Return empty array instead of throwing error
   }
 }

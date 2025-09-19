@@ -145,7 +145,7 @@ export default function FilterControlsClient({ genres }: FilterControlsProps) {
     language;
 
   return (
-    <div className=" p-4 bg-[#1a1a1a] w-[300px] flex flex-col h-full">
+    <div className="p-4 bg-[#1a1a1a] w-[300px] flex flex-col h-full">
       <div className="flex flex-col  gap-4">
         <h2 className="text-xl font-bold text-white">Filter Shows</h2>
         {isFilterActive && (
