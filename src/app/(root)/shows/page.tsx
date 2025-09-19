@@ -82,15 +82,27 @@ export default async function Shows({
 
   // Fetch shows based on filters
   let showsData;
-  if (genreIds || startDate || endDate || voteAverageGte || voteAverageLte || language || sortBy !== "popularity.desc") {
+  if (
+    genreIds ||
+    startDate ||
+    endDate ||
+    voteAverageGte ||
+    voteAverageLte ||
+    language ||
+    sortBy !== "popularity.desc"
+  ) {
     // Use discover endpoint when filters are applied
     showsData = await discoverTvShows(
       {
         with_genres: genreIds,
         "first_air_date.gte": startDate,
         "first_air_date.lte": endDate,
-        "vote_average.gte": voteAverageGte ? parseFloat(voteAverageGte) : undefined,
-        "vote_average.lte": voteAverageLte ? parseFloat(voteAverageLte) : undefined,
+        "vote_average.gte": voteAverageGte
+          ? parseFloat(voteAverageGte)
+          : undefined,
+        "vote_average.lte": voteAverageLte
+          ? parseFloat(voteAverageLte)
+          : undefined,
         with_original_language: language,
         sort_by: sortBy,
         page: page,
@@ -103,8 +115,8 @@ export default async function Shows({
     showsData = {
       results: trendingShows,
       page: 1,
-      total_pages: 1,
-      total_results: trendingShows.length
+      total_pages: 4,
+      total_results: trendingShows.length,
     };
   }
 

@@ -97,6 +97,9 @@ export default function FilterControlsClient({ genres }: FilterControlsProps) {
         params["with_original_language"] = undefined;
       }
 
+      // Reset page to 1 when any other filter changes
+      params.page = "1";
+
       updateFilters(params);
     }, 300);
 
@@ -269,12 +272,26 @@ export default function FilterControlsClient({ genres }: FilterControlsProps) {
             <option value="pt">Portuguese</option>
           </select>
         </div>
+
+        {/* Page Filter */}
+        <div>
+          <label className="block text-sm font-medium mb-1 text-primaryColor">
+            Page
+          </label>
+          <input
+            type="number"
+            min="1"
+            defaultValue={searchParams.get("page") || "1"}
+            onChange={(e) => {
+              const newPage = e.target.value || "1";
+              const params: Record<string, string | undefined> = {};
+              params.page = newPage;
+              updateFilters(params);
+            }}
+            className="w-full bg-[#343434] border border-[#444444] rounded-md p-2 text-white"
+          />
+        </div>
         {/* Loading indicator */}
-        {isPending && (
-          <div className="flex items-center justify-center md:col-span-1 lg:col-span-1">
-            <LoadingSpinner size="sm" message="Loading..." />
-          </div>
-        )}
       </div>
     </div>
   );

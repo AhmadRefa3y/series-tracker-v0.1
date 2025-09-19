@@ -26,7 +26,12 @@ export interface DiscoverTvParams {
 export async function discoverTvShows(
   params: DiscoverTvParams = {},
   isLoggedIn: boolean
-): Promise<{ results: TrendingSeriesT[]; page: number; total_pages: number; total_results: number }> {
+): Promise<{
+  results: TrendingSeriesT[];
+  page: number;
+  total_pages: number;
+  total_results: number;
+}> {
   try {
     // Build query string from params
     const queryParams = new URLSearchParams({
@@ -63,7 +68,7 @@ export async function discoverTvShows(
         results: data.results || [],
         page: data.page || 1,
         total_pages: data.total_pages || 1,
-        total_results: data.total_results || 0
+        total_results: data.total_results || 0,
       };
     }
 
@@ -103,8 +108,8 @@ export async function discoverTvShows(
     return {
       results: seriesWithEpisodes,
       page: data.page || 1,
-      total_pages: data.total_pages || 1,
-      total_results: data.total_results || 0
+      total_pages: data.total_pages > 500 ? 500 : data.total_pages || 1,
+      total_results: data.total_results || 0,
     };
   } catch (error) {
     console.error("Error discovering TV shows:", error);
@@ -112,7 +117,7 @@ export async function discoverTvShows(
       results: [],
       page: 1,
       total_pages: 1,
-      total_results: 0
+      total_results: 0,
     }; // Return empty array instead of throwing error
   }
 }
