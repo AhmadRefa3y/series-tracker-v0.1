@@ -113,7 +113,6 @@ async function ShowGridContent({ session, params }: ShowGridProps) {
       </div>
     );
   }
-  console.log({ showsData });
 
   const { results: shows, page: currentPage, total_pages } = showsData;
 

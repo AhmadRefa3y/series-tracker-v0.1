@@ -43,10 +43,8 @@ export async function discoverTvShows(
         )
       ),
     });
-    console.log("Discover TV shows with params:", queryParams);
 
     const url = `${BASE_URL}/discover/tv?${queryParams.toString()}`;
-    console.log("Fetching TV shows with URL:", url);
 
     const response = await fetch(url, {
       headers: {
@@ -62,7 +60,6 @@ export async function discoverTvShows(
     }
 
     const data = await response.json();
-    console.log(`Found ${data.results?.length || 0} TV shows`);
 
     if (!isLoggedIn) {
       return {

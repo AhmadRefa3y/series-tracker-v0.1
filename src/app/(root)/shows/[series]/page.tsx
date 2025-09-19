@@ -47,7 +47,6 @@ export default async function Page({
       </div>
     );
   }
-  console.log("Series Details:", seriesDetails.name);
 
   const seriesDB = user?.user
     ? await prismaDb.series.findFirst({

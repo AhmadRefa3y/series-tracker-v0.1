@@ -73,7 +73,6 @@ export const removeSeriesFromWatchlist = async (seriesID: string) => {
     revalidatePath(
       `shows/${series.title.replace(/\s+/g, "_").toLowerCase()}-${series.id}`
     );
-    console.log("Series removed from watchlist");
 
     return {
       success: true,

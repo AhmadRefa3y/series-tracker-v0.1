@@ -68,8 +68,6 @@ const MarkEpisodeWatchedBtn = ({
   };
 
   const handleMarkWatchedSingle = async () => {
-    console.log("Marking episode as watched:", episodeData.episode_number);
-
     setLoading(true);
     const res = await markEpisodWatched({
       episodeData: {
