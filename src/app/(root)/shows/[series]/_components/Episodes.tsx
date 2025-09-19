@@ -24,6 +24,13 @@ const Episodes = async ({ seriesId, seriesImage }: EpisodesProps) => {
     : [];
 
   const getEpisodes = await fetchAllEpisodes(seriesId.toString());
+  if (!getEpisodes) {
+    return (
+      <div className="flex items-center justify-center text-black">
+        No episodes found.
+      </div>
+    );
+  }
   const episodesWithWatchStatus = getEpisodes.map((episode) => ({
     episodeData: episode,
     isWatched: watchedEpisodes.some(

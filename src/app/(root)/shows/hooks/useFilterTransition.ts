@@ -11,7 +11,6 @@ export function useFilterTransition() {
 
   const updateFilters = (newParams: Record<string, string | undefined>) => {
     const params = new URLSearchParams(searchParams.toString());
-
     // Update params
     Object.entries(newParams).forEach(([key, value]) => {
       if (value) {
@@ -26,6 +25,8 @@ export function useFilterTransition() {
     const currentParamsString = searchParams.toString();
 
     if (newParamsString !== currentParamsString) {
+      params.delete("page");
+      const newParamsString = params.toString();
       startTransition(() => {
         router.replace(`${pathname}?${newParamsString}`, { scroll: false });
       });

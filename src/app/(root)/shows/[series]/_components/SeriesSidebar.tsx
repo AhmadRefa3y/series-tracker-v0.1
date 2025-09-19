@@ -22,12 +22,16 @@ const SeriesSidebar = ({ seriesDetails }: SeriesSidebarProps) => {
           <div className="relative aspect-[2/3]  border-4 border-white w-full ">
             <div className="absolute inset-0 bg-black animate-fadeOut" />
             <Image
-              src={`https://image.tmdb.org/t/p/w780/${seriesDetails.poster_path}`}
+              src={
+                seriesDetails.poster_path
+                  ? `https://image.tmdb.org/t/p/w780${seriesDetails.poster_path}`
+                  : "/no-image-available.webp"
+              }
               alt={seriesDetails.name}
               fill
               quality={100}
               sizes="(max-width: 1000px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              className="object-right-top object-cover opacity-0 animate-fadeIn"
+              className=" object-cover opacity-0 animate-fadeIn"
             />
           </div>
           <div className="flex p-3 items-center justify-center bg-[#2b2b2b]  flex-wrap gap-2">

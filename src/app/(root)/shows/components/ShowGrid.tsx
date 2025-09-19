@@ -8,9 +8,9 @@ import Pagination from "@/app/(root)/shows/components/Pagination";
 import { getTrendingSeries } from "@/app/(root)/shows/showsData";
 import { discoverTvShows } from "@/app/(root)/shows/discoverData";
 import prismaDb from "@/lib/prisma";
+import { Session } from "next-auth";
 
 export default function ShowGrid({ session, params }: ShowGridProps) {
-  // return <ShowsSkeleton />;
   return (
     <Suspense fallback={<ShowsSkeleton />} key={JSON.stringify(params)}>
       <ShowGridContent session={session} params={params} />
@@ -18,18 +18,8 @@ export default function ShowGrid({ session, params }: ShowGridProps) {
   );
 }
 
-interface Show {
-  id: number;
-  name: string;
-  backdrop_path: string;
-  poster_path: string;
-  vote_average: number;
-  first_air_date?: string;
-  number_of_episodes?: number;
-}
-
 interface ShowGridProps {
-  session: any;
+  session: Session | null;
   params: {
     genreIds?: string;
     "first_air_date.gte"?: string;
@@ -65,11 +55,11 @@ function ShowsSkeleton() {
 
 async function ShowGridContent({ session, params }: ShowGridProps) {
   const genreIds = params?.genreIds || "";
-  const startDate = params?.["first_air_date.gte"] || "";
-  const endDate = params?.["first_air_date.lte"] || "";
-  const voteAverageGte = params?.["vote_average.gte"] || "";
-  const voteAverageLte = params?.["vote_average.lte"] || "";
-  const language = params?.with_original_language || "";
+  const startDate = params?.["first_air_date.gte"];
+  const endDate = params?.["first_air_date.lte"];
+  const voteAverageGte = params?.["vote_average.gte"];
+  const voteAverageLte = params?.["vote_average.lte"];
+  const language = params?.with_original_language;
   const sortBy = params?.sort_by || "popularity.desc";
   const page = params?.page || 1;
 
@@ -123,6 +113,8 @@ async function ShowGridContent({ session, params }: ShowGridProps) {
       </div>
     );
   }
+  console.log({ showsData });
+
   const { results: shows, page: currentPage, total_pages } = showsData;
 
   const UserShows = session?.user
@@ -171,13 +163,19 @@ async function ShowGridContent({ session, params }: ShowGridProps) {
                 className="relative aspect-[3/2] overflow-hidden group"
               >
                 <Image
-                  src={`https://image.tmdb.org/t/p/w780/${series.backdrop_path}`}
+                  src={
+                    series.backdrop_path
+                      ? `https://image.tmdb.org/t/p/w780${series.backdrop_path}`
+                      : series.poster_path
+                      ? `https://image.tmdb.org/t/p/w780${series.poster_path}`
+                      : "/no-image-available.webp" // 👈 fallback image
+                  }
                   alt={series.name}
                   fill
                   className="object-cover"
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t to-30% from-black/70 to-transparent transition-opacity duration-300 flex flex-col justify-end p-3" />
+                <div className="absolute inset-0 bg-gradient-to-t to-50% from-black/70 to-transparent transition-opacity duration-300 flex flex-col justify-end p-3" />
                 <div className="absolute top-2 right-2 bg-black/70 rounded-full p-1">
                   <div className="flex items-center gap-1">
                     <Star className="h-3 w-3 text-yellow-400 fill-yellow-400" />
@@ -222,7 +220,7 @@ async function ShowGridContent({ session, params }: ShowGridProps) {
 
         {/* Pagination Controls */}
       </div>
-      <Pagination currentPage={currentPage} totalPages={total_pages} />
+      <Pagination currentPageProp={currentPage} totalPagesProp={total_pages} />
     </div>
   );
 }

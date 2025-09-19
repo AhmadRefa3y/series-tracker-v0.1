@@ -15,11 +15,13 @@ const SeriesBackdrop = ({
       <div className="absolute inset-0 bg-black animate-fadeOut" />
       <Image
         unoptimized
-        src={`https://image.tmdb.org/t/p/original/${
+        src={
           seriesDetails.backdrop_path
-            ? seriesDetails.backdrop_path
+            ? `https://image.tmdb.org/t/p/w780${seriesDetails.backdrop_path}`
             : seriesDetails.poster_path
-        }`}
+            ? `https://image.tmdb.org/t/p/w780${seriesDetails.poster_path}`
+            : "/no-image-available.webp"
+        }
         alt={seriesDetails.name}
         fill
         sizes="(max-width: 1800px) 100vw, (max-width: 1800px) 50vw, 33vw"

@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { Genre } from "../genresData";
-import LoadingSpinner from "@/components/LoadingSpinner";
 import { useFilterTransition } from "../hooks/useFilterTransition";
 
 interface FilterControlsProps {
@@ -12,7 +11,7 @@ interface FilterControlsProps {
 
 export default function FilterControlsClient({ genres }: FilterControlsProps) {
   const searchParams = useSearchParams();
-  const { isPending, updateFilters } = useFilterTransition();
+  const { updateFilters } = useFilterTransition();
   const debounceTimer = useRef<NodeJS.Timeout | null>(null);
 
   const [selectedGenreIds, setSelectedGenreIds] = useState<number[]>(() => {
@@ -98,10 +97,10 @@ export default function FilterControlsClient({ genres }: FilterControlsProps) {
       }
 
       // Reset page to 1 when any other filter changes
-      params.page = "1";
+      // params.page = "1";
 
       updateFilters(params);
-    }, 300);
+    }, 0);
 
     return () => {
       if (debounceTimer.current) {
@@ -116,6 +115,7 @@ export default function FilterControlsClient({ genres }: FilterControlsProps) {
     voteAverageGte,
     voteAverageLte,
     language,
+    updateFilters,
   ]);
 
   const handleGenreChange = (genreId: number) => {

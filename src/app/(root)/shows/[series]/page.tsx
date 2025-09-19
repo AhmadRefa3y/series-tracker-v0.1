@@ -20,13 +20,10 @@ export async function generateMetadata({
   const parts = series.split("-");
   const seriesId = parts[parts.length - 1];
   const seriesDetails = await getSeriesDetails(seriesId);
-
-  if (!seriesDetails) {
+  if (seriesDetails) {
     return {
-      title: "Series Not Found - Sennit",
+      title: `${seriesDetails.name} - Seenit`,
     };
-  } else {
-    console.log("Generating metadata for series:", seriesDetails.name);
   }
 }
 
@@ -110,7 +107,13 @@ export default async function Page({
               >
                 <Episodes
                   seriesId={+seriesId}
-                  seriesImage={seriesDetails.backdrop_path || ""}
+                  seriesImage={
+                    seriesDetails.backdrop_path
+                      ? `https://image.tmdb.org/t/p/w780${seriesDetails.backdrop_path}`
+                      : seriesDetails.poster_path
+                      ? `https://image.tmdb.org/t/p/w780${seriesDetails.poster_path}`
+                      : "/no-image-available.webp"
+                  }
                 />
               </Suspense>
             </div>

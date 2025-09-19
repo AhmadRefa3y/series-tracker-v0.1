@@ -33,7 +33,12 @@ export async function getTrendingSeries(
     const data = await response.json();
 
     if (!isLoggedIn) {
-      return data.results || [];
+      return {
+        results: data.results || [],
+        page: data.page || 1,
+        total_pages: data.total_pages > 500 ? 500 : data.total_pages || 1,
+        total_results: data.total_results || 0,
+      };
     }
 
     // Fetch number of episodes for each series only if logged in
@@ -57,6 +62,10 @@ export async function getTrendingSeries(
           };
         } catch (error) {
           // If we can't fetch details, return the series with 0 episodes
+          console.error(
+            `Error fetching details for series ${series.id}:`,
+            error
+          );
           return {
             ...series,
             number_of_episodes: 0,

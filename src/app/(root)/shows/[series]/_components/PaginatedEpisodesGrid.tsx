@@ -38,6 +38,8 @@ export default function EpisodesGrid({
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
+  const [activeSeason, setActiveSeason] = useState("1");
+
   const episodesPerPage = 30;
 
   useEffect(() => {
@@ -47,7 +49,19 @@ export default function EpisodesGrid({
   const uniqSeasons = Array.from(
     new Set(episodesState.map(({ episodeData }) => episodeData.season_number))
   ).sort((a, b) => a - b);
-  const [activeSeason, setActiveSeason] = useState(uniqSeasons[0].toString()); // default active
+  // if (uniqSeasons.length === 0) {
+  //   return (
+  //     <div className="text-black flex items-center justify-center w-full">
+  //       No Seasons found.
+  //     </div>
+  //   );
+  // }
+  // default active
+  useEffect(() => {
+    if (uniqSeasons.length > 0 && activeSeason === "1") {
+      setActiveSeason(uniqSeasons[0].toString());
+    }
+  }, [uniqSeasons, activeSeason]);
 
   // Get episodes for the active season
   const episodesInActiveSeason = episodesState.filter(
@@ -128,6 +142,14 @@ export default function EpisodesGrid({
     setCurrentPage(1);
   }, [activeSeason]);
 
+  if (uniqSeasons.length === 0) {
+    return (
+      <div className="text-black flex items-center justify-center w-full py-10">
+        No Seasons found.
+      </div>
+    );
+  }
+
   return (
     <Tabs
       defaultValue={uniqSeasons[0].toString()}
@@ -196,9 +218,11 @@ export default function EpisodesGrid({
                       )}
                     >
                       <Image
-                        src={`${IMAGE_BASE_URL}${
-                          episodeData.still_path || seriesImage
-                        }`}
+                        src={`${
+                          episodeData.still_path
+                            ? `${IMAGE_BASE_URL}${episodeData.still_path}`
+                            : seriesImage
+                        } `}
                         alt={episodeData.name}
                         fill
                         quality={100}
@@ -209,12 +233,12 @@ export default function EpisodesGrid({
 
                       <div className="absolute bottom-0 left-0 right-0  z-20">
                         <div className="  px-2 py-2">
-                          <div className="font-extrabold text-lg flex gap-2 text-white ">
+                          <div className="font-extrabold text-lg flex items-end gap-2 text-white ">
                             <span>
                               {episodeData.season_number}x
                               {episodeData.episode_number}
                             </span>
-                            <span className="truncate max-w-[120px]">
+                            <span className="truncate hover:whitespace-normal ">
                               {episodeData.name}
                             </span>
                           </div>

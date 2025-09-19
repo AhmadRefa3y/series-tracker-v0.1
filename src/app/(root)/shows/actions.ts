@@ -122,6 +122,9 @@ export const setEpisodWatched = async ({
       episodeData.seriesID,
       episodeData.seasonNumber
     );
+    if (!allEpisodes || allEpisodes.length === 0) {
+      throw new Error("No episodes found for this season");
+    }
 
     const previousEpisodes = allEpisodes
       .filter(

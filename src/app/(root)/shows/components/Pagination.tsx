@@ -4,14 +4,19 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface PaginationProps {
-  currentPage: number;
-  totalPages: number;
+  currentPageProp: number;
+  totalPagesProp: number;
 }
 
-export default function Pagination({ currentPage, totalPages }: PaginationProps) {
+export default function Pagination({
+  currentPageProp,
+  totalPagesProp,
+}: PaginationProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const currentPage = Number(currentPageProp);
+  const totalPages = Number(totalPagesProp);
 
   const createPageUrl = (page: number) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -20,7 +25,7 @@ export default function Pagination({ currentPage, totalPages }: PaginationProps)
   };
 
   const goToPage = (page: number) => {
-    router.push(createPageUrl(page));
+    router.replace(createPageUrl(page));
   };
 
   // Don't show pagination if there's only one page

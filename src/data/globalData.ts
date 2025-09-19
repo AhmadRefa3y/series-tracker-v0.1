@@ -24,7 +24,7 @@ export async function SearchSeries(query: string): Promise<TMDBResponse> {
 export async function fetchAllEpisodes(
   seriesTmdbId: string,
   endSeason?: number
-): Promise<Episode[]> {
+): Promise<Episode[] | null> {
   try {
     // Fetch series details to get number of seasons
     const seriesRes = await axios.get(`${BASE_URL}/tv/${seriesTmdbId}`, {
@@ -53,6 +53,7 @@ export async function fetchAllEpisodes(
 
     return allEpisodes;
   } catch (error) {
-    throw new Error("Failed to fetch all episodes", { cause: error });
+    console.log("Error fetching episodes:", error);
+    return null;
   }
 }

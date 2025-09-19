@@ -38,11 +38,12 @@ export async function discoverTvShows(
       api_key: process.env.TMDB_API_KEY || "",
       ...Object.fromEntries(
         Object.entries(params).filter(
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           ([_, value]) => value !== undefined && value !== ""
         )
       ),
     });
-    console.log("Discover TV shows with params:", params);
+    console.log("Discover TV shows with params:", queryParams);
 
     const url = `${BASE_URL}/discover/tv?${queryParams.toString()}`;
     console.log("Fetching TV shows with URL:", url);
