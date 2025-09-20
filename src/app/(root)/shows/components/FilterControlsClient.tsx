@@ -11,7 +11,7 @@ interface FilterControlsProps {
 
 export default function FilterControlsClient({ genres }: FilterControlsProps) {
   const searchParams = useSearchParams();
-  const { updateFilters } = useFilterTransition();
+  const { isPending, updateFilters } = useFilterTransition();
   const debounceTimer = useRef<NodeJS.Timeout | null>(null);
 
   const [selectedGenreIds, setSelectedGenreIds] = useState<number[]>(() => {
@@ -100,7 +100,7 @@ export default function FilterControlsClient({ genres }: FilterControlsProps) {
       // params.page = "1";
 
       updateFilters(params);
-    }, 0);
+    }, 500); // 500ms debounce
 
     return () => {
       if (debounceTimer.current) {
@@ -145,9 +145,16 @@ export default function FilterControlsClient({ genres }: FilterControlsProps) {
     language;
 
   return (
-    <div className="p-4 bg-[#1a1a1a] w-[300px] flex flex-col h-full">
+    <div className="p-4 bg-[#1a1a1a] w-[300px] flex flex-col h-full relative">
       <div className="flex flex-col  gap-4">
-        <h2 className="text-xl font-bold text-white">Filter Shows</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-bold text-white">Filter Shows</h2>
+          {isPending && (
+            <div className="flex items-center">
+              <div className="w-4 h-4 border-t-2 border-r-2 border-white rounded-full animate-spin"></div>
+            </div>
+          )}
+        </div>
         {isFilterActive && (
           <button
             onClick={clearFilters}
@@ -291,7 +298,6 @@ export default function FilterControlsClient({ genres }: FilterControlsProps) {
             className="w-full bg-[#343434] border border-[#444444] rounded-md p-2 text-white"
           />
         </div>
-        {/* Loading indicator */}
       </div>
     </div>
   );
