@@ -86,7 +86,7 @@ const SeriesData = ({
   };
 
   return (
-    <div className="px-1 w-1/6 min-w-[175px] h-[350px]">
+    <div className="px-1 w-1/6 min-w-[175px] h-[350px] overflow-hidden">
       <div className="flex flex-col bg-black h-full  text-white overflow-hidden group relative hover:perspective-distant duration-200 ">
         <div className="flex flex-col relative flex-1 h-[310px] overflow-hidden ">
           {/* Poster Image */}

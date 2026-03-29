@@ -57,11 +57,11 @@ export default async function Watchlist() {
   }
 
   return (
-    <div className="flex flex-col text-white">
+    <div className="flex flex-col text-white px-4 md:px-6">
       <div className="flex justify-between items-center">
         <SectionHeader title="Up next" loading={false} />
       </div>
-      <div className="flex flex-wrap items-center justify-center sm:justify-start mt-3 w-full gap-y-2 py-4">
+      <div className="flex flex-wrap items-center justify-center sm:justify-start mt-3 w-full gap-y-2 py-4 -mx-1">
         {data.map(({ series, seriesData, episodes }) => (
           <SeriesData
             key={series.seriesID}
