@@ -66,7 +66,7 @@ export default async function Page({
       <SeriesBackdrop seriesDetails={seriesDetails} />
       <div className="flex gap-2  xl:mx-35 detailsDiv bg-[#ffffff]   relative">
         <SeriesHeader seriesDetails={seriesDetails} />
-        <div className="flex gap-2 xl:mx-35 container mx-auto">
+        <div className="flex gap-2 xl:mx-35 container mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <SeriesSidebar
             seriesDetails={{
               poster_path: seriesDetails.poster_path || "",
@@ -114,6 +114,7 @@ export default async function Page({
                       ? `https://image.tmdb.org/t/p/w780${seriesDetails.poster_path}`
                       : "/no-image-available.webp"
                   }
+                  seriesSlug={series}
                 />
               </Suspense>
             </div>

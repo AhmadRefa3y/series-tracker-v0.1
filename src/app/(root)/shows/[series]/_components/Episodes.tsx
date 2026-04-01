@@ -8,9 +8,10 @@ import { auth } from "@/auth";
 interface EpisodesProps {
   seriesId: number;
   seriesImage: string;
+  seriesSlug: string;
 }
 
-const Episodes = async ({ seriesId, seriesImage }: EpisodesProps) => {
+const Episodes = async ({ seriesId, seriesImage, seriesSlug }: EpisodesProps) => {
   const user = await auth();
   const watchedEpisodes = user?.user?.id
     ? await prismaDb.watchedEpisode.findMany({
@@ -46,6 +47,7 @@ const Episodes = async ({ seriesId, seriesImage }: EpisodesProps) => {
         episodes={episodesWithWatchStatus}
         seriesId={seriesId}
         seriesImage={seriesImage}
+        seriesSlug={seriesSlug}
       />
     </div>
   );

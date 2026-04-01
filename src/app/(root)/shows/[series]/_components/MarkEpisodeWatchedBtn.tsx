@@ -12,7 +12,7 @@ interface MarkEpisodeWatchedBtnProps {
   episodeData: Episode;
   isWatched: boolean;
   seriesId: string;
-  setPerviousWatched: Dispatch<
+  setPerviousWatched?: Dispatch<
     SetStateAction<
       {
         episodeData: Episode;
@@ -20,15 +20,15 @@ interface MarkEpisodeWatchedBtnProps {
       }[]
     >
   >;
-  episodes: { episodeData: Episode; isWatched: boolean }[];
+  episodes?: { episodeData: Episode; isWatched: boolean }[];
 }
 
 const MarkEpisodeWatchedBtn = ({
   episodeData,
   isWatched,
   seriesId,
-  episodes,
   setPerviousWatched,
+  episodes,
 }: MarkEpisodeWatchedBtnProps) => {
   const [loading, setLoading] = useState<boolean>(false);
   const router = useRouter();
@@ -44,7 +44,7 @@ const MarkEpisodeWatchedBtn = ({
           seasonNumber: episodeData.season_number,
         },
       });
-      if (res.success) {
+      if (res.success && setPerviousWatched && episodes) {
         const newEpisodes = episodes.map((episode) => {
           if (
             episode.episodeData.episode_number === episodeData.episode_number &&
@@ -59,7 +59,8 @@ const MarkEpisodeWatchedBtn = ({
         toast.success("Episode removed from watch list");
         router.refresh();
       } else {
-        toast.error("Failed to remove episode from watch list");
+        toast.success("Episode removed from watch list");
+        router.refresh();
       }
     } catch {
       toast.error("An error occurred");
@@ -79,17 +80,19 @@ const MarkEpisodeWatchedBtn = ({
       },
     });
     if (res.success) {
-      const newEpisodes = episodes.map((episode) => {
-        if (
-          episode.episodeData.episode_number === episodeData.episode_number &&
-          episode.episodeData.season_number === episodeData.season_number
-        ) {
-          return { episodeData: episode.episodeData, isWatched: true };
-        } else {
-          return episode;
-        }
-      });
-      setPerviousWatched(newEpisodes);
+      if (setPerviousWatched && episodes) {
+        const newEpisodes = episodes.map((episode) => {
+          if (
+            episode.episodeData.episode_number === episodeData.episode_number &&
+            episode.episodeData.season_number === episodeData.season_number
+          ) {
+            return { episodeData: episode.episodeData, isWatched: true };
+          } else {
+            return episode;
+          }
+        });
+        setPerviousWatched(newEpisodes);
+      }
       toast.success("Episode marked as watched");
       router.refresh();
     } else {

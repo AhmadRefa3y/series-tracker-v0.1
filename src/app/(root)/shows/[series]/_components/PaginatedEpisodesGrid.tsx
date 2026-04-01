@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { cn } from "@/lib/utils";
+import Link from "next/link";
 import { IMAGE_BASE_URL } from "@/lib/constants";
 import { StarIcon, Check } from "lucide-react";
 import { Episode } from "@/types/seriesT";
@@ -22,12 +22,14 @@ interface EpisodesClientProps {
   }[];
   seriesId: number;
   seriesImage: string;
+  seriesSlug: string;
 }
 
 export default function EpisodesGrid({
   episodes,
   seriesId,
   seriesImage,
+  seriesSlug,
 }: EpisodesClientProps) {
   const [episodesState, setEpisodesState] =
     useState<{ episodeData: Episode; isWatched: boolean }[]>(episodes);
@@ -211,12 +213,12 @@ export default function EpisodesGrid({
             <div id="episodes-grid">
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 items-start justify-start sm:gap-2">
                 {currentEpisodes.map(({ episodeData, isWatched }, i) => (
-                  <div key={i}>
-                    <div
-                      className={cn(
-                        "relative w-full min-w-[200px] h-[250px]   overflow-hidden  bg-gradient-to-br from-white/20 to-white/5"
-                      )}
-                    >
+                  <Link
+                    key={i}
+                    href={`/shows/${seriesSlug}/episode/${seriesId}-${episodeData.season_number}-${episodeData.episode_number}`}
+                    className="block"
+                  >
+                    <div className="group relative w-full min-w-[200px] h-[250px] overflow-hidden bg-gradient-to-br from-white/20 to-white/5 shadow-lg transition-all duration-300 hover:shadow-2xl">
                       <Image
                         src={`${
                           episodeData.still_path
@@ -231,14 +233,28 @@ export default function EpisodesGrid({
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-black/10 to-40% z-10" />
 
-                      <div className="absolute bottom-0 left-0 right-0  z-20">
-                        <div className="  px-2 py-2">
-                          <div className="font-extrabold text-lg flex items-end gap-2 text-white ">
+                      {/* Hover Overview Overlay */}
+                      <div className="absolute inset-0 z-30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/80 overflow-hidden">
+                        <div className="absolute inset-0 p-3 overflow-y-auto">
+                          <div className="flex flex-col h-full justify-end pb-16">
+                            <h4 className="font-bold text-white text-sm mb-2 line-clamp-2">
+                              {episodeData.name}
+                            </h4>
+                            <p className="text-xs text-gray-300 line-clamp-4 leading-relaxed">
+                              {episodeData.overview || "No overview available."}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="absolute bottom-0 left-0 right-0 z-20">
+                        <div className="px-2 py-2">
+                          <div className="font-extrabold text-lg flex items-end gap-2 text-white">
                             <span>
                               {episodeData.season_number}x
                               {episodeData.episode_number}
                             </span>
-                            <span className="truncate hover:whitespace-normal ">
+                            <span className="truncate hover:whitespace-normal">
                               {episodeData.name}
                             </span>
                           </div>
@@ -262,19 +278,21 @@ export default function EpisodesGrid({
                         </div>
                       </div>
                     </div>
-                    <div className="flex bg-[#2d2d2d] border-r  border-[#414040] h-10 ">
-                      <MarkEpisodeWatchedBtn
-                        episodeData={episodeData}
-                        isWatched={isWatched}
-                        seriesId={seriesId.toString()}
-                        setPerviousWatched={setEpisodesState}
-                        episodes={episodesState}
-                      />
-                      <span className="text-white p-2  hover:bg-[#ff5f06] duration-200">
+                    <div className="flex bg-[#2d2d2d] border-r border-[#414040] h-10">
+                      <div onClick={(e) => e.preventDefault()}>
+                        <MarkEpisodeWatchedBtn
+                          episodeData={episodeData}
+                          isWatched={isWatched}
+                          seriesId={seriesId.toString()}
+                          setPerviousWatched={setEpisodesState}
+                          episodes={episodesState}
+                        />
+                      </div>
+                      <span className="text-white p-2 hover:bg-[#ff5f06] duration-200 transition-colors">
                         <StarIcon strokeWidth={2} />
                       </span>
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
 
