@@ -279,7 +279,7 @@ export default function EpisodesGrid({
                       </div>
                     </div>
                     <div className="flex bg-[#2d2d2d] border-r border-[#414040] h-10">
-                      <div onClick={(e) => e.preventDefault()}>
+                      <div className="h-full" onClick={(e) => e.preventDefault()}>
                         <MarkEpisodeWatchedBtn
                           episodeData={episodeData}
                           isWatched={isWatched}
@@ -288,7 +288,7 @@ export default function EpisodesGrid({
                           episodes={episodesState}
                         />
                       </div>
-                      <span className="text-white p-2 hover:bg-[#ff5f06] duration-200 transition-colors">
+                      <span className="text-white h-full flex items-center justify-center p-2 hover:bg-[#ff5f06] duration-200 transition-colors">
                         <StarIcon strokeWidth={2} />
                       </span>
                     </div>

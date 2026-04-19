@@ -102,7 +102,7 @@ const MarkEpisodeWatchedBtn = ({
   };
 
   return (
-    <div>
+    <div className="h-full">
       {isWatched ? (
         <Button
           className={cn(

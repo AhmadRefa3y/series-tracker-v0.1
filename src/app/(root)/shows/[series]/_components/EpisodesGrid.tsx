@@ -214,14 +214,16 @@ export default function EpisodesGrid({
                       </div>
                     </div>
                     <div className="flex bg-[#2d2d2d] border-r  border-[#414040] h-10 ">
-                      <MarkEpisodeWatchedBtn
-                        episodeData={episodeData}
-                        isWatched={isWatched}
-                        seriesId={seriesId.toString()}
-                        setPerviousWatched={setEpisodesState}
-                        episodes={episodesState}
-                      />
-                      <span className="text-white p-2  hover:bg-[#ff5f06] duration-200">
+                      <div className="h-full">
+                        <MarkEpisodeWatchedBtn
+                          episodeData={episodeData}
+                          isWatched={isWatched}
+                          seriesId={seriesId.toString()}
+                          setPerviousWatched={setEpisodesState}
+                          episodes={episodesState}
+                        />
+                      </div>
+                      <span className="text-white h-full flex items-center justify-center p-2 hover:bg-[#ff5f06] duration-200">
                         <StarIcon strokeWidth={2} />
                       </span>
                     </div>
