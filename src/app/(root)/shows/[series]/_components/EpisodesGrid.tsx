@@ -45,7 +45,18 @@ export default function EpisodesGrid({
   const uniqSeasons = Array.from(
     new Set(episodesState.map(({ episodeData }) => episodeData.season_number))
   ).sort((a, b) => a - b);
-  const [activeSeason, setActiveSeason] = useState(uniqSeasons[0].toString()); // default active
+  // default active
+  useEffect(() => {
+    if (uniqSeasons.length > 0 && activeSeason === uniqSeasons[0].toString()) {
+      const watchedEpisodes = episodesState.filter((ep) => ep.isWatched);
+      if (watchedEpisodes.length > 0) {
+        const lastWatchedSeason = Math.max(
+          ...watchedEpisodes.map((ep) => ep.episodeData.season_number)
+        );
+        setActiveSeason(lastWatchedSeason.toString());
+      }
+    }
+  }, [uniqSeasons, activeSeason, episodesState]);
 
   const handleSeasonWatchToggle = async (seasonNumber: number) => {
     // Check if all episodes in the season are currently watched
@@ -102,7 +113,7 @@ export default function EpisodesGrid({
 
   return (
     <Tabs
-      defaultValue={uniqSeasons[0].toString()}
+      value={activeSeason}
       className="w-full"
       onValueChange={(val) => setActiveSeason(val)}
     >

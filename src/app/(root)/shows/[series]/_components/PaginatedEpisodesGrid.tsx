@@ -61,9 +61,37 @@ export default function EpisodesGrid({
   // default active
   useEffect(() => {
     if (uniqSeasons.length > 0 && activeSeason === "1") {
-      setActiveSeason(uniqSeasons[0].toString());
+      const watchedEpisodes = episodesState.filter((ep) => ep.isWatched);
+      if (watchedEpisodes.length > 0) {
+        const watchedSeasonNumbers = watchedEpisodes.map(
+          (ep) => ep.episodeData.season_number
+        );
+        const maxWatchedSeason = Math.max(...watchedSeasonNumbers);
+
+        // Check if the maxWatchedSeason is fully watched
+        const episodesInMaxSeason = episodesState.filter(
+          (ep) => ep.episodeData.season_number === maxWatchedSeason
+        );
+        const isMaxSeasonFullyWatched = episodesInMaxSeason.every(
+          (ep) => ep.isWatched
+        );
+
+        if (isMaxSeasonFullyWatched) {
+          // Find the next season in uniqSeasons
+          const currentIndex = uniqSeasons.indexOf(maxWatchedSeason);
+          if (currentIndex !== -1 && currentIndex < uniqSeasons.length - 1) {
+            setActiveSeason(uniqSeasons[currentIndex + 1].toString());
+          } else {
+            setActiveSeason(maxWatchedSeason.toString());
+          }
+        } else {
+          setActiveSeason(maxWatchedSeason.toString());
+        }
+      } else {
+        setActiveSeason(uniqSeasons[0].toString());
+      }
     }
-  }, [uniqSeasons, activeSeason]);
+  }, [uniqSeasons, activeSeason, episodesState]);
 
   // Get episodes for the active season
   const episodesInActiveSeason = episodesState.filter(
@@ -154,7 +182,7 @@ export default function EpisodesGrid({
 
   return (
     <Tabs
-      defaultValue={uniqSeasons[0].toString()}
+      value={activeSeason}
       className="w-full"
       onValueChange={(val) => setActiveSeason(val)}
     >
