@@ -37,6 +37,7 @@ export default function EpisodesGrid({
     {}
   ); // Track loading state per season
   const router = useRouter();
+  const isInitialMount = useRef(true);
 
   useEffect(() => {
     setEpisodesState(episodes);
@@ -45,9 +46,11 @@ export default function EpisodesGrid({
   const uniqSeasons = Array.from(
     new Set(episodesState.map(({ episodeData }) => episodeData.season_number))
   ).sort((a, b) => a - b);
-  // default active
+
+  // default active - only run on initial mount
   useEffect(() => {
-    if (uniqSeasons.length > 0 && activeSeason === uniqSeasons[0].toString()) {
+    if (uniqSeasons.length > 0 && isInitialMount.current) {
+      isInitialMount.current = false;
       const watchedEpisodes = episodesState.filter((ep) => ep.isWatched);
       if (watchedEpisodes.length > 0) {
         const lastWatchedSeason = Math.max(
@@ -56,7 +59,7 @@ export default function EpisodesGrid({
         setActiveSeason(lastWatchedSeason.toString());
       }
     }
-  }, [uniqSeasons, activeSeason, episodesState]);
+  }, [uniqSeasons, episodesState]);
 
   const handleSeasonWatchToggle = async (seasonNumber: number) => {
     // Check if all episodes in the season are currently watched
@@ -129,9 +132,16 @@ export default function EpisodesGrid({
             <TabsTrigger
               key={season}
               value={season.toString()}
-              className="w-[100px] font-bold relative"
+              className={cn(
+                "min-w-[100px] font-bold relative gap-2 transition-all duration-300",
+                allWatched && activeSeason !== season.toString() && "opacity-60 grayscale-[0.5]",
+                allWatched && "data-[state=active]:bg-green-500/10"
+              )}
             >
-              <span> Season {season}</span>
+              <span className="flex items-center gap-1.5">
+                Season {season}
+                {allWatched && <Check className="w-4 h-4 text-green-500" strokeWidth={3} />}
+              </span>
               {/* Mark/Unmark Season as Watched Button */}
               {season === parseInt(activeSeason) && (
                 <div className="absolute bottom-[90%] left-1/2 -translate-x-1/2">

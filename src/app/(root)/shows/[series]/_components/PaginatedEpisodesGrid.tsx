@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { IMAGE_BASE_URL } from "@/lib/constants";
 import { StarIcon, Check } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { Episode } from "@/types/seriesT";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import MarkEpisodeWatchedBtn from "./MarkEpisodeWatchedBtn";
@@ -37,6 +38,7 @@ export default function EpisodesGrid({
     {}
   ); // Track loading state per season
   const router = useRouter();
+  const isInitialMount = useRef(true);
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -51,16 +53,11 @@ export default function EpisodesGrid({
   const uniqSeasons = Array.from(
     new Set(episodesState.map(({ episodeData }) => episodeData.season_number))
   ).sort((a, b) => a - b);
-  // if (uniqSeasons.length === 0) {
-  //   return (
-  //     <div className="text-black flex items-center justify-center w-full">
-  //       No Seasons found.
-  //     </div>
-  //   );
-  // }
-  // default active
+
+  // default active - only run on initial mount
   useEffect(() => {
-    if (uniqSeasons.length > 0 && activeSeason === "1") {
+    if (uniqSeasons.length > 0 && isInitialMount.current) {
+      isInitialMount.current = false;
       const watchedEpisodes = episodesState.filter((ep) => ep.isWatched);
       if (watchedEpisodes.length > 0) {
         const watchedSeasonNumbers = watchedEpisodes.map(
@@ -91,7 +88,7 @@ export default function EpisodesGrid({
         setActiveSeason(uniqSeasons[0].toString());
       }
     }
-  }, [uniqSeasons, activeSeason, episodesState]);
+  }, [uniqSeasons, episodesState]);
 
   // Get episodes for the active season
   const episodesInActiveSeason = episodesState.filter(
@@ -198,9 +195,16 @@ export default function EpisodesGrid({
             <TabsTrigger
               key={season}
               value={season.toString()}
-              className="w-[100px] font-bold relative"
+              className={cn(
+                "min-w-[100px] font-bold relative gap-2 transition-all duration-300",
+                allWatched && activeSeason !== season.toString() && "opacity-60 grayscale-[0.5]",
+                allWatched && "data-[state=active]:bg-green-500/10"
+              )}
             >
-              <span> Season {season}</span>
+              <span className="flex items-center gap-1.5">
+                Season {season}
+                {allWatched && <Check className="w-4 h-4 text-green-500" strokeWidth={3} />}
+              </span>
               {/* Mark/Unmark Season as Watched Button */}
               {season === parseInt(activeSeason) && (
                 <div className="absolute bottom-[90%] left-1/2 -translate-x-1/2">

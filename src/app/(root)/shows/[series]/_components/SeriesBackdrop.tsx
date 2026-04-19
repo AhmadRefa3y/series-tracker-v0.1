@@ -17,9 +17,9 @@ const SeriesBackdrop = ({
         unoptimized
         src={
           seriesDetails.backdrop_path
-            ? `https://image.tmdb.org/t/p/w780${seriesDetails.backdrop_path}`
+            ? `https://image.tmdb.org/t/p/original${seriesDetails.backdrop_path}`
             : seriesDetails.poster_path
-            ? `https://image.tmdb.org/t/p/w780${seriesDetails.poster_path}`
+            ? `https://image.tmdb.org/t/p/original${seriesDetails.poster_path}`
             : "/no-image-available.webp"
         }
         alt={seriesDetails.name}

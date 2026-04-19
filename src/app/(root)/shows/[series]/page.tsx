@@ -77,6 +77,13 @@ export default async function Page({
                 name: network.name,
               })),
               number_of_seasons: seriesDetails.number_of_seasons,
+              status: seriesDetails.status,
+              first_air_date: seriesDetails.first_air_date,
+              original_language: seriesDetails.original_language,
+              episode_run_time: seriesDetails.episode_run_time,
+              next_episode_to_air: seriesDetails.next_episode_to_air,
+              number_of_episodes: seriesDetails.number_of_episodes,
+              watchedEpisodesCount: seriesDB?.watchedEpisodes.length || 0,
             }}
           />
           <div className="flex flex-col flex-1 gap-2 sm:pb-5">

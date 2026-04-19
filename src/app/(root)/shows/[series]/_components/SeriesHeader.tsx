@@ -12,7 +12,7 @@ const SeriesHeader = ({ seriesDetails }: { seriesDetails: SeriesDetails }) => {
     <div className="absolute inset-x-0 bottom-[100%]   flex">
       <div className="flex flex-col items-start  flex-1 ">
         <div className=" container  mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center  mb-3 md:ml-[215px] px-2 sm:px-0">
+          <div className="flex items-center  mb-3 md:ml-[240px] px-2 sm:px-0">
             <span className="text-3xl font-bold">
               {seriesDetails.name || ""}
             </span>
@@ -26,7 +26,7 @@ const SeriesHeader = ({ seriesDetails }: { seriesDetails: SeriesDetails }) => {
         </div>
         <div className="  flex items-center bg-black/40 w-full  py-2">
           <div className="container  mx-auto px-4 sm:px-6 lg:px-8 ">
-            <div className="flex gap-2 md:ml-[215px] px-2 sm:px-0">
+            <div className="flex gap-2 md:ml-[240px] px-2 sm:px-0">
               <span className="flex items-center justify-center text-red-900">
                 <Heart fill="darkred" size={35} />
               </span>
