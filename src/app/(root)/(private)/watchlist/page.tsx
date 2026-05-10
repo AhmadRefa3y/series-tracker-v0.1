@@ -7,7 +7,7 @@ import { getUserSeriesWatchlist } from "@/data/sharedData";
 import WatchlistFilter from "./_components/WatchlistFilter";
 import { Suspense } from "react";
 import { unstable_noStore as noStore } from "next/cache";
-import { Series } from "@/types/seriesT";
+import { Episode, Series } from "@/types/seriesT";
 
 export const dynamic = "force-dynamic";
 export const metadata = {
@@ -21,7 +21,7 @@ export default async function Watchlist({
 }) {
   const user = await getCurrentUser("/watchlist");
   const userId = user?.id;
-  
+
   noStore();
 
   const resolvedSearchParams = await searchParams;
@@ -50,7 +50,8 @@ export default async function Watchlist({
     const totalEpisodes = series.totalEpisodes || 0;
 
     if (statusFilter === "dropped") return series.status === "DROPPED";
-    if (statusFilter === "plan_to_watch") return watchedCount === 0 && series.status !== "DROPPED";
+    if (statusFilter === "plan_to_watch")
+      return watchedCount === 0 && series.status !== "DROPPED";
 
     // Strict completion check: if watched matches or exceeds total, it's completed
     const isCompleted = totalEpisodes > 0 && watchedCount >= totalEpisodes;
@@ -89,33 +90,71 @@ export default async function Watchlist({
 
       const lastWatched = series.watchedEpisodes[0];
 
-      let nextEp;
+      const nextEps: Episode[] = [];
 
       if (!lastWatched) {
         // If nothing watched, next is S1E1
-        nextEp = await fetchSingleEpisode(series.seriesID.toString(), 1, 1);
+        const ep1 = await fetchSingleEpisode(series.seriesID.toString(), 1, 1);
+        if (ep1) {
+          nextEps.push(ep1);
+          // Try to get S1E2 too
+          const ep2 = await fetchSingleEpisode(
+            series.seriesID.toString(),
+            1,
+            2
+          );
+          if (ep2) nextEps.push(ep2);
+        }
       } else {
-        // Simple logic: try next episode in same season
-        // (Note: If this fails, the component will handle the empty state)
-        nextEp = await fetchSingleEpisode(
+        // Try next episode in same season
+        const ep1 = await fetchSingleEpisode(
           series.seriesID.toString(),
           lastWatched.seasonNumber,
           lastWatched.episodeNumber + 1
         );
 
-        // If E+1 didn't exist, it might be next season E1
-        if (!nextEp) {
-          nextEp = await fetchSingleEpisode(
+        if (ep1) {
+          nextEps.push(ep1);
+          // Try one more in same season
+          const ep2 = await fetchSingleEpisode(
+            series.seriesID.toString(),
+            lastWatched.seasonNumber,
+            lastWatched.episodeNumber + 2
+          );
+          if (ep2) {
+            nextEps.push(ep2);
+          } else {
+            // Try first episode of next season
+            const nextSeasonEp1 = await fetchSingleEpisode(
+              series.seriesID.toString(),
+              lastWatched.seasonNumber + 1,
+              1
+            );
+            if (nextSeasonEp1) nextEps.push(nextSeasonEp1);
+          }
+        } else {
+          // If E+1 didn't exist, it might be next season E1
+          const nextSeasonEp1 = await fetchSingleEpisode(
             series.seriesID.toString(),
             lastWatched.seasonNumber + 1,
             1
           );
+          if (nextSeasonEp1) {
+            nextEps.push(nextSeasonEp1);
+            // Try one more in next season
+            const nextSeasonEp2 = await fetchSingleEpisode(
+              series.seriesID.toString(),
+              lastWatched.seasonNumber + 1,
+              2
+            );
+            if (nextSeasonEp2) nextEps.push(nextSeasonEp2);
+          }
         }
       }
 
       return {
         series,
-        nextEpisode: nextEp ? [nextEp] : [],
+        nextEpisode: nextEps,
       };
     })
   );
@@ -157,7 +196,11 @@ export default async function Watchlist({
                 title={series.seriesTitle}
                 InitWatchedEpisodes={series.watchedEpisodes.length}
                 lastWatchedEpisode={series.watchedEpisodes[0]}
-                seriesData={{ number_of_episodes: series.totalEpisodes } as unknown as Series}
+                seriesData={
+                  {
+                    number_of_episodes: series.totalEpisodes,
+                  } as unknown as Series
+                }
                 nextEpisodes={nextEpisode}
                 status={series.status}
               />

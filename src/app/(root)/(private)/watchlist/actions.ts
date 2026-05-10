@@ -32,6 +32,25 @@ export const markEpisodWatched = async ({
       throw new Error("Series not found in your watchlist");
     }
 
+    // Check if episode already marked as watched to avoid duplicate key error
+    const alreadyWatched = await prismaDb.watchedEpisode.findUnique({
+      where: {
+        seriesId_seasonNumber_episodeNumber_userId: {
+          userId: userId.user.id,
+          seriesId: seriesExists.id,
+          seasonNumber: episodeData.seasonNumber,
+          episodeNumber: episodeData.episodeNumber,
+        },
+      },
+    });
+
+    if (alreadyWatched) {
+      return {
+        success: true,
+        message: "Episode already marked as watched",
+      };
+    }
+
     await prismaDb.$transaction([
       prismaDb.watchedEpisode.create({
         data: {

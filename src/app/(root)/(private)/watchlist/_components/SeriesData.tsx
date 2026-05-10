@@ -10,6 +10,7 @@ import { Episode, Series } from "@/types/seriesT";
 import { markEpisodWatched, updateSeriesStatus } from "../actions";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { useRef } from "react";
 
 interface SeriesDataProps {
   seriesId: string;
@@ -40,26 +41,37 @@ const SeriesData = ({
   const [watchedEpisodes, setWatchedEpisodes] = useState(InitWatchedEpisodes);
   const [completed, setCompleted] = useState(false);
   const router = useRouter();
+  const isRequesting = useRef(false);
 
+  // Sync state with props when they change (after router.refresh())
   useEffect(() => {
+    setWatchedEpisodes(InitWatchedEpisodes);
+    setCurrentEpisodeIndex(0);
+    isRequesting.current = false;
+    setIsMarkingWatched(false);
+    
     if (seriesData?.number_of_episodes) {
-      const completionPercentage =
-        (watchedEpisodes / seriesData.number_of_episodes) * 100;
-      const isNowCompleted = completionPercentage >= 100;
+      const isNowCompleted = InitWatchedEpisodes >= seriesData.number_of_episodes;
       setCompleted(isNowCompleted);
 
-      // Optimistic Hide: If we are in the "watching" tab and it just finished, hide it instantly
-      if (isNowCompleted && (window.location.search.includes("status=watching") || !window.location.search.includes("status="))) {
+      // Optimistic Hide: If we are in the "watching" tab and it just finished, hide it
+      const searchParams = new URLSearchParams(window.location.search);
+      const statusFilter = searchParams.get("status") || "watching";
+      
+      if (isNowCompleted && statusFilter === "watching") {
         setIsOptimisticallyHidden(true);
+      } else {
+        setIsOptimisticallyHidden(false);
       }
     }
-  }, [watchedEpisodes, seriesData]);
+  }, [InitWatchedEpisodes, seriesData, nextEpisodes]);
 
   const currentEpisode = nextEpisodes[currentEpisodeIndex];
 
   const handleNextEpisode = async () => {
-    if (!currentEpisode) return;
+    if (!currentEpisode || isMarkingWatched || isRequesting.current) return;
 
+    isRequesting.current = true;
     setIsMarkingWatched(true);
 
     try {
@@ -72,23 +84,24 @@ const SeriesData = ({
       });
 
       if (res.success) {
-        setWatchedEpisodes((prev) => prev + 1);
-        if (nextEpisodes[currentEpisodeIndex + 1]) {
-          setCurrentEpisodeIndex((prev) => prev + 1);
-        } else {
-          setCompleted(true);
-        }
         toast.success(res.message);
+        // We do NOT update currentEpisodeIndex or watchedEpisodes here.
+        // We wait for router.refresh() to fetch new props, 
+        // which will trigger the useEffect and update everything at once.
         router.refresh();
       } else {
         toast.error(res.message);
+        setIsMarkingWatched(false);
+        isRequesting.current = false;
       }
     } catch (error) {
       console.error("Error marking episode:", error);
       toast.error("An error occurred");
-    } finally {
       setIsMarkingWatched(false);
+      isRequesting.current = false;
     }
+    // Note: finally block is removed or left empty to keep the loading state 
+    // active until the useEffect runs after router.refresh()
   };
 
   const handleStatusChange = async (newStatus: string) => {
@@ -236,8 +249,12 @@ const SeriesData = ({
               Done
             </p>
           ) : (
-            <div className="text-primaryColor ml-auto px-2 text-xs font-black tracking-tighter">
-              {currentEpisode ? `S${currentEpisode.season_number}E${currentEpisode.episode_number}` : "--"}
+            <div className="text-primaryColor ml-auto px-2 text-xs font-black tracking-tighter min-w-[60px] flex justify-end">
+              {currentEpisode ? (
+                `S${currentEpisode.season_number}E${currentEpisode.episode_number}`
+              ) : (
+                <Loader2 className="animate-spin size-3 opacity-50" />
+              )}
             </div>
           )}
         </div>
