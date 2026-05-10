@@ -7,7 +7,7 @@ import { getUserSeriesWatchlist } from "@/data/sharedData";
 import { BASE_URL } from "@/lib/constants";
 import prismaDb from "@/lib/prisma";
 import { WatchListSeries } from "@/types";
-import { Series } from "@/types/seriesT";
+import { Episode, Series } from "@/types/seriesT";
 import axios from "axios"; // Add this import
 
 type EpisodeWithDetails = {
@@ -105,24 +105,8 @@ export const getUserUpNextSeries = async (
     series: WatchListSeries;
     seriesData: Series | null;
     episodes: {
-      allEpisodes: {
-        id: number;
-        episode_number: number;
-        season_number: number;
-        name: string;
-        overview: string;
-        vote_average: number;
-        runtime: number;
-      }[];
-      newEpisodes: {
-        id: number;
-        episode_number: number;
-        season_number: number;
-        name: string;
-        overview: string;
-        vote_average: number;
-        runtime: number;
-      }[];
+      allEpisodes: Episode[];
+      newEpisodes: Episode[];
     };
   }[];
   message?: string;

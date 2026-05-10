@@ -7,6 +7,7 @@ import { getUserSeriesWatchlist } from "@/data/sharedData";
 import WatchlistFilter from "./_components/WatchlistFilter";
 import { Suspense } from "react";
 import { unstable_noStore as noStore } from "next/cache";
+import { Series } from "@/types/seriesT";
 
 export const dynamic = "force-dynamic";
 export const metadata = {
@@ -46,7 +47,7 @@ export default async function Watchlist({
   // 1. FILTER FIRST: Use database-stored fields only (NO TMDB CALLS YET)
   const filteredList = watchList.filter((series) => {
     const watchedCount = series.watchedEpisodes.length;
-    let totalEpisodes = series.totalEpisodes || 0;
+    const totalEpisodes = series.totalEpisodes || 0;
 
     if (statusFilter === "dropped") return series.status === "DROPPED";
     if (statusFilter === "plan_to_watch") return watchedCount === 0 && series.status !== "DROPPED";
@@ -156,7 +157,7 @@ export default async function Watchlist({
                 title={series.seriesTitle}
                 InitWatchedEpisodes={series.watchedEpisodes.length}
                 lastWatchedEpisode={series.watchedEpisodes[0]}
-                seriesData={{ number_of_episodes: series.totalEpisodes } as any}
+                seriesData={{ number_of_episodes: series.totalEpisodes } as unknown as Series}
                 nextEpisodes={nextEpisode}
                 status={series.status}
               />

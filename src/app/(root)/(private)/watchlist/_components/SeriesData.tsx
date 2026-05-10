@@ -6,20 +6,10 @@ import { useState, useEffect } from "react";
 import { Check, Loader2, Text, XCircle, RotateCcw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { Series } from "@/types/seriesT";
+import { Episode, Series } from "@/types/seriesT";
 import { markEpisodWatched, updateSeriesStatus } from "../actions";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-
-type Episode = {
-  id: number;
-  episode_number: number;
-  season_number: number;
-  name: string;
-  overview: string;
-  vote_average: number;
-  runtime: number;
-};
 
 interface SeriesDataProps {
   seriesId: string;

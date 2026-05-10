@@ -1,7 +1,7 @@
 import "server-only";
 import axios from "axios";
 
-import { Series } from "@/types/seriesT";
+import { Episode, Series } from "@/types/seriesT";
 
 export async function fetchSeriesData(
   seriesId: string
@@ -31,24 +31,8 @@ export async function fetchEpisodes(
   lastWatchedEpisode: { episodeNumber: number; seasonNumber: number } | null,
   watchedEpisodes: { episodeNumber: number; seasonNumber: number }[] | null
 ): Promise<{
-  allEpisodes: {
-    id: number;
-    episode_number: number;
-    season_number: number;
-    name: string;
-    overview: string;
-    vote_average: number;
-    runtime: number;
-  }[];
-  newEpisodes: {
-    id: number;
-    episode_number: number;
-    season_number: number;
-    name: string;
-    overview: string;
-    vote_average: number;
-    runtime: number;
-  }[];
+  allEpisodes: Episode[];
+  newEpisodes: Episode[];
 } | null> {
   try {
     const seasonPromises = Array.from(
@@ -70,15 +54,7 @@ export async function fetchEpisodes(
     );
 
     const seasons = await Promise.all(seasonPromises);
-    const allEpisodes: {
-      id: number;
-      episode_number: number;
-      season_number: number;
-      name: string;
-      overview: string;
-      vote_average: number;
-      runtime: number;
-    }[] = [];
+    const allEpisodes: Episode[] = [];
 
     for (const season of seasons) {
       allEpisodes.push(...(season.episodes || []));
@@ -103,25 +79,28 @@ export async function fetchEpisodes(
 }
 
 export async function fetchSingleEpisode(
-    seriesId: string,
-    seasonNumber: number,
-    episodeNumber: number
-  ): Promise<any | null> {
-    try {
-      const { data } = await axios.get(
-        `https://api.themoviedb.org/3/tv/${seriesId}/season/${seasonNumber}/episode/${episodeNumber}`,
-        {
-          params: {
-            api_key: process.env.TMDB_API_KEY,
-          },
-        }
-      );
-      return data;
-    } catch (error) {
-      if (axios.isAxiosError(error) && error.response?.status === 404) {
-        return null; // Gracefully return null for missing episodes
+  seriesId: string,
+  seasonNumber: number,
+  episodeNumber: number
+): Promise<Episode | null> {
+  try {
+    const { data } = await axios.get(
+      `https://api.themoviedb.org/3/tv/${seriesId}/season/${seasonNumber}/episode/${episodeNumber}`,
+      {
+        params: {
+          api_key: process.env.TMDB_API_KEY,
+        },
       }
-      console.error(`Error fetching episode S${seasonNumber}E${episodeNumber}:`, error);
-      return null;
+    );
+    return data as Episode;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.status === 404) {
+      return null; // Gracefully return null for missing episodes
     }
+    console.error(
+      `Error fetching episode S${seasonNumber}E${episodeNumber}:`,
+      error
+    );
+    return null;
   }
+}

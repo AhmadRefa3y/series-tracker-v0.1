@@ -2,9 +2,9 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { Input } from "../ui/input";
 import { Search as SearchIcon, X, TrendingUp, Tv, Film, User, Star } from "lucide-react";
-import Link from "next/link";
 import Image from "next/image";
 import { SearchMulti, getTrendingSeriesBasic } from "@/data/globalData";
+import { Series } from "@/types/seriesT";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 
@@ -36,8 +36,10 @@ const Search: React.FC = () => {
   const fetchTrending = useCallback(async () => {
     try {
       const data = await getTrendingSeriesBasic();
-      const mapped = (data.results || []).slice(0, 5).map((item: any) => ({
+      const mapped = (data.results || []).slice(0, 5).map((item: Series) => ({
         ...item,
+        id: item.id,
+        name: item.name,
         media_type: "tv" as const,
       }));
       setTrendingResults(mapped);
@@ -58,7 +60,7 @@ const Search: React.FC = () => {
     setIsLoading(true);
     try {
       const data = await SearchMulti(query);
-      setSearchResults(data.results?.slice(0, 8) || []);
+      setSearchResults((data.results || []).slice(0, 8) as unknown as SearchResult[]);
     } catch (error) {
       console.error("Error searching:", error);
       setSearchResults([]);

@@ -13,6 +13,14 @@ export interface UserInsights {
   mostWatchedSeries: { title: string; count: number; poster: string | null; totalEpisodes: number }[];
 }
 
+interface TMDBDetails {
+  id: number;
+  episode_run_time?: number[];
+  genres?: { id: number; name: string }[];
+  number_of_episodes: number;
+  status: string;
+}
+
 export async function getUserInsights(): Promise<UserInsights | null> {
   const session = await auth();
   const userId = session?.user?.id;
@@ -77,9 +85,9 @@ export async function getUserInsights(): Promise<UserInsights | null> {
     const detailsPromises = uniqueTmdbIds.map(id => fetchSeriesDetails(id));
     const allDetails = await Promise.all(detailsPromises);
     
-    const detailsMap = new Map<string, any>();
+    const detailsMap = new Map<string, TMDBDetails>();
     allDetails.forEach(details => {
-      if (details) detailsMap.set(details.id.toString(), details);
+      if (details) detailsMap.set(details.id.toString(), details as TMDBDetails);
     });
 
     // 4. Calculate Time, Genres and Completion
@@ -95,7 +103,7 @@ export async function getUserInsights(): Promise<UserInsights | null> {
         totalTimeMinutes += stats.count * runtime;
 
         // Genres
-        details.genres?.forEach((g: any) => {
+        details.genres?.forEach((g: { id: number; name: string }) => {
           genreCounts[g.name] = (genreCounts[g.name] || 0) + 1;
         });
 
