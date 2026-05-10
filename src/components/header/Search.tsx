@@ -1,170 +1,258 @@
 "use client";
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { Input } from "../ui/input";
-import { Search as SearchIcon } from "lucide-react";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Search as SearchIcon, X, TrendingUp, Tv, Film, User, Star } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { SearchSeries } from "@/data/globalData";
+import { SearchMulti, getTrendingSeriesBasic } from "@/data/globalData";
+import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
 
-// Define the TMDB Series type
-interface Series {
+interface SearchResult {
   id: number;
-  name: string;
+  name?: string;
+  title?: string;
+  media_type: "tv" | "movie" | "person";
   first_air_date?: string;
+  release_date?: string;
   poster_path?: string | null;
+  profile_path?: string | null;
+  vote_average?: number;
 }
-
-// Define TMDB API response type
 
 const Search: React.FC = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [searchResults, setSearchResults] = useState<Series[]>([]);
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [trendingResults, setTrendingResults] = useState<SearchResult[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [selectedIndex, setSelectedIndex] = useState<number>(-1);
   const inputRef = useRef<HTMLInputElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
-  const IMAGE_BASE_URL = "https://image.tmdb.org/t/p/";
-  const IMAGE_SIZE = "w92";
+  const IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w92";
 
-  // Focus input when popover opens with a slight delay
-  useEffect(() => {
-    if (isOpen && inputRef.current) {
-      // Use setTimeout to ensure focus happens after popover render
-      const timer = setTimeout(() => {
-        inputRef.current?.focus();
-      }, 0);
-      return () => clearTimeout(timer);
+  const fetchTrending = useCallback(async () => {
+    try {
+      const data = await getTrendingSeriesBasic();
+      const mapped = (data.results || []).slice(0, 5).map((item: any) => ({
+        ...item,
+        media_type: "tv" as const,
+      }));
+      setTrendingResults(mapped);
+    } catch (error) {
+      console.error("Error fetching trending:", error);
     }
-  }, [isOpen]);
+  }, []);
 
-  const fetchSeries = useCallback(async (): Promise<void> => {
+  useEffect(() => {
+    fetchTrending();
+  }, [fetchTrending]);
+
+  const performSearch = useCallback(async (query: string) => {
+    if (!query) {
+      setSearchResults([]);
+      return;
+    }
     setIsLoading(true);
     try {
-      const getSeries = await SearchSeries(searchQuery);
-
-      setSearchResults(getSeries.results || []);
+      const data = await SearchMulti(query);
+      setSearchResults(data.results?.slice(0, 8) || []);
     } catch (error) {
-      console.error("Error fetching series:", error);
+      console.error("Error searching:", error);
       setSearchResults([]);
     } finally {
       setIsLoading(false);
     }
-  }, [searchQuery]);
+  }, []);
 
   useEffect(() => {
-    if (!searchQuery || !isOpen) {
-      setSearchResults([]);
-      return;
-    }
-
     const delayDebounce = setTimeout(() => {
-      fetchSeries();
+      if (searchQuery) {
+        performSearch(searchQuery);
+      } else {
+        setSearchResults([]);
+      }
     }, 300);
 
     return () => clearTimeout(delayDebounce);
-  }, [searchQuery, isOpen, fetchSeries]);
+  }, [searchQuery, performSearch]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    setSearchQuery(e.target.value);
+  // Keyboard Shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "/" && document.activeElement !== inputRef.current) {
+        e.preventDefault();
+        inputRef.current?.focus();
+      }
+      if (e.key === "Escape") {
+        setIsOpen(false);
+        inputRef.current?.blur();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  // Handle outside clicks
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    const results = searchQuery ? searchResults : trendingResults;
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setSelectedIndex((prev) => (prev < results.length - 1 ? prev + 1 : prev));
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setSelectedIndex((prev) => (prev > 0 ? prev - 1 : prev));
+    } else if (e.key === "Enter" && selectedIndex >= 0) {
+      const selected = results[selectedIndex];
+      navigateToResult(selected);
+    }
   };
 
-  const handleTriggerClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    e.preventDefault(); // Prevent any default behavior that might steal focus
-    setIsOpen(true);
+  const navigateToResult = (result: SearchResult) => {
+    const path = result.media_type === "tv" 
+      ? `/shows/${(result.name || result.title)?.replace(/\s+/g, "_").toLowerCase()}-${result.id}`
+      : result.media_type === "movie" 
+        ? `/movies/${(result.title || result.name)?.replace(/\s+/g, "_").toLowerCase()}-${result.id}`
+        : `/people/${(result.name || result.title)?.replace(/\s+/g, "_").toLowerCase()}-${result.id}`;
+    
+    router.push(path);
+    setIsOpen(false);
+    setSearchQuery("");
   };
+
+  const displayResults = searchQuery ? searchResults : trendingResults;
 
   return (
-    <div>
-      {isOpen && (
-        <div
-          className="fixed inset-0 w-full h-screen z-[999]"
-          onClick={() => setIsOpen(false)}
-        ></div>
-      )}
-      <div
-        className={`relative hidden md:block group bg-[#343434] z-[999] hover:bg-white duration-200 ${
-          !isOpen ? "rounded-md " : "rounded-t-md text-black"
-        }`}
+    <div ref={containerRef} className="relative w-full max-w-3xl z-[1000]">
+      <div 
+        className={cn(
+          "flex items-center bg-[#1a1a1a] border border-[#333] rounded-lg transition-all duration-200 overflow-hidden",
+          isOpen && "ring-2 ring-orange-500 border-transparent bg-[#222]"
+        )}
       >
-        <Popover open={isOpen}>
-          <PopoverTrigger asChild>
-            <div
-              className="relative cursor-pointer"
-              onClick={handleTriggerClick}
-            >
-              <SearchIcon
-                className="absolute left-2.5 top-2.5 h-4 w-4 group-hover:text-black"
-                strikethroughThickness={1.5}
-              />
-              <Input
-                ref={inputRef}
-                type="search"
-                value={searchQuery}
-                onChange={handleInputChange}
-                placeholder="What are you looking for?"
-                className={`w-[200px] pl-8 md:w-[300px] duration-200 focus:ring-0 placeholder:font-extrabold focus:outline-none border-0 placeholder:text-white hover:placeholder:text-black hover:text-black cursor-pointer placeholder:capitalize ${
-                  isOpen
-                    ? "placeholder:text-black  text-black bg-white rounded-none rounded-t-md focus:border-b focus:border-fuchsia-600"
-                    : ""
-                }`}
-                onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-                  if (e.key === "Escape") setIsOpen(false);
-                }}
-              />
-            </div>
-          </PopoverTrigger>
-          <PopoverContent
-            className="w-[200px] md:w-[300px] p-0 shadow-none rounded-t-none border-t-0"
-            align="start"
-            sideOffset={0}
+        <div className="pl-3 text-gray-400">
+          <SearchIcon size={18} />
+        </div>
+        <Input
+          ref={inputRef}
+          value={searchQuery}
+          onChange={(e) => {
+            setSearchQuery(e.target.value);
+            setSelectedIndex(-1);
+            setIsOpen(true);
+          }}
+          onFocus={() => setIsOpen(true)}
+          onKeyDown={handleKeyDown}
+          placeholder='Search TV Shows, Movies... (Press "/" to focus)'
+          className="bg-transparent border-none text-white focus-visible:ring-0 placeholder:text-gray-500 h-10 w-full font-medium"
+        />
+        {searchQuery && (
+          <button 
+            onClick={() => {
+              setSearchQuery("");
+              inputRef.current?.focus();
+            }}
+            className="pr-3 text-gray-400 hover:text-white transition-colors"
           >
-            <div className="h-[300px] p-2 overflow-y-auto shadow-2xl">
-              {isLoading && <div className="p-2 text-center">Loading...</div>}
-              {!isLoading && searchResults.length === 0 && searchQuery && (
-                <div className="p-2 text-center">No results found</div>
-              )}
-              {!isLoading && searchResults.length > 0 && (
-                <ul className="space-y-2">
-                  {searchResults.map((series: Series) => (
-                    <li key={series.id}>
-                      <Link
-                        href={`/shows/${series.name}-${series.id}`}
-                        className="p-2 hover:bg-gray-100 cursor-pointer rounded flex items-center gap-3"
-                      >
-                        {series.poster_path ? (
-                          <Image
-                            src={`${IMAGE_BASE_URL}${IMAGE_SIZE}${series.poster_path}`}
-                            alt={`${series.name} poster`}
-                            className="w-12 h-16 object-cover rounded"
-                            width={48}
-                            height={64}
-                            loading="lazy"
-                          />
-                        ) : (
-                          <div className="w-12 h-16 bg-gray-200 rounded flex items-center justify-center text-gray-500 text-xs">
-                            No Image
-                          </div>
-                        )}
-                        <div>
-                          <div className="font-medium">{series.name}</div>
-                          <div className="text-sm text-gray-600">
-                            {series.first_air_date?.split("-")[0] || "N/A"}
-                          </div>
-                        </div>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          </PopoverContent>
-        </Popover>
+            <X size={16} />
+          </button>
+        )}
       </div>
+
+      {/* Results Dropdown */}
+      {isOpen && (displayResults.length > 0 || isLoading) && (
+        <div className="absolute top-full mt-2 w-full bg-[#1a1a1a] border border-[#333] rounded-lg shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="p-2 border-b border-[#333] flex items-center justify-between bg-[#111]">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500 flex items-center gap-1.5">
+              {searchQuery ? (
+                <>
+                  <SearchIcon size={10} /> Search Results
+                </>
+              ) : (
+                <>
+                  <TrendingUp size={10} /> Trending Today
+                </>
+              )}
+            </span>
+            {isLoading && (
+              <div className="w-3 h-3 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+            )}
+          </div>
+
+          <div className="max-h-[70vh] overflow-y-auto custom-scrollbar">
+            {displayResults.map((result, index) => (
+              <div
+                key={`${result.media_type}-${result.id}`}
+                onClick={() => navigateToResult(result)}
+                onMouseEnter={() => setSelectedIndex(index)}
+                className={cn(
+                  "flex items-center gap-3 p-3 cursor-pointer transition-colors border-b border-[#262626] last:border-0",
+                  selectedIndex === index ? "bg-[#262626]" : "hover:bg-[#222]"
+                )}
+              >
+                <div className="relative flex-shrink-0 w-10 h-14 rounded overflow-hidden bg-[#333]">
+                  {(result.poster_path || result.profile_path) ? (
+                    <Image
+                      src={`${IMAGE_BASE_URL}${result.poster_path || result.profile_path}`}
+                      alt={result.name || result.title || ""}
+                      fill
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-gray-600">
+                      {result.media_type === "person" ? <User size={16} /> : result.media_type === "movie" ? <Film size={16} /> : <Tv size={16} />}
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex-grow min-w-0">
+                  <div className="flex items-center gap-2">
+                    <h4 className="font-semibold text-sm text-white truncate">
+                      {result.name || result.title}
+                    </h4>
+                    {result.vote_average && result.vote_average > 0 && (
+                      <div className="flex items-center gap-1 text-[10px] text-orange-400 font-bold bg-orange-400/10 px-1 rounded">
+                        <Star size={8} fill="currentColor" />
+                        {result.vote_average.toFixed(1)}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-gray-500 mt-0.5 capitalize">
+                    <span className="flex items-center gap-1">
+                      {result.media_type === "tv" && <Tv size={10} />}
+                      {result.media_type === "movie" && <Film size={10} />}
+                      {result.media_type === "person" && <User size={10} />}
+                      {result.media_type === "tv" ? "TV Show" : result.media_type}
+                    </span>
+                    {(result.first_air_date || result.release_date) && (
+                      <>
+                        <span className="w-1 h-1 rounded-full bg-gray-700" />
+                        <span>{(result.first_air_date || result.release_date)?.split("-")[0]}</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          <div className="p-2 bg-[#111] text-[10px] text-center text-gray-600 border-t border-[#333]">
+            Use arrow keys to navigate • Enter to select • Esc to close
+          </div>
+        </div>
+      )}
     </div>
   );
 };

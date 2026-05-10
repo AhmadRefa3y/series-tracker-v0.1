@@ -21,6 +21,28 @@ export async function SearchSeries(query: string): Promise<TMDBResponse> {
   }
 }
 
+export async function SearchMulti(query: string): Promise<any> {
+  try {
+    const response = await axios.get(`${BASE_URL}/search/multi`, {
+      params: { api_key: process.env.TMDB_API_KEY, query },
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error("Failed to fetch search results", { cause: error });
+  }
+}
+
+export async function getTrendingSeriesBasic(): Promise<TMDBResponse> {
+  try {
+    const response = await axios.get(`${BASE_URL}/trending/tv/day`, {
+      params: { api_key: process.env.TMDB_API_KEY },
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error("Failed to fetch trending series", { cause: error });
+  }
+}
+
 export async function fetchAllEpisodes(
   seriesTmdbId: string,
   endSeason?: number
