@@ -57,3 +57,21 @@ export async function fetchAllEpisodes(
     return null;
   }
 }
+
+export async function fetchSeasonEpisodes(
+  seriesTmdbId: string,
+  seasonNumber: number
+): Promise<Episode[] | null> {
+  try {
+    const response = await axios.get(
+      `${BASE_URL}/tv/${seriesTmdbId}/season/${seasonNumber}`,
+      {
+        params: { api_key: process.env.TMDB_API_KEY },
+      }
+    );
+    return response.data.episodes || [];
+  } catch (error) {
+    console.log(`Error fetching season ${seasonNumber} episodes:`, error);
+    return null;
+  }
+}

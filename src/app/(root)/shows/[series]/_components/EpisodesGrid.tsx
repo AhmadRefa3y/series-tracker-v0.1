@@ -2,7 +2,7 @@
 // The PaginatedEpisodesGrid component is now used instead
 
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { IMAGE_BASE_URL } from "@/lib/constants";
@@ -33,6 +33,7 @@ export default function EpisodesGrid({
 }: EpisodesClientProps) {
   const [episodesState, setEpisodesState] =
     useState<{ episodeData: Episode; isWatched: boolean }[]>(episodes);
+  const [activeSeason, setActiveSeason] = useState<string>("1");
   const [seasonLoading, setSeasonLoading] = useState<Record<number, boolean>>(
     {}
   ); // Track loading state per season
@@ -57,6 +58,8 @@ export default function EpisodesGrid({
           ...watchedEpisodes.map((ep) => ep.episodeData.season_number)
         );
         setActiveSeason(lastWatchedSeason.toString());
+      } else {
+        setActiveSeason(uniqSeasons[0].toString());
       }
     }
   }, [uniqSeasons, episodesState]);
@@ -134,19 +137,26 @@ export default function EpisodesGrid({
               value={season.toString()}
               className={cn(
                 "min-w-[100px] font-bold relative gap-2 transition-all duration-300",
-                allWatched && activeSeason !== season.toString() && "opacity-60 grayscale-[0.5]",
+                allWatched &&
+                  activeSeason !== season.toString() &&
+                  "opacity-60 grayscale-[0.5]",
                 allWatched && "data-[state=active]:bg-green-500/10"
               )}
             >
               <span className="flex items-center gap-1.5">
                 Season {season}
-                {allWatched && <Check className="w-4 h-4 text-green-500" strokeWidth={3} />}
+                {allWatched && (
+                  <Check className="w-4 h-4 text-green-500" strokeWidth={3} />
+                )}
               </span>
               {/* Mark/Unmark Season as Watched Button */}
               {season === parseInt(activeSeason) && (
                 <div className="absolute bottom-[90%] left-1/2 -translate-x-1/2">
                   <button
-                    onClick={() => handleSeasonWatchToggle(season)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleSeasonWatchToggle(season);
+                    }}
                     disabled={
                       seasonLoading[season] ||
                       !markSeasonAsWatched ||
@@ -228,7 +238,7 @@ export default function EpisodesGrid({
                             </span>
                             <span className="mx-1">•</span>
                             <span className="italic">
-                              {episodeData.runtime}m
+                              {episodeData.runtime ? `${episodeData.runtime}m` : "N/A"}
                             </span>
                           </div>
                         </div>

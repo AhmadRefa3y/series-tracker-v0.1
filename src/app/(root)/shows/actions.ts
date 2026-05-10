@@ -1,6 +1,6 @@
 "use server";
 import { auth } from "@/auth";
-import { fetchAllEpisodes } from "@/data/globalData";
+import { fetchAllEpisodes, fetchSeasonEpisodes } from "@/data/globalData";
 import prismaDb from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -252,10 +252,10 @@ export const markSeasonAsWatched = async ({
   const loggedInUserId = userId.user.id;
 
   try {
-    // 1. Fetch all episodes for the series and season
-    const allEpisodes = await fetchAllEpisodes(seriesID, seasonNumber);
-    if (!allEpisodes || allEpisodes.length === 0) {
-      throw new Error("No episodes found for this season");
+    // 1. Fetch episodes for the specific season
+    const seasonEpisodes = await fetchSeasonEpisodes(seriesID, seasonNumber);
+    if (!seasonEpisodes || seasonEpisodes.length === 0) {
+      throw new Error(`No episodes found for season ${seasonNumber}`);
     }
 
     // 2. Find the series in the database
@@ -280,7 +280,7 @@ export const markSeasonAsWatched = async ({
       (watched) => watched.seasonNumber === seasonNumber
     );
 
-    const episodesToMark = allEpisodes
+    const episodesToMark = seasonEpisodes
       .filter(
         (episode) =>
           !watchedEpisodesForSeason.some(
@@ -298,7 +298,7 @@ export const markSeasonAsWatched = async ({
     const result = await prismaDb.$transaction([
       prismaDb.watchedEpisode.createMany({
         data: episodesToMark,
-        skipDuplicates: true, // In case of race conditions or other issues
+        skipDuplicates: true,
       }),
       prismaDb.series.update({
         where: {

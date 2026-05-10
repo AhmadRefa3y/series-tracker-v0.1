@@ -160,7 +160,7 @@ export interface RawSeries {
   backdrop_path: string;
 }
 
-export interface Episode {
+export interface DetailedEpisode {
   id: number;
   number: number;
   season: number;
@@ -175,7 +175,7 @@ export interface DetailedSeason {
   number: number;
   title: string; // e.g., "Season 1"
   year: number;
-  episodes: Episode[];
+  episodes: DetailedEpisode[];
 }
 export interface SeriesWithAllData {
   id: number;
