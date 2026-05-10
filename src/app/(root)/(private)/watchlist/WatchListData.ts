@@ -101,3 +101,27 @@ export async function fetchEpisodes(
     return null;
   }
 }
+
+export async function fetchSingleEpisode(
+    seriesId: string,
+    seasonNumber: number,
+    episodeNumber: number
+  ): Promise<any | null> {
+    try {
+      const { data } = await axios.get(
+        `https://api.themoviedb.org/3/tv/${seriesId}/season/${seasonNumber}/episode/${episodeNumber}`,
+        {
+          params: {
+            api_key: process.env.TMDB_API_KEY,
+          },
+        }
+      );
+      return data;
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 404) {
+        return null; // Gracefully return null for missing episodes
+      }
+      console.error(`Error fetching episode S${seasonNumber}E${episodeNumber}:`, error);
+      return null;
+    }
+  }

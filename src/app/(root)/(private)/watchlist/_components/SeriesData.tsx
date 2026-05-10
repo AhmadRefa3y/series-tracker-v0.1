@@ -3,11 +3,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Progress } from "@/components/ui/progress";
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { Check, Loader, Text } from "lucide-react";
+import { Check, Loader2, Text, XCircle, RotateCcw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { Series } from "@/types/seriesT";
-import { markEpisodWatched } from "../actions";
+import { markEpisodWatched, updateSeriesStatus } from "../actions";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 type Episode = {
   id: number;
@@ -29,6 +31,7 @@ interface SeriesDataProps {
   lastWatchedEpisode: { episodeNumber: number; seasonNumber: number } | null;
   seriesData: Series | null;
   nextEpisodes: Episode[];
+  status?: string;
 }
 
 const SeriesData = ({
@@ -38,17 +41,27 @@ const SeriesData = ({
   InitWatchedEpisodes,
   seriesData,
   nextEpisodes,
+  status,
 }: SeriesDataProps) => {
   const [currentEpisodeIndex, setCurrentEpisodeIndex] = useState(0);
-  const [isAction, setAction] = useState(false);
+  const [isMarkingWatched, setIsMarkingWatched] = useState(false);
+  const [isChangingStatus, setIsChangingStatus] = useState(false);
+  const [isOptimisticallyHidden, setIsOptimisticallyHidden] = useState(false);
   const [watchedEpisodes, setWatchedEpisodes] = useState(InitWatchedEpisodes);
   const [completed, setCompleted] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     if (seriesData?.number_of_episodes) {
       const completionPercentage =
         (watchedEpisodes / seriesData.number_of_episodes) * 100;
-      setCompleted(completionPercentage === 100);
+      const isNowCompleted = completionPercentage >= 100;
+      setCompleted(isNowCompleted);
+
+      // Optimistic Hide: If we are in the "watching" tab and it just finished, hide it instantly
+      if (isNowCompleted && (window.location.search.includes("status=watching") || !window.location.search.includes("status="))) {
+        setIsOptimisticallyHidden(true);
+      }
     }
   }, [watchedEpisodes, seriesData]);
 
@@ -57,10 +70,10 @@ const SeriesData = ({
   const handleNextEpisode = async () => {
     if (!currentEpisode) return;
 
-    setAction(true);
+    setIsMarkingWatched(true);
 
     try {
-      const episodeWatched = await markEpisodWatched({
+      const res = await markEpisodWatched({
         episodeData: {
           seriesID: seriesId.toString(),
           episodeNumber: currentEpisode.episode_number,
@@ -68,29 +81,58 @@ const SeriesData = ({
         },
       });
 
-      if (episodeWatched.success) {
+      if (res.success) {
         setWatchedEpisodes((prev) => prev + 1);
         if (nextEpisodes[currentEpisodeIndex + 1]) {
           setCurrentEpisodeIndex((prev) => prev + 1);
         } else {
           setCompleted(true);
         }
+        toast.success(res.message);
+        router.refresh();
       } else {
-        throw new Error("Failed to mark episode as watched");
+        toast.error(res.message);
       }
     } catch (error) {
-      console.log("Error marking episode as watched:", error);
+      console.error("Error marking episode:", error);
+      toast.error("An error occurred");
     } finally {
-      setAction(false);
+      setIsMarkingWatched(false);
     }
   };
 
+  const handleStatusChange = async (newStatus: string) => {
+    // Optimistic Update: Hide the card immediately
+    setIsOptimisticallyHidden(true);
+    setIsChangingStatus(true);
+
+    try {
+      const res = await updateSeriesStatus(seriesId, newStatus);
+      if (res.success) {
+        toast.success(res.message);
+        router.refresh();
+      } else {
+        // Rollback if failed
+        setIsOptimisticallyHidden(false);
+        toast.error(res.message);
+      }
+    } catch (error) {
+        console.error("Error changing status:", error);
+        setIsOptimisticallyHidden(false);
+        toast.error("Failed to update status");
+    } finally {
+      setIsChangingStatus(false);
+    }
+  };
+
+  if (isOptimisticallyHidden) return null;
+
   return (
-    <div className="px-1 w-1/6 min-w-[175px] h-[350px] overflow-hidden">
+    <div className="px-1 w-1/6 min-w-[175px] h-[350px] overflow-hidden transition-all duration-500 animate-in fade-in zoom-in-95">
       <div className="flex flex-col bg-black h-full  text-white overflow-hidden group relative hover:perspective-distant duration-200 ">
         <div className="flex flex-col relative flex-1 h-[310px] overflow-hidden ">
           {/* Poster Image */}
-          <div className="relative   h-full flex flex-col">
+          <div className="relative h-full flex flex-col">
             <Link
               href={`/shows/${title}-${seriesId}`}
               className="relative min-w-[160px] h-full"
@@ -105,7 +147,7 @@ const SeriesData = ({
             </Link>
           </div>
 
-          {!completed && (
+          {!completed && status !== "DROPPED" && (
             <div className="flex flex-col items-start py-2 w-full pr-2  z-10 absolute bottom-0 md:opacity-0 duration-200 md:group-hover:opacity-100">
               <div className="absolute inset-0 bg-gradient-to-b from-transparent from-0% via-10% via-black/70 to-100%  to-black " />
               <div className="flex flex-col overflow-hidden w-full  z-50 h-fit pl-2 ">
@@ -147,6 +189,12 @@ const SeriesData = ({
               </div>
             </div>
           )}
+
+          {status === "DROPPED" && (
+            <div className="absolute inset-0 bg-black/70 flex items-center justify-center z-20 backdrop-blur-[1px]">
+                <span className="bg-red-600 text-white text-[11px] font-black uppercase px-3 py-1.5 rounded shadow-xl tracking-tighter">Dropped</span>
+            </div>
+          )}
         </div>
         <Progress
           value={
@@ -154,54 +202,52 @@ const SeriesData = ({
               ? (watchedEpisodes / seriesData.number_of_episodes) * 100
               : 0
           }
-          className="w-full mt-auto rounded-none"
+          className="w-full mt-auto rounded-none h-1"
         />
         <div className="flex items-center bg-[#2d2d2d] border-r  border-[#414040] h-[40px] ">
+          {status === "DROPPED" ? (
+             <button
+                className="h-full w-10 hover:bg-emerald-600 hover:text-white duration-200 p-2 flex items-center justify-center border-r border-[#414040]"
+                onClick={() => handleStatusChange("WATCHING")}
+                disabled={isChangingStatus || isMarkingWatched}
+                title="Restore to Watching"
+             >
+                {isChangingStatus ? <Loader2 className="animate-spin size-4 text-white" /> : <RotateCcw size={18} />}
+             </button>
+          ) : (
+            <button
+                className="h-full w-10 hover:bg-red-600 hover:text-white duration-200 p-2 flex items-center justify-center border-r border-[#414040]"
+                onClick={() => handleStatusChange("DROPPED")}
+                disabled={isChangingStatus || isMarkingWatched || completed}
+                title="Drop Series"
+            >
+                {isChangingStatus ? <Loader2 className="animate-spin size-4 text-white" /> : <XCircle size={18} />}
+            </button>
+          )}
+
           <button
             className={cn(
-              "h-full hover:bg-primaryColor hover:text-secondaryColor  duration-200 p-2 flex items-center justify-center",
-              isAction || !currentEpisode || completed ? "opacity-30" : ""
+              "h-full flex-grow hover:bg-primaryColor hover:text-secondaryColor duration-200 p-2 flex items-center justify-center transition-opacity",
+              isMarkingWatched || !currentEpisode || completed || status === "DROPPED" ? "opacity-30" : "opacity-100",
+              isChangingStatus && "cursor-not-allowed" // Only disable cursor, keep opacity high if not marking
             )}
             onClick={handleNextEpisode}
-            disabled={isAction || !currentEpisode || completed}
+            disabled={isMarkingWatched || isChangingStatus || !currentEpisode || completed || status === "DROPPED"}
           >
-            {isAction ? <Loader className="animate-spin" /> : <Check />}
+            {isMarkingWatched ? <Loader2 className="animate-spin size-4" /> : <Check />}
           </button>
-          <button className="text-white p-2  hover:bg-[#ff5f06] duration-200">
-            <Text strokeWidth={2} />
+          
+          <button className="h-full text-white p-2 hover:bg-[#ff5f06] duration-200 border-l border-[#414040]">
+            <Text strokeWidth={2} size={18} />
           </button>
 
           {completed ? (
-            <p className=" text-primaryColor px-2 ml-auto normal-case flex items-center justify-center ">
-              Finished
+            <p className="text-primaryColor px-2 ml-auto text-[10px] font-black uppercase flex items-center justify-center tracking-tighter">
+              Done
             </p>
           ) : (
-            <div className="text-primaryColor ml-auto px-2 font-bold ">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={`season-${currentEpisode?.season_number}`}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="inline-flex"
-                >
-                  S{currentEpisode?.season_number}
-                </motion.div>
-              </AnimatePresence>
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={`episode-${currentEpisode?.season_number}-${currentEpisode?.episode_number}`}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="inline-flex"
-                >
-                  <span className="mx-1 text-gray-400">|</span>E
-                  {currentEpisode?.episode_number}
-                </motion.div>
-              </AnimatePresence>
+            <div className="text-primaryColor ml-auto px-2 text-xs font-black tracking-tighter">
+              {currentEpisode ? `S${currentEpisode.season_number}E${currentEpisode.episode_number}` : "--"}
             </div>
           )}
         </div>

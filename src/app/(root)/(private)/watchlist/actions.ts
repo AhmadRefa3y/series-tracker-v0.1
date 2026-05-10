@@ -2,6 +2,7 @@
 
 import { auth } from "@/auth";
 import prismaDb from "@/lib/prisma";
+import { revalidatePath } from "next/cache";
 
 export const markEpisodWatched = async ({
   episodeData,
@@ -25,12 +26,10 @@ export const markEpisodWatched = async ({
           seriesTmdbId: episodeData.seriesID,
         },
       },
-      include: { watchedEpisodes: true },
     });
+
     if (!seriesExists) {
-      throw new Error(
-        "Series does not exist in the database. Insert it first."
-      );
+      throw new Error("Series not found in your watchlist");
     }
 
     await prismaDb.$transaction([
@@ -42,30 +41,49 @@ export const markEpisodWatched = async ({
           seasonNumber: episodeData.seasonNumber,
         },
       }),
-
       prismaDb.series.update({
-        where: {
-          seriesTmdbId_userId: {
-            userId: userId.user.id,
-            seriesTmdbId: episodeData.seriesID,
-          },
-        },
-        data: {
-          latestWatchedAt: new Date(),
-        },
+        where: { id: seriesExists.id },
+        data: { latestWatchedAt: new Date() },
       }),
     ]);
 
+    revalidatePath("/watchlist", "page");
+    revalidatePath("/watchlist", "layout");
+    revalidatePath("/", "layout");
     return {
       success: true,
       message: "Episode marked as watched",
     };
   } catch (error) {
-    console.log(error);
+    console.error("markEpisodWatched error:", error);
     return {
       success: false,
-      message: "Failed to mark episode as watched",
-      error: error,
+      message: error instanceof Error ? error.message : "Failed to mark episode",
     };
+  }
+};
+
+export const updateSeriesStatus = async (seriesId: string, status: string) => {
+  try {
+    const userId = await auth();
+    if (!userId?.user?.id) throw new Error("Unauthorized");
+
+    await prismaDb.series.update({
+      where: {
+        seriesTmdbId_userId: {
+          seriesTmdbId: seriesId,
+          userId: userId.user.id,
+        },
+      },
+      data: { status },
+    });
+
+    revalidatePath("/watchlist", "page");
+    revalidatePath("/watchlist", "layout");
+    revalidatePath("/", "layout");
+    return { success: true, message: `Status updated to ${status}` };
+  } catch (error) {
+    console.error("updateSeriesStatus error:", error, { seriesId, status });
+    return { success: false, message: "Failed to update status" };
   }
 };

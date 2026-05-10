@@ -67,6 +67,9 @@ model Series {
   userId          String
   seriesTmdbId    String
   latestWatchedAt DateTime         @default(now())
+  status          String           @default("WATCHING") // WATCHING, DROPPED, PLAN_TO_WATCH
+  totalEpisodes   Int              @default(0)
+  tmdbStatus      String?          // Ended, Returning Series, etc.
 
   @@unique([seriesTmdbId, userId])
 }

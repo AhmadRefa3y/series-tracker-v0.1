@@ -32,6 +32,14 @@ const MobileNavBar = () => {
         </DropdownMenuItem>
         <DropdownMenuItem className="hover:outline-none px-0">
           <Link
+            href="/insights"
+            className="font-semibold hover:text-blue-600 duration-200 w-full  px-2"
+          >
+            Insights
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem className="hover:outline-none px-0">
+          <Link
             href="/dashboard"
             className="font-semibold hover:text-blue-600 duration-200 w-full  px-2"
           >

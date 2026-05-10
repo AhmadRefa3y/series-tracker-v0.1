@@ -25,15 +25,21 @@ export const AddSeriesToWatchlist = async ({
   }
 
   try {
+    const { fetchSeriesDetails } = await import("@/data/globalData");
+    const fullDetails = await fetchSeriesDetails(seriesData.id);
+
     await prismaDb.series.create({
       data: {
         seriesTmdbId: seriesData.id,
         title: seriesData.title,
         userId: userId.user.id,
         posterPath: seriesData.poster,
+        totalEpisodes: fullDetails?.number_of_episodes || 0,
+        tmdbStatus: fullDetails?.status || "Unknown",
       },
     });
 
+    revalidatePath("/watchlist");
     return {
       success: true,
       message: "Series added to watchlist",

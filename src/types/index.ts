@@ -93,4 +93,7 @@ export interface WatchListSeries {
   title: string;
   posterPath: string;
   lastWatchedEpisode: Date;
+  status: string;
+  totalEpisodes: number;
+  tmdbStatus: string | null;
 }

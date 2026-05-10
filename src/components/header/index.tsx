@@ -32,6 +32,12 @@ export async function Header() {
               Shows
             </Link>
             <Link
+              href="/insights"
+              className="font-semibold  duration-200     hover:bg-primaryColor hover:text-secondaryColor h-full flex items-center justify-center   px-3 hover:border-primaryColor"
+            >
+              Insights
+            </Link>
+            <Link
               href="/dashboard"
               className="font-semibold  duration-200    hover:bg-primaryColor hover:text-secondaryColor h-full flex items-center justify-center   px-3 hover:border-primaryColor"
             >

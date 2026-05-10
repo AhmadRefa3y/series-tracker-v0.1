@@ -9,6 +9,7 @@ import { UpNextSkeleton } from "@/app/(root)/(private)/dashboard/_components/UpN
 export const metadata = {
   title: "Dashboard - Sennit",
 };
+
 const DashBoard = async () => {
   const session = await auth();
   if (!session) {
@@ -24,6 +25,7 @@ const DashBoard = async () => {
           </Suspense>
         </div>
       </div>
+
       <div className="bg-[#111111]">
         <div className="container mx-auto relative h-full">
           <RecentlyWatched />

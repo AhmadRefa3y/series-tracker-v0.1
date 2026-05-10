@@ -1,75 +1,169 @@
 // app/watchlist/page.tsx
 import { WatchListSeries } from "@/types";
 import SeriesData from "./_components/SeriesData";
-import { fetchEpisodes, fetchSeriesData } from "./WatchListData";
+import { fetchSingleEpisode } from "./WatchListData";
 import { getCurrentUser } from "@/lib/actions/userActions";
 import { getUserSeriesWatchlist } from "@/data/sharedData";
+import WatchlistFilter from "./_components/WatchlistFilter";
+import { Suspense } from "react";
+import { unstable_noStore as noStore } from "next/cache";
 
 export const dynamic = "force-dynamic";
 export const metadata = {
-  title: "Watchlist - Sennit ",
+  title: "Watchlist - Sennit",
 };
-export default async function Watchlist() {
-  await getCurrentUser("/watchlist");
+
+export default async function Watchlist({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const user = await getCurrentUser("/watchlist");
+  const userId = user?.id;
+  
+  noStore();
+
+  const resolvedSearchParams = await searchParams;
+  const statusFilter = (resolvedSearchParams.status as string) || "watching";
 
   let watchList: WatchListSeries[] = [];
-  let error: string | null = null;
-
   try {
     const seriesWatchlist = await getUserSeriesWatchlist();
     watchList = seriesWatchlist || [];
   } catch (err) {
-    error = "Failed to load watchlist";
-    console.error(err);
-  }
-
-  if (error) {
-    return (
-      <div className="flex h-screen items-center justify-center w-full absolute inset-0 bg-black/60 text-white">
-        <h1 className="text-3xl font-bold">{error}</h1>
-      </div>
-    );
+    console.error("Failed to load watchlist:", err);
   }
 
   if (watchList.length === 0) {
     return (
-      <div className="flex h-screen items-center justify-center w-full absolute inset-0 bg-black/60 text-white">
-        <h1 className="text-3xl font-bold">No Series in Your Watchlist</h1>
+      <div className="flex h-[60vh] flex-col items-center justify-center w-full text-white/50">
+        <h1 className="text-3xl font-bold">Your watchlist is empty</h1>
+        <p className="mt-2">Start adding some shows to track your progress!</p>
       </div>
     );
   }
 
-  // Pre-fetch series data and episodes for each series in the watchlist
-  const seriesDataPromises = watchList.map(async (series) => {
-    const seriesData = await fetchSeriesData(series.seriesID.toString());
+  // 1. FILTER FIRST: Use database-stored fields only (NO TMDB CALLS YET)
+  const filteredList = watchList.filter((series) => {
+    const watchedCount = series.watchedEpisodes.length;
+    let totalEpisodes = series.totalEpisodes || 0;
 
-    const episodes = await fetchEpisodes(
-      series.seriesID.toString(),
-      seriesData!.number_of_seasons,
-      series.watchedEpisodes[0] || null,
-      series.watchedEpisodes
-    );
-    return { series, seriesData, episodes };
+    if (statusFilter === "dropped") return series.status === "DROPPED";
+    if (statusFilter === "plan_to_watch") return watchedCount === 0 && series.status !== "DROPPED";
+
+    // Strict completion check: if watched matches or exceeds total, it's completed
+    const isCompleted = totalEpisodes > 0 && watchedCount >= totalEpisodes;
+
+    if (statusFilter === "completed") return isCompleted;
+    if (statusFilter === "watching")
+      return watchedCount > 0 && !isCompleted && series.status !== "DROPPED";
+
+    return true;
   });
 
-  const seriesWithData = await Promise.all(seriesDataPromises);
+  // 2. ENRICH DATA AND SYNC MISSING METADATA
+  const seriesWithData = await Promise.all(
+    filteredList.map(async (series) => {
+      // Background Sync for old data
+      if (series.totalEpisodes === 0) {
+        const { fetchSeriesDetails } = await import("@/data/globalData");
+        const prisma = (await import("@/lib/prisma")).default;
+        const details = await fetchSeriesDetails(series.seriesID.toString());
+        if (details && userId) {
+          await prisma.series.update({
+            where: {
+              seriesTmdbId_userId: {
+                seriesTmdbId: series.seriesID.toString(),
+                userId: userId,
+              },
+            },
+            data: {
+              totalEpisodes: details.number_of_episodes,
+              tmdbStatus: details.status,
+            },
+          });
+          series.totalEpisodes = details.number_of_episodes; // Update local ref for this render
+        }
+      }
+
+      const lastWatched = series.watchedEpisodes[0];
+
+      let nextEp;
+
+      if (!lastWatched) {
+        // If nothing watched, next is S1E1
+        nextEp = await fetchSingleEpisode(series.seriesID.toString(), 1, 1);
+      } else {
+        // Simple logic: try next episode in same season
+        // (Note: If this fails, the component will handle the empty state)
+        nextEp = await fetchSingleEpisode(
+          series.seriesID.toString(),
+          lastWatched.seasonNumber,
+          lastWatched.episodeNumber + 1
+        );
+
+        // If E+1 didn't exist, it might be next season E1
+        if (!nextEp) {
+          nextEp = await fetchSingleEpisode(
+            series.seriesID.toString(),
+            lastWatched.seasonNumber + 1,
+            1
+          );
+        }
+      }
+
+      return {
+        series,
+        nextEpisode: nextEp ? [nextEp] : [],
+      };
+    })
+  );
 
   return (
-    <div className="flex justify-center flex-wrap p-4 w-full gap-y-2 bg-[#1d1d1d]">
-      {seriesWithData.map(({ series, seriesData, episodes }) => (
-        <SeriesData
-          key={series.seriesID}
-          episodeNumber={series.currentEpisodeNumber}
-          posterPath={series.seriesPoster}
-          seasonNumber={series.episodeSeason}
-          seriesId={series.seriesID.toString()}
-          title={series.seriesTitle}
-          InitWatchedEpisodes={series.watchedEpisodes.length}
-          lastWatchedEpisode={series.watchedEpisodes[0]}
-          seriesData={seriesData}
-          nextEpisodes={episodes?.newEpisodes || []}
-        />
-      ))}
+    <div className="min-h-screen bg-[#1d1d1d] p-4">
+      <div className="container mx-auto">
+        <div className="flex flex-col items-center mb-8">
+          <h1 className="text-4xl font-black text-white mb-6 uppercase tracking-widest">
+            My Watchlist
+          </h1>
+          <Suspense
+            fallback={
+              <div className="h-12 w-64 bg-white/5 animate-pulse rounded-xl" />
+            }
+          >
+            <WatchlistFilter />
+          </Suspense>
+        </div>
+
+        {seriesWithData.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20 text-white/40">
+            <h2 className="text-2xl font-bold italic uppercase tracking-tighter">
+              No shows in this category
+            </h2>
+          </div>
+        ) : (
+          <div
+            key={statusFilter}
+            className="flex justify-center flex-wrap gap-y-4 gap-x-2"
+          >
+            {seriesWithData.map(({ series, nextEpisode }) => (
+              <SeriesData
+                key={series.seriesID}
+                episodeNumber={series.currentEpisodeNumber}
+                posterPath={series.seriesPoster}
+                seasonNumber={series.episodeSeason}
+                seriesId={series.seriesID.toString()}
+                title={series.seriesTitle}
+                InitWatchedEpisodes={series.watchedEpisodes.length}
+                lastWatchedEpisode={series.watchedEpisodes[0]}
+                seriesData={{ number_of_episodes: series.totalEpisodes } as any}
+                nextEpisodes={nextEpisode}
+                status={series.status}
+              />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

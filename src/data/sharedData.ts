@@ -44,6 +44,9 @@ export const getUserSeriesWatchlist = async (
         lastWatchedEpisode: series.latestWatchedAt,
         posterPath: series.posterPath || "",
         title: series.title,
+        status: series.status,
+        totalEpisodes: series.totalEpisodes,
+        tmdbStatus: series.tmdbStatus,
       };
     });
 
