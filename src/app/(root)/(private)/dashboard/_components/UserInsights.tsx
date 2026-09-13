@@ -61,7 +61,7 @@ const UserInsights: React.FC<UserInsightsProps> = ({ insights }) => {
         </div>
 
         {/* Recent Activity */}
-        <div className="rounded-2xl bg-[#161616] border border-white/5 p-5 flex flex-col justify-between">
+        <div className="rounded-2xl bg-[#17141a] border border-white/5 p-5 flex flex-col justify-between">
           <div className="text-[10px] font-bold text-gray-500 uppercase tracking-widest flex items-center gap-1.5">
             <Flame size={12} className="text-orange-500" /> Recent Heat
           </div>
@@ -79,7 +79,7 @@ const UserInsights: React.FC<UserInsightsProps> = ({ insights }) => {
         </div>
 
         {/* Collection Stats */}
-        <div className="rounded-2xl bg-[#161616] border border-white/5 p-5 flex flex-col justify-between">
+        <div className="rounded-2xl bg-[#17141a] border border-white/5 p-5 flex flex-col justify-between">
           <div className="text-[10px] font-bold text-gray-500 uppercase tracking-widest flex items-center gap-1.5">
             <BarChart size={12} className="text-blue-500" /> Library
           </div>
@@ -120,7 +120,7 @@ const UserInsights: React.FC<UserInsightsProps> = ({ insights }) => {
       {/* Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Taste Profile - Much denser list */}
-        <div className="lg:col-span-4 rounded-3xl bg-[#0d0d0d] border border-white/5 p-6">
+        <div className="lg:col-span-4 rounded-3xl bg-[#17141a] border border-white/5 p-6">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-2">
               <Zap size={14} className="text-yellow-500" /> Taste Profile
@@ -153,7 +153,7 @@ const UserInsights: React.FC<UserInsightsProps> = ({ insights }) => {
         </div>
 
         {/* Most Watched Series - More items and better info */}
-        <div className="lg:col-span-8 rounded-3xl bg-[#0d0d0d] border border-white/5 p-6">
+        <div className="lg:col-span-8 rounded-3xl bg-[#17141a] border border-white/5 p-6">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-2">
               <TrendingUp size={14} className="text-orange-500" /> Top Series
@@ -183,7 +183,7 @@ const UserInsights: React.FC<UserInsightsProps> = ({ insights }) => {
                         className="object-cover group-hover:scale-110 transition-transform duration-500"
                       />
                     ) : (
-                      <div className="w-full h-full bg-[#1a1a1a] flex items-center justify-center text-gray-600">
+                      <div className="w-full h-full bg-[#17141a] flex items-center justify-center text-gray-600">
                         <Tv size={24} />
                       </div>
                     )}

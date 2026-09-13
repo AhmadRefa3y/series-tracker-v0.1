@@ -21,7 +21,7 @@ const WelcomeBanner = async () => {
     redirect("/sign-in");
   }
   return (
-    <div className="flex flex-col w-full mx-auto bg-gray-900  p-4">
+    <div className="flex flex-col w-full mx-auto bg-[#17141a]  p-4">
       <div className="flex flex-col gap-2 sm:flex-row sm:py-10 items-center sm:justify-between container mx-auto">
         <div className="flex  gap-4 flex-1">
           <div>

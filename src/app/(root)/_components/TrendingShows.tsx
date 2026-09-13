@@ -58,8 +58,8 @@ export default async function TrendingShows() {
               }
               alt={show.name}
               fill
+              sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
               className="object-cover w-full h-full"
-              priority={false}
             />
             <div className="absolute bottom-0 left-0 right-0 px-3 sm:px-4 py-2 sm:py-3 bg-gradient-to-t from-black/80 to-black/0">
               <span className="text-white font-semibold text-base sm:text-lg">

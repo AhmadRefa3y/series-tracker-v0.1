@@ -145,7 +145,7 @@ export default function FilterControlsClient({ genres }: FilterControlsProps) {
     language;
 
   return (
-    <div className="p-4 bg-[#1a1a1a] w-[300px] flex flex-col h-full relative">
+    <div className="p-4 bg-[#17141a] w-[300px] flex flex-col h-full relative">
       <div className="flex flex-col  gap-4">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-bold text-white">Filter Shows</h2>
@@ -174,7 +174,7 @@ export default function FilterControlsClient({ genres }: FilterControlsProps) {
           <select
             value={sort_by}
             onChange={(e) => setSort_by(e.target.value)}
-            className="w-full bg-[#343434] border border-[#444444] rounded-md p-2 text-white"
+            className="w-full bg-[#17141a] border border-[#444444] rounded-md p-2 text-white"
           >
             <option value="popularity.desc">Popularity (High to Low)</option>
             <option value="popularity.asc">Popularity (Low to High)</option>
@@ -197,7 +197,7 @@ export default function FilterControlsClient({ genres }: FilterControlsProps) {
                 className={`px-3 py-1 text-sm rounded-full transition-colors ${
                   selectedGenreIds.includes(genre.id)
                     ? "bg-[#ff5f06] text-white"
-                    : "bg-[#343434] hover:bg-[#444444] text-white"
+                    : "bg-[#17141a] hover:bg-white/10 text-white"
                 }`}
               >
                 {genre.name}
@@ -216,13 +216,13 @@ export default function FilterControlsClient({ genres }: FilterControlsProps) {
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="bg-[#343434] border border-[#444444] rounded-md p-2 text-white"
+              className="bg-[#17141a] border border-[#444444] rounded-md p-2 text-white"
             />
             <input
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="bg-[#343434] border border-[#444444] rounded-md p-2 text-white"
+              className="bg-[#17141a] border border-[#444444] rounded-md p-2 text-white"
             />
           </div>
         </div>
@@ -241,7 +241,7 @@ export default function FilterControlsClient({ genres }: FilterControlsProps) {
               placeholder="Min"
               value={voteAverageGte}
               onChange={(e) => setVoteAverageGte(e.target.value)}
-              className="w-full bg-[#343434] border border-[#444444] rounded-md p-2 text-white"
+              className="w-full bg-[#17141a] border border-[#444444] rounded-md p-2 text-white"
             />
             <input
               type="number"
@@ -251,7 +251,7 @@ export default function FilterControlsClient({ genres }: FilterControlsProps) {
               placeholder="Max"
               value={voteAverageLte}
               onChange={(e) => setVoteAverageLte(e.target.value)}
-              className="w-full bg-[#343434] border border-[#444444] rounded-md p-2 text-white"
+              className="w-full bg-[#17141a] border border-[#444444] rounded-md p-2 text-white"
             />
           </div>
         </div>
@@ -264,7 +264,7 @@ export default function FilterControlsClient({ genres }: FilterControlsProps) {
           <select
             value={language}
             onChange={(e) => setLanguage(e.target.value)}
-            className="w-full bg-[#343434] border border-[#444444] rounded-md p-2 text-white"
+            className="w-full bg-[#17141a] border border-[#444444] rounded-md p-2 text-white"
           >
             <option value="">All Languages</option>
             <option value="en">English</option>
@@ -295,7 +295,7 @@ export default function FilterControlsClient({ genres }: FilterControlsProps) {
               params.page = newPage;
               updateFilters(params);
             }}
-            className="w-full bg-[#343434] border border-[#444444] rounded-md p-2 text-white"
+            className="w-full bg-[#17141a] border border-[#444444] rounded-md p-2 text-white"
           />
         </div>
       </div>

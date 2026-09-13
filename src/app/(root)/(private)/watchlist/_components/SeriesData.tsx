@@ -132,7 +132,7 @@ const SeriesData = ({
 
   return (
     <div className="px-1 w-1/6 min-w-[175px] h-[350px] overflow-hidden transition-all duration-500 animate-in fade-in zoom-in-95">
-      <div className="flex flex-col bg-black h-full  text-white overflow-hidden group relative hover:perspective-distant duration-200 ">
+      <div className="flex flex-col bg-[#17141a] h-full  text-white overflow-hidden group relative hover:perspective-distant duration-200 ">
         <div className="flex flex-col relative flex-1 h-[310px] overflow-hidden ">
           {/* Poster Image */}
           <div className="relative h-full flex flex-col">
@@ -140,7 +140,7 @@ const SeriesData = ({
               href={`/shows/${title}-${seriesId}`}
               className="relative min-w-[160px] h-full"
             >
-              <div className="absolute inset-0 bg-black animate-fadeOut" />
+              <div className="absolute inset-0 bg-[#17141a] animate-fadeOut" />
               <Image
                 src={posterPath || ""}
                 alt={title || "Poster"}
@@ -207,7 +207,7 @@ const SeriesData = ({
           }
           className="w-full mt-auto rounded-none h-1"
         />
-        <div className="flex items-center bg-[#2d2d2d] border-r  border-[#414040] h-[40px] ">
+        <div className="flex items-center bg-[#17141a] border-r  border-[#414040] h-[40px] ">
           {status === "DROPPED" ? (
              <button
                 className="h-full w-10 hover:bg-emerald-600 hover:text-white duration-200 p-2 flex items-center justify-center border-r border-[#414040]"

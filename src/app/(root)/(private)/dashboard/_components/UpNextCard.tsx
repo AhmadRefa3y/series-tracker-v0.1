@@ -45,7 +45,13 @@ const isAtOrBefore = (
   (episode.season_number === marked.seasonNumber &&
     episode.episode_number <= marked.episodeNumber);
 
-const UpNextCard = ({ item }: { item: UpNextItem }) => {
+const UpNextCard = ({
+  item,
+  preload = false,
+}: {
+  item: UpNextItem;
+  preload?: boolean;
+}) => {
   const router = useRouter();
   const [episodeIndex, setEpisodeIndex] = useState(0);
   const [isMarking, setIsMarking] = useState(false);
@@ -127,7 +133,7 @@ const UpNextCard = ({ item }: { item: UpNextItem }) => {
 
   return (
     <article className="group/card relative w-[272px] shrink-0 sm:w-[300px]">
-      <div className="relative aspect-video overflow-hidden rounded-lg bg-[#141414]">
+      <div className="relative aspect-video overflow-hidden rounded-lg bg-[#17141a]">
         {currentEpisode ? (
           <Image
             src={
@@ -139,11 +145,12 @@ const UpNextCard = ({ item }: { item: UpNextItem }) => {
             }
             alt={currentEpisode.name || item.title}
             fill
+            preload={preload}
             sizes="(max-width: 640px) 272px, 300px"
             className="object-cover transition-opacity duration-300"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center bg-[#141414]">
+          <div className="flex h-full w-full items-center justify-center bg-[#17141a]">
             <Loader2 className="size-5 animate-spin text-[#a78bfa]" />
           </div>
         )}
@@ -183,7 +190,7 @@ const UpNextCard = ({ item }: { item: UpNextItem }) => {
           </DropdownMenuTrigger>
           <DropdownMenuContent
             align="end"
-            className="min-w-[11rem] border-white/10 bg-[#1d1d1d] text-white"
+            className="min-w-[11rem] border-white/10 bg-[#17141a] text-white"
           >
             <DropdownMenuItem
               onClick={handleMarkWatched}

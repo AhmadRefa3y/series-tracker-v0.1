@@ -310,7 +310,7 @@ export default function EpisodesGrid({
                         </div>
                       </div>
                     </div>
-                    <div className="flex bg-[#2d2d2d] border-r border-[#414040] h-10">
+                    <div className="flex bg-[#17141a] border-r border-[#414040] h-10">
                       <div className="h-full" onClick={(e) => e.preventDefault()}>
                         <MarkEpisodeWatchedBtn
                           episodeData={episodeData}

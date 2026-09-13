@@ -140,8 +140,8 @@ const Search: React.FC = () => {
     <div ref={containerRef} className="relative w-full max-w-3xl z-[1000]">
       <div 
         className={cn(
-          "flex items-center bg-[#1a1a1a] border border-[#333] rounded-lg transition-all duration-200 overflow-hidden",
-          isOpen && "ring-2 ring-orange-500 border-transparent bg-[#222]"
+          "flex items-center bg-[#17141a] border border-[#333] rounded-lg transition-all duration-200 overflow-hidden",
+          isOpen && "ring-2 ring-orange-500 border-transparent bg-white/10"
         )}
       >
         <div className="pl-3 text-gray-400">
@@ -175,8 +175,8 @@ const Search: React.FC = () => {
 
       {/* Results Dropdown */}
       {isOpen && (displayResults.length > 0 || isLoading) && (
-        <div className="absolute top-full mt-2 w-full bg-[#1a1a1a] border border-[#333] rounded-lg shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
-          <div className="p-2 border-b border-[#333] flex items-center justify-between bg-[#111]">
+        <div className="absolute top-full mt-2 w-full bg-[#17141a] border border-[#333] rounded-lg shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="p-2 border-b border-[#333] flex items-center justify-between bg-[#17141a]">
             <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500 flex items-center gap-1.5">
               {searchQuery ? (
                 <>
@@ -201,10 +201,10 @@ const Search: React.FC = () => {
                 onMouseEnter={() => setSelectedIndex(index)}
                 className={cn(
                   "flex items-center gap-3 p-3 cursor-pointer transition-colors border-b border-[#262626] last:border-0",
-                  selectedIndex === index ? "bg-[#262626]" : "hover:bg-[#222]"
+                  selectedIndex === index ? "bg-white/15" : "hover:bg-white/10"
                 )}
               >
-                <div className="relative flex-shrink-0 w-10 h-14 rounded overflow-hidden bg-[#333]">
+                <div className="relative flex-shrink-0 w-10 h-14 rounded overflow-hidden bg-white/10">
                   {(result.poster_path || result.profile_path) ? (
                     <Image
                       src={`${IMAGE_BASE_URL}${result.poster_path || result.profile_path}`}
@@ -250,7 +250,7 @@ const Search: React.FC = () => {
             ))}
           </div>
           
-          <div className="p-2 bg-[#111] text-[10px] text-center text-gray-600 border-t border-[#333]">
+          <div className="p-2 bg-[#17141a] text-[10px] text-center text-gray-600 border-t border-[#333]">
             Use arrow keys to navigate • Enter to select • Esc to close
           </div>
         </div>

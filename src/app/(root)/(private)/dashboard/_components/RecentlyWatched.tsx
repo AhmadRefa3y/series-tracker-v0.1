@@ -34,6 +34,7 @@ const RecentlyWatched = async () => {
                   src={episode.stillPath || episode.Series.posterPath || ""}
                   alt={`${episode.Series.title} S${episode.seasonNumber}E${episode.episodeNumber}`}
                   fill
+                  sizes="(max-width: 768px) 100vw, 33vw"
                   className="object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex items-end p-4">

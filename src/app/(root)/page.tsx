@@ -17,7 +17,7 @@ const HomePage = async () => {
     redirect("/dashboard");
   }
   return (
-    <div className="relative flex flex-col items-center justify-center bg-black text-white  h-full ">
+    <div className="relative flex flex-col items-center justify-center bg-[#17141a] text-white  h-full ">
       <Hero />
       <div className="w-full max-w-7xl mx-auto px-6 py-12">
         <Suspense fallback={<TopShowsSkeleton />}>

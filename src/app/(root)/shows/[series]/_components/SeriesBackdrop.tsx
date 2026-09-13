@@ -12,7 +12,7 @@ const SeriesBackdrop = ({
 }) => {
   return (
     <div className="w-full relative h-[310px] md:h-[500px] ">
-      <div className="absolute inset-0 bg-black animate-fadeOut" />
+      <div className="absolute inset-0 bg-[#17141a] animate-fadeOut" />
       <Image
         unoptimized
         src={

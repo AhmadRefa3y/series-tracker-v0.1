@@ -72,7 +72,7 @@ export default function Pagination({
         className={`p-2 rounded-md ${
           currentPage === 1
             ? "text-gray-500 cursor-not-allowed"
-            : "text-white hover:bg-[#343434]"
+            : "text-white hover:bg-white/10"
         }`}
       >
         <ChevronLeft className="h-5 w-5" />
@@ -88,7 +88,7 @@ export default function Pagination({
               ? "bg-[#ff5f06] text-white"
               : page === "..."
               ? "cursor-default text-gray-500"
-              : "text-white hover:bg-[#343434]"
+              : "text-white hover:bg-white/10"
           }`}
         >
           {page}
@@ -101,7 +101,7 @@ export default function Pagination({
         className={`p-2 rounded-md ${
           currentPage === totalPages
             ? "text-gray-500 cursor-not-allowed"
-            : "text-white hover:bg-[#343434]"
+            : "text-white hover:bg-white/10"
         }`}
       >
         <ChevronRight className="h-5 w-5" />

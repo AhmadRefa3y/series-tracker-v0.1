@@ -36,7 +36,7 @@ const SeriesSidebar = ({ seriesDetails }: SeriesSidebarProps) => {
       <div className="absolute -top-40   inset-0 hidden md:block  ">
         <div className="flex flex-col  shadow-lg shadow-black/50 overflow-hidden rounded-sm">
           <div className="relative aspect-[2/3]  border-4 border-white w-full ">
-            <div className="absolute inset-0 bg-black animate-fadeOut" />
+            <div className="absolute inset-0 bg-[#17141a] animate-fadeOut" />
             <Image
               src={
                 seriesDetails.poster_path
@@ -50,7 +50,7 @@ const SeriesSidebar = ({ seriesDetails }: SeriesSidebarProps) => {
               className=" object-cover opacity-0 animate-fadeIn"
             />
           </div>
-          <div className="flex p-3 items-center justify-center bg-[#2b2b2b]  flex-wrap gap-4">
+          <div className="flex p-3 items-center justify-center bg-[#17141a]  flex-wrap gap-4">
             {seriesDetails.networks.map((network) => (
               <div key={network.id} className="relative h-6 w-12">
                 <Image

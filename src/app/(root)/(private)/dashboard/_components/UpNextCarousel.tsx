@@ -99,7 +99,7 @@ const UpNextCarousel = ({ items }: { items: UpNextItem[] }) => {
               delay: index * 0.05,
             }}
           >
-            <UpNextCard item={item} />
+            <UpNextCard item={item} preload={index === 0} />
           </motion.div>
         ))}
       </div>

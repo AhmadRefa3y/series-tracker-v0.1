@@ -17,7 +17,7 @@ const SectionHeader = ({
 
 const CardSkeleton = () => (
   <div className="w-[272px] shrink-0 sm:w-[300px]">
-    <div className="relative aspect-video overflow-hidden rounded-lg bg-[#141414]">
+    <div className="relative aspect-video overflow-hidden rounded-lg bg-[#17141a]">
       <div className="absolute inset-0 animate-pulse bg-white/[0.06]" />
       <div className="absolute inset-x-1.5 bottom-1.5 h-7 animate-pulse rounded-md bg-black/60" />
     </div>
@@ -33,7 +33,7 @@ const CardSkeleton = () => (
 
 const UpNextSkeleton = () => {
   return (
-    <section className="py-6">
+    <section className="mx-4 py-6 md:mx-6">
       <div className="flex items-center justify-between px-4 md:px-6">
         <SectionHeader title="Continue Watching" loading />
       </div>

@@ -39,7 +39,7 @@ function ShowsSkeleton() {
       {Array.from({ length: 20 }).map((_, index) => (
         <div
           key={index}
-          className="flex flex-col animate-pulse bg-[#2d2d2d] border border-[#414040] h-[227px]"
+          className="flex flex-col animate-pulse bg-[#17141a] border border-[#414040] h-[227px]"
         >
           <div className="absolute top-2 right-2 bg-black/70 rounded-full p-1">
             <div className="flex items-center gap-1">
@@ -191,7 +191,7 @@ async function ShowGridContent({ session, params }: ShowGridProps) {
                   </span>
                 </div>
               </Link>
-              <div className="flex bg-[#2d2d2d] border-r border-[#414040]">
+              <div className="flex bg-[#17141a] border-r border-[#414040]">
                 <AddToWatchListBtn
                   seriesData={{
                     id: series.id.toString(),

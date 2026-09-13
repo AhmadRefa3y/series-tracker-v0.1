@@ -18,7 +18,7 @@ const DashBoard = async () => {
   return (
     <div className="flex flex-col text-white">
       <WelcomeBanner />
-      <div className="bg-[#1d1d1d]">
+      <div className="bg-[#17141a]">
         <div className="container mx-auto relative min-h-[380px]">
           <Suspense fallback={<UpNextSkeleton />}>
             <UpNext />
@@ -26,7 +26,7 @@ const DashBoard = async () => {
         </div>
       </div>
 
-      <div className="bg-[#111111]">
+      <div className="bg-[#17141a]">
         <div className="container mx-auto relative h-full">
           <RecentlyWatched />
         </div>
