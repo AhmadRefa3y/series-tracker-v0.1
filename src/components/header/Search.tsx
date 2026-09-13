@@ -137,16 +137,16 @@ const Search: React.FC = () => {
   const displayResults = searchQuery ? searchResults : trendingResults;
 
   return (
-    <div ref={containerRef} className="relative w-full max-w-3xl z-[1000]">
+    <div ref={containerRef} className="relative z-[1000] w-full max-w-xl">
       <div 
         className={cn(
-          "flex items-center bg-[#17141a] border border-[#333] rounded-lg transition-all duration-200 overflow-hidden",
-          isOpen && "ring-2 ring-orange-500 border-transparent bg-white/10"
+          "flex h-10 items-center gap-2 rounded-full border border-white/5 bg-white/[0.05] px-3 transition-all duration-200",
+          isOpen
+            ? "border-primaryColor/40 bg-white/[0.08] ring-2 ring-primaryColor/20"
+            : "hover:bg-white/[0.08]"
         )}
       >
-        <div className="pl-3 text-gray-400">
-          <SearchIcon size={18} />
-        </div>
+        <SearchIcon size={16} className="shrink-0 text-white/40" />
         <Input
           ref={inputRef}
           value={searchQuery}
@@ -157,16 +157,21 @@ const Search: React.FC = () => {
           }}
           onFocus={() => setIsOpen(true)}
           onKeyDown={handleKeyDown}
-          placeholder='Search TV Shows, Movies... (Press "/" to focus)'
-          className="bg-transparent border-none text-white focus-visible:ring-0 placeholder:text-gray-500 h-10 w-full font-medium"
+          placeholder="Search shows, movies, people…"
+          className="h-9 w-full min-w-0 border-none bg-transparent px-0 font-medium text-white shadow-none placeholder:text-white/40 focus-visible:ring-0"
         />
+        {!searchQuery && (
+          <kbd className="hidden shrink-0 rounded-md border border-white/10 bg-white/5 px-1.5 py-0.5 text-[10px] font-semibold text-white/40 sm:block">
+            /
+          </kbd>
+        )}
         {searchQuery && (
           <button 
             onClick={() => {
               setSearchQuery("");
               inputRef.current?.focus();
             }}
-            className="pr-3 text-gray-400 hover:text-white transition-colors"
+            className="shrink-0 text-white/40 transition-colors hover:text-white"
           >
             <X size={16} />
           </button>
@@ -175,9 +180,9 @@ const Search: React.FC = () => {
 
       {/* Results Dropdown */}
       {isOpen && (displayResults.length > 0 || isLoading) && (
-        <div className="absolute top-full mt-2 w-full bg-[#17141a] border border-[#333] rounded-lg shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
-          <div className="p-2 border-b border-[#333] flex items-center justify-between bg-[#17141a]">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500 flex items-center gap-1.5">
+        <div className="absolute top-full mt-3 w-full overflow-hidden rounded-2xl border border-white/10 bg-[#17141a] shadow-2xl animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="flex items-center justify-between border-b border-white/5 px-3 py-2">
+            <span className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-white/40">
               {searchQuery ? (
                 <>
                   <SearchIcon size={10} /> Search Results
@@ -189,7 +194,7 @@ const Search: React.FC = () => {
               )}
             </span>
             {isLoading && (
-              <div className="w-3 h-3 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+              <div className="h-3 w-3 animate-spin rounded-full border-2 border-primaryColor border-t-transparent"></div>
             )}
           </div>
 
@@ -200,7 +205,7 @@ const Search: React.FC = () => {
                 onClick={() => navigateToResult(result)}
                 onMouseEnter={() => setSelectedIndex(index)}
                 className={cn(
-                  "flex items-center gap-3 p-3 cursor-pointer transition-colors border-b border-[#262626] last:border-0",
+                  "flex cursor-pointer items-center gap-3 border-b border-white/5 p-3 transition-colors last:border-0",
                   selectedIndex === index ? "bg-white/15" : "hover:bg-white/10"
                 )}
               >
@@ -210,6 +215,7 @@ const Search: React.FC = () => {
                       src={`${IMAGE_BASE_URL}${result.poster_path || result.profile_path}`}
                       alt={result.name || result.title || ""}
                       fill
+                      sizes="40px"
                       className="object-cover"
                     />
                   ) : (
@@ -225,7 +231,7 @@ const Search: React.FC = () => {
                       {result.name || result.title}
                     </h4>
                     {result.vote_average && result.vote_average > 0 && (
-                      <div className="flex items-center gap-1 text-[10px] text-orange-400 font-bold bg-orange-400/10 px-1 rounded">
+                      <div className="flex items-center gap-1 rounded bg-primaryColor/10 px-1 text-[10px] font-bold text-primaryColor">
                         <Star size={8} fill="currentColor" />
                         {result.vote_average.toFixed(1)}
                       </div>
@@ -250,7 +256,7 @@ const Search: React.FC = () => {
             ))}
           </div>
           
-          <div className="p-2 bg-[#17141a] text-[10px] text-center text-gray-600 border-t border-[#333]">
+          <div className="border-t border-white/5 px-3 py-2 text-center text-[10px] text-white/30">
             Use arrow keys to navigate • Enter to select • Esc to close
           </div>
         </div>
