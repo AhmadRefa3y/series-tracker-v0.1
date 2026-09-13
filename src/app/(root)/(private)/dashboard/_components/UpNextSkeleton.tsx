@@ -31,11 +31,12 @@ const CardSkeleton = () => (
   </div>
 );
 
-const UpNextSkeleton = () => {
+/** Same shape as a carousel section, used as its Suspense fallback. */
+const CarouselSkeleton = ({ title }: { title: string }) => {
   return (
     <section className="mx-4 py-6 md:mx-6">
       <div className="flex items-center justify-between px-4 md:px-6">
-        <SectionHeader title="Continue Watching" loading />
+        <SectionHeader title={title} loading />
       </div>
       <div className="mt-4 flex gap-4 overflow-hidden px-4 pb-2 md:px-6">
         {[...Array(5)].map((_, idx) => (
@@ -46,4 +47,6 @@ const UpNextSkeleton = () => {
   );
 };
 
-export { UpNextSkeleton, SectionHeader };
+const UpNextSkeleton = () => <CarouselSkeleton title="Continue Watching" />;
+
+export { UpNextSkeleton, CarouselSkeleton, SectionHeader };

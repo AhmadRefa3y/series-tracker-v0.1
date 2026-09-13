@@ -5,88 +5,142 @@ import prismaDb from "@/lib/prisma";
 import { Episode, UpNextItem } from "@/types/seriesT";
 import axios from "axios";
 
-type EpisodeWithDetails = {
+export type WatchHistoryItem = {
   id: string;
+  watchedAt: Date;
   seasonNumber: number;
   episodeNumber: number;
-  Series: {
-    seriesTmdbId: string;
-    title: string;
-    posterPath: string;
-  };
-  stillPath: string | null;
-  overview: string;
   name: string;
-  watchedAt: Date;
+  overview: string;
+  stillUrl: string | null;
+  posterUrl: string | null;
+  runtime: number | null;
+  voteAverage: number | null;
+  seriesTmdbId: string;
+  seriesTitle: string;
 };
 
-export const getRecentlyWatchedEpisodes = async (
-  limit: number = 4
-): Promise<{
+type TmdbEpisode = {
+  episode_number: number;
+  name?: string;
+  overview?: string;
+  still_path?: string | null;
+  runtime?: number | null;
+  vote_average?: number | null;
+};
+
+const STILL_BASE = "https://image.tmdb.org/t/p/w780";
+const POSTER_BASE = "https://image.tmdb.org/t/p/w500";
+
+/** Some records store a bare TMDb path, others a full URL. */
+const withImageBase = (base: string, path?: string | null) =>
+  path ? (path.startsWith("http") ? path : `${base}${path}`) : null;
+
+/**
+ * Watched episodes, newest first. Backs both the dashboard carousel (a small
+ * slice) and the `/history` page (paged).
+ */
+export const getWatchHistory = async ({
+  limit = 12,
+  offset = 0,
+}: {
+  limit?: number;
+  offset?: number;
+} = {}): Promise<{
   success: boolean;
-  data?: EpisodeWithDetails[];
+  data?: WatchHistoryItem[];
+  total?: number;
   message?: string;
   error?: unknown;
 }> => {
   try {
-    const userId = await auth();
-    if (!userId?.user?.id) {
+    const session = await auth();
+    if (!session?.user?.id) {
       throw new Error("User not found");
     }
 
-    const recentEpisodes = await prismaDb.watchedEpisode.findMany({
-      where: {
-        userId: userId.user.id,
-      },
-      include: {
-        Series: true,
-      },
-      orderBy: {
-        watchedAt: "desc",
-      },
-      take: limit,
-    });
+    const where = { userId: session.user.id };
 
-    // Fetch episode details from TMDB for each episode
-    const episodesWithPosters = await Promise.all(
-      recentEpisodes.map(async (episode) => {
-        try {
-          const episodeResponse = await axios.get(
-            `${BASE_URL}/tv/${episode.Series.seriesTmdbId}/season/${episode.seasonNumber}/episode/${episode.episodeNumber}`,
-            {
-              params: {
-                api_key: process.env.TMDB_API_KEY,
-              },
-            }
-          );
+    const [episodes, total] = await Promise.all([
+      prismaDb.watchedEpisode.findMany({
+        where,
+        include: { Series: true },
+        orderBy: { watchedAt: "desc" },
+        take: limit,
+        skip: offset,
+      }),
+      prismaDb.watchedEpisode.count({ where }),
+    ]);
 
-          const episodeData = episodeResponse.data;
-          return {
-            ...episode,
-            stillPath: episodeData.still_path
-              ? `https://image.tmdb.org/t/p/original${episodeData.still_path}`
-              : null,
-            overview: episodeData.overview,
-            name: episodeData.name as string,
-          };
-        } catch {
-          return {
-            ...episode,
-            stillPath: null,
-          };
-        }
+    // Seasons are cached per request, so a page of history costs one TMDb call
+    // per distinct season instead of one call per episode.
+    const seasonCache = new Map<string, Promise<Map<number, TmdbEpisode>>>();
+
+    const loadSeason = (seriesId: string, seasonNumber: number) => {
+      const key = `${seriesId}:${seasonNumber}`;
+      let pending = seasonCache.get(key);
+      if (!pending) {
+        pending = axios
+          .get(`${BASE_URL}/tv/${seriesId}/season/${seasonNumber}`, {
+            params: { api_key: process.env.TMDB_API_KEY },
+          })
+          .then(
+            ({ data }) =>
+              new Map<number, TmdbEpisode>(
+                ((data.episodes ?? []) as TmdbEpisode[]).map((episode) => [
+                  episode.episode_number,
+                  episode,
+                ])
+              )
+          )
+          .catch(() => new Map<number, TmdbEpisode>());
+        seasonCache.set(key, pending);
+      }
+      return pending;
+    };
+
+    const data = await Promise.all(
+      episodes.map(async (episode): Promise<WatchHistoryItem> => {
+        const entry: WatchHistoryItem = {
+          id: episode.id,
+          watchedAt: episode.watchedAt,
+          seasonNumber: episode.seasonNumber,
+          episodeNumber: episode.episodeNumber,
+          name: "",
+          overview: "",
+          stillUrl: null,
+          posterUrl: withImageBase(POSTER_BASE, episode.Series.posterPath),
+          runtime: null,
+          voteAverage: null,
+          seriesTmdbId: episode.Series.seriesTmdbId,
+          seriesTitle: episode.Series.title,
+        };
+
+        const season = await loadSeason(
+          episode.Series.seriesTmdbId,
+          episode.seasonNumber
+        );
+        const details = season.get(episode.episodeNumber);
+
+        if (!details) return entry;
+
+        return {
+          ...entry,
+          name: details.name ?? "",
+          overview: details.overview ?? "",
+          stillUrl: withImageBase(STILL_BASE, details.still_path),
+          runtime: details.runtime ?? null,
+          voteAverage: details.vote_average ?? null,
+        };
       })
     );
 
-    return {
-      success: true,
-      data: episodesWithPosters as EpisodeWithDetails[],
-    };
+    return { success: true, data, total };
   } catch (error) {
     console.error(error);
     return {
       success: false,
-      message: "Failed to fetch recently watched episodes",
+      message: "Failed to fetch watch history",
       error,
     };
   }

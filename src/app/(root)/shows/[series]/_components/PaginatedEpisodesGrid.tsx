@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import { Episode } from "@/types/seriesT";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import MarkEpisodeWatchedBtn from "./MarkEpisodeWatchedBtn";
+import EpisodeQuickActions from "@/components/EpisodeQuickActions";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import {
@@ -277,6 +278,29 @@ export default function EpisodesGrid({
                             </p>
                           </div>
                         </div>
+                      </div>
+
+                      {/* Quick actions */}
+                      <div className="absolute right-2 top-2 z-40">
+                        <EpisodeQuickActions
+                          seriesId={seriesId.toString()}
+                          seasonNumber={episodeData.season_number}
+                          episodeNumber={episodeData.episode_number}
+                          isWatched={isWatched}
+                          href={`/shows/${seriesSlug}/episode/${seriesId}-${episodeData.season_number}-${episodeData.episode_number}`}
+                          onToggle={(watched) =>
+                            setEpisodesState((previous) =>
+                              previous.map((entry) =>
+                                entry.episodeData.season_number ===
+                                  episodeData.season_number &&
+                                entry.episodeData.episode_number ===
+                                  episodeData.episode_number
+                                  ? { ...entry, isWatched: watched }
+                                  : entry
+                              )
+                            )
+                          }
+                        />
                       </div>
 
                       <div className="absolute bottom-0 left-0 right-0 z-20">
