@@ -1,82 +1,62 @@
 import { redirect } from "next/navigation";
-import { auth } from "@/auth";
-import SeriesData from "../../watchlist/_components/SeriesData";
-import { SectionHeader } from "@/app/(root)/(private)/dashboard/_components/UpNextSkeleton";
-import { getUserUpNextSeries } from "@/app/(root)/(private)/dashboard/DashbaordData";
 import Link from "next/link";
+import { Tv } from "lucide-react";
 
-export default async function Watchlist() {
+import { auth } from "@/auth";
+import { getUpNextSeries } from "@/app/(root)/(private)/dashboard/DashbaordData";
+import { SectionHeader } from "@/app/(root)/(private)/dashboard/_components/UpNextSkeleton";
+import UpNextCarousel from "@/app/(root)/(private)/dashboard/_components/UpNextCarousel";
+
+const UpNext = async () => {
   const session = await auth();
 
   if (!session) {
     redirect("/sign-in");
   }
 
-  const { success, data, error, message } = await getUserUpNextSeries();
+  const { success, data, message } = await getUpNextSeries(8);
 
-  if (error || !success) {
+  if (!success) {
     return (
-      <div className="flex h-screen items-center justify-center w-full absolute inset-0 bg-black/60 text-white">
-        <h1 className="text-3xl font-bold">{message}</h1>
+      <div className="flex items-center justify-center px-4 py-14 text-white/60">
+        <p className="text-lg font-semibold">{message}</p>
       </div>
     );
   }
 
   if (!data || data.length === 0) {
     return (
-      <div className="flex  items-center justify-center w-full my-10  text-white ">
-        <div className="flex flex-col items-center space-y-4">
-          <svg
-            className="w-16 h-16 text-gray-400 mb-2"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={1.5}
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M12 6v6l4 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-          <h1 className="text-3xl font-bold">No Series in Your Watchlist</h1>
-          <p className="text-lg text-gray-300 text-center max-w-md">
-            Looks like you haven&apos;t added any series to your watchlist yet.
-            Start exploring and add your favorite shows to keep track of
-            what&apos;s up next!
+      <div className="flex flex-col items-center justify-center gap-4 px-4 py-14 text-center text-white">
+        <Tv className="size-10 text-white/30" />
+        <div>
+          <h2 className="text-xl font-bold">You&apos;re all caught up</h2>
+          <p className="mt-1 max-w-md text-sm text-white/50">
+            Start watching a show and your next episodes will appear here.
           </p>
-          <Link
-            href="/shows"
-            className="mt-4 px-6 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-md text-white font-semibold transition"
-          >
-            Browse Series
-          </Link>
         </div>
+        <Link
+          href="/shows"
+          className="rounded-lg bg-primaryColor px-5 py-2 text-sm font-semibold text-secondaryColor transition-transform duration-200 hover:scale-[1.03]"
+        >
+          Browse shows
+        </Link>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col text-white px-4 md:px-6">
-      <div className="flex justify-between items-center">
-        <SectionHeader title="Up next" loading={false} />
+    <section className="py-6 pt-8 md:pt-10">
+      <div className="px-4 md:px-6">
+        <Link
+          href="/watchlist"
+          className="inline-flex transition-opacity duration-200 hover:opacity-80"
+        >
+          <SectionHeader title="Continue Watching" loading={false} />
+        </Link>
       </div>
-      <div className="flex flex-wrap items-center justify-center sm:justify-start mt-3 w-full gap-y-2 py-4 -mx-1">
-        {data.map(({ series, seriesData, episodes }) => (
-          <SeriesData
-            key={series.seriesID}
-            episodeNumber={series.currentEpisodeNumber}
-            posterPath={series.seriesPoster}
-            seasonNumber={series.episodeSeason}
-            seriesId={series.seriesID.toString()}
-            title={series.seriesTitle}
-            InitWatchedEpisodes={series.watchedEpisodes.length}
-            lastWatchedEpisode={series.watchedEpisodes[0]}
-            seriesData={seriesData}
-            nextEpisodes={episodes.newEpisodes}
-          />
-        ))}
-      </div>
-    </div>
+      <UpNextCarousel items={data} />
+    </section>
   );
-}
+};
+
+export default UpNext;

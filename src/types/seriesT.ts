@@ -193,6 +193,17 @@ export interface SeriesWithAllData {
   backdrop_path: string;
 }
 
+export interface UpNextItem {
+  seriesId: string;
+  title: string;
+  posterPath: string | null;
+  totalEpisodes: number;
+  watchedCount: number;
+  // The next unwatched episodes in order. The card buffers a couple so it can
+  // advance optimistically without waiting on a server round-trip.
+  nextEpisodes: Episode[];
+}
+
 export interface WatchListSeries {
   seriesID: number;
   currentEpisodeNumber: number;

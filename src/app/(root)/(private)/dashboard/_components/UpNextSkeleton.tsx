@@ -1,5 +1,4 @@
-import { Progress } from "@/components/ui/progress";
-import { Loader, RefreshCcw, StepForward } from "lucide-react";
+import { ChevronRight, CirclePlay, RefreshCcw } from "lucide-react";
 
 const SectionHeader = ({
   title,
@@ -8,40 +7,42 @@ const SectionHeader = ({
   title: string;
   loading: boolean;
 }) => (
-  <div className="flex gap-1 text-xl items-center mt-4 px-4 sm:px-0">
-    <StepForward width={40} height={40} />
-    {title}
-    {loading && <RefreshCcw className="animate-spin ms-2" size={30} />}
+  <div className="flex items-center gap-2 text-white">
+    <CirclePlay className="size-6 shrink-0" strokeWidth={2} />
+    <span className="text-[22px] font-bold leading-none">{title}</span>
+    <ChevronRight className="size-5 shrink-0 text-white/70" />
+    {loading && <RefreshCcw className="ml-1 size-5 animate-spin text-white/40" />}
+  </div>
+);
+
+const CardSkeleton = () => (
+  <div className="w-[272px] shrink-0 sm:w-[300px]">
+    <div className="relative aspect-video overflow-hidden rounded-lg bg-[#141414]">
+      <div className="absolute inset-0 animate-pulse bg-white/[0.06]" />
+      <div className="absolute inset-x-1.5 bottom-1.5 h-7 animate-pulse rounded-md bg-black/60" />
+    </div>
+    <div className="mt-2.5 flex items-start justify-between gap-3">
+      <div className="min-w-0 flex-1 space-y-2">
+        <div className="h-4 w-3/5 animate-pulse rounded bg-white/[0.08]" />
+        <div className="h-3 w-4/5 animate-pulse rounded bg-white/[0.05]" />
+      </div>
+      <div className="size-5 animate-pulse rounded bg-white/[0.05]" />
+    </div>
   </div>
 );
 
 const UpNextSkeleton = () => {
   return (
-    <div className="flex flex-col text-white">
-      <div className="flex justify-between items-center">
-        <SectionHeader title="Up next" loading={true} />
+    <section className="py-6">
+      <div className="flex items-center justify-between px-4 md:px-6">
+        <SectionHeader title="Continue Watching" loading />
       </div>
-      <div className="flex flex-wrap items-center justify-center mt-3 w-full gap-y-2 py-4">
-        {[...Array(6)].map((_, idx) => (
-          <div className="px-1 w-1/6 min-w-[180px]" key={idx}>
-            <div className="flex flex-col bg-black h-[350px] text-white overflow-hidden group relative hover:perspective-distant duration-200">
-              <div className="flex flex-col relative flex-1 h-[310px] overflow-hidden">
-                <div className="relative h-full flex flex-col">
-                  <div className="absolute inset-0 bg-gray-800 animate-pulse" />
-                  <div className="w-full h-full animate-pulse bg-gray-900/40" />
-                </div>
-              </div>
-              <Progress value={0} className="w-full mt-auto rounded-none" />
-              <div className="flex items-center bg-[#2d2d2d] border-r border-[#414040] h-[40px]">
-                <button className="h-full w-full p-2 flex items-center justify-center opacity-50 cursor-not-allowed">
-                  <Loader className="animate-spin" />
-                </button>
-              </div>
-            </div>
-          </div>
+      <div className="mt-4 flex gap-4 overflow-hidden px-4 pb-2 md:px-6">
+        {[...Array(5)].map((_, idx) => (
+          <CardSkeleton key={idx} />
         ))}
       </div>
-    </div>
+    </section>
   );
 };
 

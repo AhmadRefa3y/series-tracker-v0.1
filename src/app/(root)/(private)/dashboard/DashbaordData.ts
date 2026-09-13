@@ -1,14 +1,9 @@
-import {
-  fetchEpisodes,
-  fetchSeriesData,
-} from "@/app/(root)/(private)/watchlist/WatchListData";
+import { fetchSingleEpisode } from "@/app/(root)/(private)/watchlist/WatchListData";
 import { auth } from "@/auth";
-import { getUserSeriesWatchlist } from "@/data/sharedData";
 import { BASE_URL } from "@/lib/constants";
 import prismaDb from "@/lib/prisma";
-import { WatchListSeries } from "@/types";
-import { Episode, Series } from "@/types/seriesT";
-import axios from "axios"; // Add this import
+import { Episode, UpNextItem } from "@/types/seriesT";
+import axios from "axios";
 
 type EpisodeWithDetails = {
   id: string;
@@ -97,81 +92,126 @@ export const getRecentlyWatchedEpisodes = async (
   }
 };
 
-export const getUserUpNextSeries = async (
-  limit: number = 6
+/**
+ * Resolves the next unwatched episodes after `lastWatched`.
+ *
+ * Instead of downloading every season of a series, this only asks TMDb for a
+ * small batch of upcoming coordinates and jumps to the next season when it
+ * hits a finale. In the common case a series costs a single round-trip.
+ */
+async function resolveNextEpisodes(
+  seriesId: string,
+  lastWatched: { episodeNumber: number; seasonNumber: number } | null,
+  count: number
+): Promise<Episode[]> {
+  const episodes: Episode[] = [];
+  let season = lastWatched?.seasonNumber ?? 1;
+  let episodeNumber = lastWatched?.episodeNumber ?? 0;
+  let emptySeasons = 0;
+
+  for (let attempt = 0; attempt < 5 && episodes.length < count; attempt++) {
+    const batch = await Promise.all(
+      Array.from({ length: 3 }, (_, offset) =>
+        fetchSingleEpisode(seriesId, season, episodeNumber + offset + 1)
+      )
+    );
+
+    const found = batch.filter((episode): episode is Episode => episode !== null);
+
+    if (found.length === 0) {
+      // End of the season: try the next one, and give up once two in a row are
+      // empty so a fully caught-up series doesn't keep hitting TMDb.
+      if (++emptySeasons >= 2) break;
+      season += 1;
+      episodeNumber = 0;
+      continue;
+    }
+
+    emptySeasons = 0;
+    episodes.push(...found);
+    const last = found[found.length - 1];
+    season = last.season_number;
+    episodeNumber = last.episode_number;
+  }
+
+  return episodes.slice(0, count);
+}
+
+export const getUpNextSeries = async (
+  limit: number = 8
 ): Promise<{
   success: boolean;
-  data?: {
-    series: WatchListSeries;
-    seriesData: Series | null;
-    episodes: {
-      allEpisodes: Episode[];
-      newEpisodes: Episode[];
-    };
-  }[];
+  data?: UpNextItem[];
   message?: string;
   error?: unknown;
 }> => {
   try {
-    const userId = await auth();
-    if (!userId?.user?.id) {
+    const session = await auth();
+    if (!session?.user?.id) {
       throw new Error("User not found");
     }
 
-    const userSeriesWatchlist = await getUserSeriesWatchlist();
-
-    if (!userSeriesWatchlist || userSeriesWatchlist.length === 0) {
-      return {
-        success: true,
-        data: [],
-      };
-    }
-
-    const seriesDataPromises = userSeriesWatchlist.map(async (series) => {
-      const seriesData = await fetchSeriesData(series.seriesID.toString());
-      let episodes;
-      if (seriesData) {
-        episodes = await fetchEpisodes(
-          series.seriesID.toString(),
-          seriesData.number_of_seasons,
-          series.watchedEpisodes[0] || null,
-          series.watchedEpisodes
-        );
-        // If fetchEpisodes returns null/undefined, provide default
-        if (!episodes) {
-          episodes = {
-            allEpisodes: [],
-            newEpisodes: [],
-          };
-        }
-      } else {
-        episodes = {
-          allEpisodes: [],
-          newEpisodes: [],
-        };
-      }
-      return { series, seriesData, episodes };
+    // One lean query: the latest watched episode and its count per series is all
+    // we need to filter out completed shows before hitting TMDb.
+    const series = await prismaDb.series.findMany({
+      where: {
+        userId: session.user.id,
+        status: { not: "DROPPED" },
+      },
+      include: {
+        watchedEpisodes: {
+          orderBy: [{ seasonNumber: "desc" }, { episodeNumber: "desc" }],
+          take: 1,
+          select: { seasonNumber: true, episodeNumber: true },
+        },
+        _count: { select: { watchedEpisodes: true } },
+      },
+      // Freshest activity first. Marking an episode updates this timestamp, so
+      // the client freezes the row order to stop cards jumping mid-interaction.
+      orderBy: [{ latestWatchedAt: "desc" }, { id: "desc" }],
     });
 
-    const seriesWithData = await Promise.all(seriesDataPromises);
-
-    const filteredSeries = seriesWithData
+    const candidates = series
+      .filter((item) => item._count.watchedEpisodes > 0)
       .filter(
         (item) =>
-          item.seriesData &&
-          item.series.watchedEpisodes.length <
-            item.seriesData.number_of_episodes / 1
+          item.totalEpisodes === 0 ||
+          item._count.watchedEpisodes < item.totalEpisodes
       )
       .slice(0, limit);
+
+    if (candidates.length === 0) {
+      return { success: true, data: [] };
+    }
+
+    const items = await Promise.all(
+      candidates.map(async (item) => {
+        const nextEpisodes = await resolveNextEpisodes(
+          item.seriesTmdbId,
+          item.watchedEpisodes[0] ?? null,
+          2
+        );
+
+        return {
+          seriesId: item.seriesTmdbId,
+          title: item.title,
+          posterPath: item.posterPath,
+          totalEpisodes: item.totalEpisodes,
+          watchedCount: item._count.watchedEpisodes,
+          nextEpisodes,
+        } satisfies UpNextItem;
+      })
+    );
+
     return {
       success: true,
-      data: filteredSeries,
+      data: items.filter((item) => item.nextEpisodes.length > 0),
     };
   } catch (error) {
     console.error(error);
     return {
       success: false,
-      message: "Failed to get user up next series",
+      message: "Failed to get up next series",
       error,
     };
   }
