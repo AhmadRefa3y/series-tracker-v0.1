@@ -155,14 +155,15 @@ export const getWatchHistory = async ({
 /* ------------------------------------------------------------------ */
 
 /**
- * Air dates TMDb hasn't scheduled yet (null or already in the past).
+ * Today's date as a YYYY-MM-DD string in the server's local timezone. TMDb air
+ * dates are calendar days with no timezone, so comparing against local "today"
+ * (instead of UTC) keeps an episode airing today in the list.
  */
-const hasFutureAirDate = (episode: Episode) => {
-  if (!episode.air_date) return false;
-  // TMDb dates are calendar days with no timezone; compare the same way so an
-  // episode airing "today" still counts.
-  const today = new Date().toISOString().slice(0, 10);
-  return episode.air_date >= today;
+const localToday = () => {
+  const now = new Date();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${now.getFullYear()}-${month}-${day}`;
 };
 
 const toUpcomingItem = (
@@ -183,12 +184,28 @@ const toUpcomingItem = (
 });
 
 /**
- * Scheduled future episodes (air_date >= today) for every non-dropped,
- * still-airing series in the user's watchlist, sorted by air date.
+ * Minimal shape of TMDb's `/tv/{id}` detail response for this feature.
+ */
+type TmdbSeriesStatus = {
+  /** Season currently airing, e.g. 34 for Raw. null when between seasons. */
+  next_episode_to_air: { season_number: number; episode_number: number } | null;
+  /** Most recently aired episode — anchors us when nothing is scheduled yet. */
+  last_episode_to_air: { season_number: number; episode_number: number } | null;
+  /** Also hints at the following season when one is announced. */
+  seasons?: { season_number: number }[];
+};
+
+/**
+ * The next scheduled episode (air_date >= today) for each series in the
+ * user's watchlist, sorted by air date. One episode per series keeps the
+ * calendar a compact "what's up next" row instead of dumping a show's whole
+ * remaining season. Only DROPPED series are excluded; ended/cancelled shows
+ * simply yield nothing because all their episodes have aired.
  *
- * The calendar needs the whole remainder of a series (not just the next
- * couple), so this fetches full seasons from TMDb rather than episode-by-
- * episode like `resolveNextEpisodes` does.
+ * TMDb's `next_episode_to_air` points at the season that is airing RIGHT NOW
+ * (season 34 of Raw, not season 1), so we fetch that season directly instead
+ * of probing from season 1 upward — long-running shows previously fell out of
+ * the 3-empty-seasons stop rule before ever reaching their live season.
  */
 export const getUpcomingEpisodes = async (
   limit = 30
@@ -204,14 +221,13 @@ export const getUpcomingEpisodes = async (
       throw new Error("User not found");
     }
 
-    // A series needs a watched episode to count as "being watched", matching
-    // the Continue Watching filter. Ended/cancelled shows have no future dates.
+    // Only dropped series are excluded — everything else in the watchlist is
+    // a calendar candidate. (tmdbStatus is NOT filtered in SQL: NULL values
+    // would silently fail a NOT IN clause and hide unsynced series.)
     const series = await prismaDb.series.findMany({
       where: {
         userId: session.user.id,
         status: { not: "DROPPED" },
-        watchedEpisodes: { some: {} },
-        tmdbStatus: { notIn: ["Ended", "Canceled", "Cancelled"] },
       },
       select: {
         seriesTmdbId: true,
@@ -243,36 +259,54 @@ export const getUpcomingEpisodes = async (
       return pending;
     };
 
-    // We don't know which season the user is on (it wasn't needed for the
-    // query), so probe from season 1 and stop at the first season whose
-    // episodes all aired in the past. Two fully-aired seasons in a row is
-    // plenty of evidence the remaining ones are too.
+    const today = localToday();
+
     const seriesEpisodes = await Promise.all(
       series.map(async (item) => {
-        const upcoming: UpcomingEpisodeItem[] = [];
-        let consecutiveAiredSeasons = 0;
-
-        for (let seasonNumber = 1; seasonNumber <= 20; seasonNumber++) {
-          const episodes = await loadSeason(item.seriesTmdbId, seasonNumber);
-
-          if (episodes.length === 0) {
-            break; // Season doesn't exist.
-          }
-
-          const future = episodes.filter(hasFutureAirDate);
-
-          if (future.length === 0) {
-            if (++consecutiveAiredSeasons >= 2) break;
-            continue;
-          }
-
-          consecutiveAiredSeasons = 0;
-          upcoming.push(
-            ...future.map((episode) => toUpcomingItem(item, episode))
+        // One detail call per series tells us where each show is live.
+        let status: TmdbSeriesStatus;
+        try {
+          const { data } = await axios.get<TmdbSeriesStatus>(
+            `${BASE_URL}/tv/${item.seriesTmdbId}`,
+            { params: { api_key: process.env.TMDB_API_KEY } }
           );
+          status = data;
+        } catch {
+          return []; // Series detail unavailable; skip rather than guess.
         }
 
-        return upcoming;
+        // Prefer the season that's airing now; fall back to the one that last
+        // aired (covers between-seasons gaps), plus any newly announced season.
+        const anchor =
+          status.next_episode_to_air?.season_number ??
+          status.last_episode_to_air?.season_number;
+        if (!anchor) return [];
+
+        // +1 covers shows that just wrapped a season while the next is
+        // announced; the loadSeason miss-guard skips seasons that don't exist.
+        const seasonNumbers = [
+          ...new Set([anchor, anchor + 1, anchor + 2]),
+        ];
+
+        const upcoming: UpcomingEpisodeItem[] = [];
+        const seasons = await Promise.all(
+          seasonNumbers.map((seasonNumber) =>
+            loadSeason(item.seriesTmdbId, seasonNumber)
+          )
+        );
+
+        for (const episodes of seasons) {
+          for (const episode of episodes) {
+            if (episode.air_date && episode.air_date >= today) {
+              upcoming.push(toUpcomingItem(item, episode));
+            }
+          }
+        }
+
+        // One card per series: just its soonest scheduled episode.
+        return upcoming
+          .sort((a, b) => a.airDate.localeCompare(b.airDate))
+          .slice(0, 1);
       })
     );
 

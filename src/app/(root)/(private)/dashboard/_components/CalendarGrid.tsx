@@ -32,7 +32,7 @@ const EpisodeCard = ({
     ? "Today"
     : isTomorrow(date)
       ? "Tomorrow"
-      : format(date, "EEE, d MMM");
+      : format(date, "EEE, d MMM yyyy");
 
   const episodeLabel = `S${item.seasonNumber} • E${item.episodeNumber}`;
   const href = `/shows/${item.title.replace(/\s+/g, "_").toLowerCase()}-${item.seriesId}/episode/${item.seriesId}-${item.seasonNumber}-${item.episodeNumber}`;
