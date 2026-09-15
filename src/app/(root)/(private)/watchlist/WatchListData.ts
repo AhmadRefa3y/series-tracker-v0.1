@@ -1,28 +1,12 @@
 import "server-only";
-import axios from "axios";
 
+import { tmdbGet } from "@/lib/tmdb";
 import { Episode, Series } from "@/types/seriesT";
 
 export async function fetchSeriesData(
   seriesId: string
 ): Promise<Series | null> {
-  try {
-    const { data } = await axios.get(
-      `https://api.themoviedb.org/3/tv/${seriesId}`,
-      {
-        params: {
-          api_key: process.env.TMDB_API_KEY,
-        },
-        headers: {
-          Accept: "application/json",
-        },
-      }
-    );
-    return data;
-  } catch (error) {
-    console.error("Error fetching series data:", error);
-    return null;
-  }
+  return tmdbGet<Series>(`/tv/${seriesId}`);
 }
 
 export async function fetchEpisodes(
@@ -38,18 +22,9 @@ export async function fetchEpisodes(
     const seasonPromises = Array.from(
       { length: numberOfSeasons },
       async (_, index) => {
-        const { data } = await axios.get(
-          `https://api.themoviedb.org/3/tv/${seriesId}/season/${index + 1}`,
-          {
-            params: {
-              api_key: process.env.TMDB_API_KEY,
-            },
-            headers: {
-              Accept: "application/json",
-            },
-          }
+        return tmdbGet<{ episodes?: Episode[] }>(
+          `/tv/${seriesId}/season/${index + 1}`
         );
-        return data;
       }
     );
 
@@ -57,7 +32,9 @@ export async function fetchEpisodes(
     const allEpisodes: Episode[] = [];
 
     for (const season of seasons) {
-      allEpisodes.push(...(season.episodes || []));
+      if (season) {
+        allEpisodes.push(...(season.episodes || []));
+      }
     }
 
     const newEpisodes = allEpisodes.filter(
@@ -83,24 +60,8 @@ export async function fetchSingleEpisode(
   seasonNumber: number,
   episodeNumber: number
 ): Promise<Episode | null> {
-  try {
-    const { data } = await axios.get(
-      `https://api.themoviedb.org/3/tv/${seriesId}/season/${seasonNumber}/episode/${episodeNumber}`,
-      {
-        params: {
-          api_key: process.env.TMDB_API_KEY,
-        },
-      }
-    );
-    return data as Episode;
-  } catch (error) {
-    if (axios.isAxiosError(error) && error.response?.status === 404) {
-      return null; // Gracefully return null for missing episodes
-    }
-    console.error(
-      `Error fetching episode S${seasonNumber}E${episodeNumber}:`,
-      error
-    );
-    return null;
-  }
+  // 404s resolve to null inside tmdbGet, matching the old graceful behaviour.
+  return tmdbGet<Episode>(
+    `/tv/${seriesId}/season/${seasonNumber}/episode/${episodeNumber}`
+  );
 }

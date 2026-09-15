@@ -1,13 +1,8 @@
 import { fetchSingleEpisode } from "@/app/(root)/(private)/watchlist/WatchListData";
 import { auth } from "@/auth";
-import { BASE_URL } from "@/lib/constants";
 import prismaDb from "@/lib/prisma";
-import {
-  Episode,
-  UpNextItem,
-  UpcomingEpisodeItem,
-} from "@/types/seriesT";
-import axios from "axios";
+import { tmdbGet } from "@/lib/tmdb";
+import { Episode, UpNextItem, UpcomingEpisodeItem } from "@/types/seriesT";
 
 export type WatchHistoryItem = {
   id: string;
@@ -84,20 +79,17 @@ export const getWatchHistory = async ({
       const key = `${seriesId}:${seasonNumber}`;
       let pending = seasonCache.get(key);
       if (!pending) {
-        pending = axios
-          .get(`${BASE_URL}/tv/${seriesId}/season/${seasonNumber}`, {
-            params: { api_key: process.env.TMDB_API_KEY },
-          })
-          .then(
-            ({ data }) =>
-              new Map<number, TmdbEpisode>(
-                ((data.episodes ?? []) as TmdbEpisode[]).map((episode) => [
-                  episode.episode_number,
-                  episode,
-                ])
-              )
+        pending = tmdbGet<{ episodes?: TmdbEpisode[] }>(
+        `/tv/${seriesId}/season/${seasonNumber}`
+      ).then(
+        (data) =>
+          new Map<number, TmdbEpisode>(
+            (data?.episodes ?? []).map((episode) => [
+              episode.episode_number,
+              episode,
+            ])
           )
-          .catch(() => new Map<number, TmdbEpisode>());
+      );
         seasonCache.set(key, pending);
       }
       return pending;
@@ -248,12 +240,9 @@ export const getUpcomingEpisodes = async (
       const key = `${seriesId}:${seasonNumber}`;
       let pending = seasonCache.get(key);
       if (!pending) {
-        pending = axios
-          .get(`${BASE_URL}/tv/${seriesId}/season/${seasonNumber}`, {
-            params: { api_key: process.env.TMDB_API_KEY },
-          })
-          .then(({ data }) => (data.episodes ?? []) as Episode[])
-          .catch(() => [] as Episode[]);
+        pending = tmdbGet<{ episodes?: Episode[] }>(
+          `/tv/${seriesId}/season/${seasonNumber}`
+        ).then((data) => data?.episodes ?? []);
         seasonCache.set(key, pending);
       }
       return pending;
@@ -264,14 +253,10 @@ export const getUpcomingEpisodes = async (
     const seriesEpisodes = await Promise.all(
       series.map(async (item) => {
         // One detail call per series tells us where each show is live.
-        let status: TmdbSeriesStatus;
-        try {
-          const { data } = await axios.get<TmdbSeriesStatus>(
-            `${BASE_URL}/tv/${item.seriesTmdbId}`,
-            { params: { api_key: process.env.TMDB_API_KEY } }
-          );
-          status = data;
-        } catch {
+        const status = await tmdbGet<TmdbSeriesStatus>(
+          `/tv/${item.seriesTmdbId}`
+        );
+        if (!status) {
           return []; // Series detail unavailable; skip rather than guess.
         }
 
