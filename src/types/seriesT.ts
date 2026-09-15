@@ -204,6 +204,24 @@ export interface UpNextItem {
   nextEpisodes: Episode[];
 }
 
+/**
+ * The next scheduled episode of a tracked series, for the dashboard calendar.
+ */
+export interface UpcomingEpisodeItem {
+  seriesId: string;
+  title: string;
+  posterUrl: string | null;
+  seasonNumber: number;
+  episodeNumber: number;
+  name: string;
+  overview: string;
+  stillUrl: string | null;
+  runtime: number | null;
+  voteAverage: number | null;
+  /** TMDb air date, e.g. "2026-09-18". Always scheduled (non-null). */
+  airDate: string;
+}
+
 export interface WatchListSeries {
   seriesID: number;
   currentEpisodeNumber: number;

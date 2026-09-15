@@ -1,11 +1,13 @@
 import React, { Suspense } from "react";
 import UpNext from "./_components/UpNext";
 import History from "./_components/History";
+import UpcomingEpisodes from "./_components/UpcomingEpisodes";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import WelcomeBanner from "@/app/(root)/(private)/dashboard/_components/WelcomeBanner";
 import {
   CarouselSkeleton,
+  CalendarSkeleton,
   UpNextSkeleton,
 } from "@/app/(root)/(private)/dashboard/_components/UpNextSkeleton";
 
@@ -33,6 +35,14 @@ const DashBoard = async () => {
         <div className="container mx-auto relative h-full">
           <Suspense fallback={<CarouselSkeleton title="History" />}>
             <History />
+          </Suspense>
+        </div>
+      </div>
+
+      <div className="bg-[#17141a]">
+        <div className="container mx-auto relative">
+          <Suspense fallback={<CalendarSkeleton />}>
+            <UpcomingEpisodes />
           </Suspense>
         </div>
       </div>
