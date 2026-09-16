@@ -2,6 +2,7 @@ import React, { Suspense } from "react";
 import UpNext from "./_components/UpNext";
 import History from "./_components/History";
 import UpcomingEpisodes from "./_components/UpcomingEpisodes";
+import Trending from "./_components/Trending";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import WelcomeBanner from "@/app/(root)/(private)/dashboard/_components/WelcomeBanner";
@@ -43,6 +44,14 @@ const DashBoard = async () => {
         <div className="container mx-auto relative">
           <Suspense fallback={<CalendarSkeleton />}>
             <UpcomingEpisodes />
+          </Suspense>
+        </div>
+      </div>
+
+      <div className="bg-[#17141a]">
+        <div className="container mx-auto relative">
+          <Suspense fallback={<CarouselSkeleton title="Trending Now" />}>
+            <Trending />
           </Suspense>
         </div>
       </div>
