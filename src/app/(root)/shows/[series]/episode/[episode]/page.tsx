@@ -1,4 +1,4 @@
-import { ArrowLeft, Clock, Calendar, Heart, Play } from "lucide-react";
+import { ArrowLeft, Clock, Calendar, Heart, Play, Star } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
@@ -7,6 +7,7 @@ import prismaDb from "@/lib/prisma";
 import { IMAGE_BASE_URL } from "@/lib/constants";
 import MarkEpisodeWatchedBtn from "../../_components/MarkEpisodeWatchedBtn";
 import { getSeriesDetails } from "../../seriesData";
+import { getEpisodeImdbRating } from "@/lib/imdb";
 import { Episode as EpisodeType } from "@/types/seriesT";
 
 export async function generateMetadata({
@@ -93,6 +94,13 @@ export default async function EpisodePage({
     (ep) =>
       ep.episodeNumber === episodeNumber && ep.seasonNumber === seasonNumber
   ) ?? false;
+
+  // IMDb rating for this specific episode (null hides the badge gracefully).
+  const imdbRating = await getEpisodeImdbRating(
+    seriesId,
+    seasonNumber,
+    episodeNumber
+  );
 
   // Fetch next and previous episodes
   const prevEpisode =
@@ -201,6 +209,23 @@ export default async function EpisodePage({
                       </span>
                     </div>
                   </div>
+
+                  {imdbRating && (
+                    <div className="flex items-center gap-2 sm:gap-2.5">
+                      <div className="relative">
+                        <div className="absolute inset-0 bg-[#f5c518]/25 blur-lg rounded-full" />
+                        <Star
+                          className="relative fill-[#f5c518] text-[#f5c518] transition-colors size-6 sm:size-7 md:size-8"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="font-bold text-lg sm:text-xl">
+                          {imdbRating}
+                        </span>
+                        <span className="text-xs text-gray-500">IMDb</span>
+                      </div>
+                    </div>
+                  )}
 
                   {episodeData.air_date && (
                     <div className="flex items-center gap-1.5 sm:gap-2 text-gray-400 text-xs sm:text-sm">

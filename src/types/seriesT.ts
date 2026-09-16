@@ -199,6 +199,8 @@ export interface UpNextItem {
   posterPath: string | null;
   totalEpisodes: number;
   watchedCount: number;
+  /** IMDb rating for the series, e.g. "8.5". Null when unavailable. */
+  imdbRating: string | null;
   // The next unwatched episodes in order. The card buffers a couple so it can
   // advance optimistically without waiting on a server round-trip.
   nextEpisodes: Episode[];
@@ -220,6 +222,8 @@ export interface UpcomingEpisodeItem {
   voteAverage: number | null;
   /** TMDb air date, e.g. "2026-09-18". Always scheduled (non-null). */
   airDate: string;
+  /** IMDb rating for the series, e.g. "8.5". Null when unavailable. */
+  imdbRating: string | null;
 }
 
 export interface WatchListSeries {

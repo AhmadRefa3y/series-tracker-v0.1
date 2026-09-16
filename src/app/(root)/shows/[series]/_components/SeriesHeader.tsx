@@ -1,10 +1,12 @@
-import { Heart } from "lucide-react";
+import { Heart, Star } from "lucide-react";
 
 interface SeriesDetails {
   name: string;
   first_air_date: string;
   vote_average: number;
   popularity: number;
+  /** IMDb rating, e.g. "8.7". Hidden when unavailable. */
+  imdbRating?: string | null;
 }
 
 const SeriesHeader = ({ seriesDetails }: { seriesDetails: SeriesDetails }) => {
@@ -38,6 +40,20 @@ const SeriesHeader = ({ seriesDetails }: { seriesDetails: SeriesDetails }) => {
                   {seriesDetails.popularity.toFixed(1)}k Votes
                 </span>
               </div>
+
+              {seriesDetails.imdbRating && (
+                <div className="flex items-center gap-1.5 rounded-md bg-[#f5c518]/15 px-2.5 py-1.5">
+                  <Star className="size-4 fill-[#f5c518] text-[#f5c518]" />
+                  <div className="flex flex-col leading-none">
+                    <span className="font-bold text-sm text-white">
+                      {seriesDetails.imdbRating}
+                    </span>
+                    <span className="text-[10px] text-[#f5c518]/80 tracking-wide">
+                      IMDb
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

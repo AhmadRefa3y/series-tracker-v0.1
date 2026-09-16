@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { IMAGE_BASE_URL } from "@/lib/constants";
@@ -46,6 +46,35 @@ export default function EpisodesGrid({
   const [activeSeason, setActiveSeason] = useState("1");
 
   const episodesPerPage = 30;
+
+  // IMDb ratings for the active season, lazy-loaded once per season via the
+  // cached /api/imdb/season-ratings endpoint. Missing episodes just stay
+  // unrated — no error surface for OMDb gaps.
+  const [imdbRatings, setImdbRatings] = useState<Record<string, string>>({});
+  const loadedSeasons = useRef<Set<string>>(new Set());
+
+  const loadSeasonRatings = useCallback(async (season: string) => {
+    if (loadedSeasons.current.has(season)) return;
+    loadedSeasons.current.add(season);
+    try {
+      const res = await fetch(
+        `/api/imdb/season-ratings?seriesId=${seriesId}&season=${season}`
+      );
+      if (!res.ok) return;
+      const { ratings } = (await res.json()) as {
+        ratings: Record<string, string>;
+      };
+      if (ratings && Object.keys(ratings).length > 0) {
+        setImdbRatings((previous) => ({ ...previous, ...ratings }));
+      }
+    } catch {
+      // Offline / rate-limited: episodes simply show no IMDb badge.
+    }
+  }, [seriesId]);
+
+  useEffect(() => {
+    loadSeasonRatings(activeSeason);
+  }, [activeSeason, loadSeasonRatings]);
 
   useEffect(() => {
     setEpisodesState(episodes);
@@ -330,6 +359,17 @@ export default function EpisodesGrid({
                             <span className="italic">
                               {episodeData.runtime}m
                             </span>
+                            {imdbRatings[String(episodeData.episode_number)] && (
+                              <>
+                                <span className="mx-1">•</span>
+                                <span
+                                  className="rounded bg-[#f5c518] px-1 py-0.5 text-[10px] font-black leading-none text-black"
+                                  title={`IMDb ${imdbRatings[String(episodeData.episode_number)]}`}
+                                >
+                                  IMDb {imdbRatings[String(episodeData.episode_number)]}
+                                </span>
+                              </>
+                            )}
                           </div>
                         </div>
                       </div>

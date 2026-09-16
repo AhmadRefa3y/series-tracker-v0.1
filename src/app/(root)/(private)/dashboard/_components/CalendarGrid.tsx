@@ -75,17 +75,27 @@ const EpisodeCard = ({
             {badge}
           </span>
 
-          {(item.runtime || item.voteAverage) && (
+          {(item.runtime || item.voteAverage || item.imdbRating) && (
             <div className="pointer-events-none absolute inset-x-1.5 bottom-1.5 z-20 flex items-center justify-between gap-2 rounded-md bg-black/80 px-2.5 py-1.5 backdrop-blur-sm">
               <span className="text-xs font-semibold text-white">
                 {item.runtime ? formatRuntime(item.runtime) : ""}
               </span>
-              {item.voteAverage ? (
-                <span className="flex items-center gap-1 text-xs text-white/90">
-                  <Star className="size-3 fill-current" />
-                  {item.voteAverage.toFixed(1)}
-                </span>
-              ) : null}
+              <span className="flex items-center gap-2">
+                {item.voteAverage ? (
+                  <span className="flex items-center gap-1 text-xs text-white/90">
+                    <Star className="size-3 fill-current" />
+                    {item.voteAverage.toFixed(1)}
+                  </span>
+                ) : null}
+                {item.imdbRating ? (
+                  <span
+                    className="rounded bg-[#f5c518] px-1 py-0.5 text-[10px] font-black leading-none text-black"
+                    title={`IMDb ${item.imdbRating}`}
+                  >
+                    IMDb {item.imdbRating}
+                  </span>
+                ) : null}
+              </span>
             </div>
           )}
         </div>

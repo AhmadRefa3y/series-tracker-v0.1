@@ -1,5 +1,6 @@
 import { fetchSingleEpisode } from "@/app/(root)/(private)/watchlist/WatchListData";
 import { auth } from "@/auth";
+import { getSeriesImdbRating } from "@/lib/imdb";
 import prismaDb from "@/lib/prisma";
 import { tmdbGet } from "@/lib/tmdb";
 import { Episode, UpNextItem, UpcomingEpisodeItem } from "@/types/seriesT";
@@ -160,7 +161,8 @@ const localToday = () => {
 
 const toUpcomingItem = (
   series: { seriesTmdbId: string; title: string; posterPath: string | null },
-  episode: Episode
+  episode: Episode,
+  imdbRating?: string | null
 ): UpcomingEpisodeItem => ({
   seriesId: series.seriesTmdbId,
   title: series.title,
@@ -173,6 +175,7 @@ const toUpcomingItem = (
   runtime: episode.runtime ?? null,
   voteAverage: episode.vote_average ?? null,
   airDate: episode.air_date,
+  imdbRating: imdbRating ?? null,
 });
 
 /**
@@ -185,6 +188,8 @@ type TmdbSeriesStatus = {
   last_episode_to_air: { season_number: number; episode_number: number } | null;
   /** Also hints at the following season when one is announced. */
   seasons?: { season_number: number }[];
+  /** Appended via append_to_response — avoids a second request for the IMDb ID. */
+  external_ids?: { imdb_id?: string | null } | null;
 };
 
 /**
@@ -252,13 +257,19 @@ export const getUpcomingEpisodes = async (
 
     const seriesEpisodes = await Promise.all(
       series.map(async (item) => {
-        // One detail call per series tells us where each show is live.
+        // One detail call per series tells us where each show is live. The
+        // appended external_ids give the IMDb mapping for OMDb lookups.
         const status = await tmdbGet<TmdbSeriesStatus>(
-          `/tv/${item.seriesTmdbId}`
+          `/tv/${item.seriesTmdbId}`,
+          { params: { append_to_response: "external_ids" } }
         );
         if (!status) {
           return []; // Series detail unavailable; skip rather than guess.
         }
+
+        // Only the displayed episode's series-level rating is needed; the
+        // OMDb lookup is cached so repeated renders cost nothing.
+        const upcomingRating = await getSeriesImdbRating(item.seriesTmdbId);
 
         // Prefer the season that's airing now; fall back to the one that last
         // aired (covers between-seasons gaps), plus any newly announced season.
@@ -283,7 +294,7 @@ export const getUpcomingEpisodes = async (
         for (const episodes of seasons) {
           for (const episode of episodes) {
             if (episode.air_date && episode.air_date >= today) {
-              upcoming.push(toUpcomingItem(item, episode));
+              upcoming.push(toUpcomingItem(item, episode, upcomingRating));
             }
           }
         }
@@ -417,6 +428,7 @@ export const getUpNextSeries = async (
           posterPath: item.posterPath,
           totalEpisodes: item.totalEpisodes,
           watchedCount: item._count.watchedEpisodes,
+          imdbRating: await getSeriesImdbRating(item.seriesTmdbId),
           nextEpisodes,
         } satisfies UpNextItem;
       })

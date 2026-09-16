@@ -9,6 +9,7 @@ import SeriesDetails from "@/app/(root)/shows/[series]/_components/SeriesDetails
 import SeriesSidebar from "@/app/(root)/shows/[series]/_components/SeriesSidebar";
 import SeriesBackdrop from "@/app/(root)/shows/[series]/_components/SeriesBackdrop";
 import { auth } from "@/auth";
+import { getSeriesImdbRating } from "@/lib/imdb";
 import prismaDb from "@/lib/prisma";
 
 export async function generateMetadata({
@@ -49,23 +50,26 @@ export default async function Page({
   }
   console.log("Series Details:", seriesDetails.name);
 
-  const seriesDB = user?.user
-    ? await prismaDb.series.findFirst({
-        where: {
-          seriesTmdbId: seriesId,
-          userId: user?.user.id,
-        },
-        include: {
-          watchedEpisodes: true,
-        },
-      })
-    : null;
+  const [imdbRating, seriesDB] = await Promise.all([
+    getSeriesImdbRating(seriesId),
+    user?.user
+      ? prismaDb.series.findFirst({
+          where: {
+            seriesTmdbId: seriesId,
+            userId: user?.user.id,
+          },
+          include: {
+            watchedEpisodes: true,
+          },
+        })
+      : null,
+  ]);
 
   return (
     <div className="w-full flex flex-col flex-1  text-white">
       <SeriesBackdrop seriesDetails={seriesDetails} />
       <div className="flex gap-2  xl:mx-35 detailsDiv bg-[#ffffff]   relative">
-        <SeriesHeader seriesDetails={seriesDetails} />
+        <SeriesHeader seriesDetails={{ ...seriesDetails, imdbRating }} />
         <div className="flex gap-2 xl:mx-35 container mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <SeriesSidebar
             seriesDetails={{
