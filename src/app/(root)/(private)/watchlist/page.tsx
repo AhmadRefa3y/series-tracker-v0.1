@@ -1,13 +1,13 @@
 // app/watchlist/page.tsx
 import { WatchListSeries } from "@/types";
 import SeriesData from "./_components/SeriesData";
-import { fetchSingleEpisode } from "./WatchListData";
+import { resolveNextEpisodes } from "./WatchListData";
 import { getCurrentUser } from "@/lib/actions/userActions";
 import { getUserSeriesWatchlist } from "@/data/sharedData";
 import WatchlistFilter from "./_components/WatchlistFilter";
 import { Suspense } from "react";
 import { unstable_noStore as noStore } from "next/cache";
-import { Episode, Series } from "@/types/seriesT";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 export const metadata = {
@@ -37,9 +37,15 @@ export default async function Watchlist({
 
   if (watchList.length === 0) {
     return (
-      <div className="flex h-[60vh] flex-col items-center justify-center w-full text-white/50">
+      <div className="flex h-[60vh] flex-col items-center justify-center gap-5 text-white/50">
         <h1 className="text-3xl font-bold">Your watchlist is empty</h1>
         <p className="mt-2">Start adding some shows to track your progress!</p>
+        <Link
+          href="/shows"
+          className="rounded-lg bg-primaryColor px-5 py-2 text-sm font-semibold text-secondaryColor transition-transform duration-200 hover:scale-[1.03]"
+        >
+          Browse shows
+        </Link>
       </div>
     );
   }
@@ -63,7 +69,8 @@ export default async function Watchlist({
     return true;
   });
 
-  // 2. ENRICH DATA AND SYNC MISSING METADATA
+  // 2. ENRICH DATA AND SYNC MISSING METADATA — batched TMDb lookups
+  // (ONE season request per series instead of up to 15 single-episode calls).
   const seriesWithData = await Promise.all(
     filteredList.map(async (series) => {
       // Background Sync for old data
@@ -88,69 +95,17 @@ export default async function Watchlist({
         }
       }
 
-      const lastWatched = series.watchedEpisodes[0];
-
-      const nextEps: Episode[] = [];
-
-      if (!lastWatched) {
-        // If nothing watched, next is S1E1
-        const ep1 = await fetchSingleEpisode(series.seriesID.toString(), 1, 1);
-        if (ep1) {
-          nextEps.push(ep1);
-          // Try to get S1E2 too
-          const ep2 = await fetchSingleEpisode(
-            series.seriesID.toString(),
-            1,
-            2
-          );
-          if (ep2) nextEps.push(ep2);
-        }
-      } else {
-        // Try next episode in same season
-        const ep1 = await fetchSingleEpisode(
-          series.seriesID.toString(),
-          lastWatched.seasonNumber,
-          lastWatched.episodeNumber + 1
-        );
-
-        if (ep1) {
-          nextEps.push(ep1);
-          // Try one more in same season
-          const ep2 = await fetchSingleEpisode(
-            series.seriesID.toString(),
-            lastWatched.seasonNumber,
-            lastWatched.episodeNumber + 2
-          );
-          if (ep2) {
-            nextEps.push(ep2);
-          } else {
-            // Try first episode of next season
-            const nextSeasonEp1 = await fetchSingleEpisode(
-              series.seriesID.toString(),
-              lastWatched.seasonNumber + 1,
-              1
-            );
-            if (nextSeasonEp1) nextEps.push(nextSeasonEp1);
-          }
-        } else {
-          // If E+1 didn't exist, it might be next season E1
-          const nextSeasonEp1 = await fetchSingleEpisode(
-            series.seriesID.toString(),
-            lastWatched.seasonNumber + 1,
-            1
-          );
-          if (nextSeasonEp1) {
-            nextEps.push(nextSeasonEp1);
-            // Try one more in next season
-            const nextSeasonEp2 = await fetchSingleEpisode(
-              series.seriesID.toString(),
-              lastWatched.seasonNumber + 1,
-              2
-            );
-            if (nextSeasonEp2) nextEps.push(nextSeasonEp2);
-          }
-        }
-      }
+      const lastWatched = series.watchedEpisodes[0] ?? null;
+      const nextEps = await resolveNextEpisodes(
+        series.seriesID.toString(),
+        lastWatched
+          ? {
+              seasonNumber: lastWatched.seasonNumber,
+              episodeNumber: lastWatched.episodeNumber,
+            }
+          : null,
+        2
+      );
 
       return {
         series,
@@ -184,25 +139,19 @@ export default async function Watchlist({
         ) : (
           <div
             key={statusFilter}
-            className="flex justify-center flex-wrap gap-y-4 gap-x-2"
+            className="flex justify-center flex-wrap gap-y-6 gap-x-4"
           >
             {seriesWithData.map(({ series, nextEpisode }) => (
               <SeriesData
                 key={series.seriesID}
-                episodeNumber={series.currentEpisodeNumber}
-                posterPath={series.seriesPoster}
-                seasonNumber={series.episodeSeason}
                 seriesId={series.seriesID.toString()}
                 title={series.seriesTitle}
-                InitWatchedEpisodes={series.watchedEpisodes.length}
-                lastWatchedEpisode={series.watchedEpisodes[0]}
-                seriesData={
-                  {
-                    number_of_episodes: series.totalEpisodes,
-                  } as unknown as Series
-                }
+                posterPath={series.seriesPoster}
+                initWatchedEpisodes={series.watchedEpisodes.length}
+                totalEpisodes={series.totalEpisodes}
                 nextEpisodes={nextEpisode}
                 status={series.status}
+                hideWhenComplete={statusFilter === "watching"}
               />
             ))}
           </div>

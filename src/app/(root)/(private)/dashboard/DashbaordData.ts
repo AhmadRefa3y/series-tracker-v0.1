@@ -1,4 +1,4 @@
-import { fetchSingleEpisode } from "@/app/(root)/(private)/watchlist/WatchListData";
+import { resolveNextEpisodes } from "@/app/(root)/(private)/watchlist/WatchListData";
 import { auth } from "@/auth";
 import { getSeriesImdbRating } from "@/lib/imdb";
 import prismaDb from "@/lib/prisma";
@@ -323,42 +323,9 @@ export const getUpcomingEpisodes = async (
 };
 
 /**
- * Resolves the next unwatched episodes after `lastWatched`.
- *
- * Fast path: ONE season fetch returns every episode of the current season in
- * one request (and tmdbGet caches it, sharing it with History/Calendar). Only
- * when the current season is exhausted does it make one more request for the
- * next season. Worst case: 2 requests per series instead of up to 15.
+ * The batched next-episode resolver now lives in WatchListData (shared with
+ * the watchlist page) — it serves both the dashboard and the watchlist.
  */
-async function resolveNextEpisodes(
-  seriesId: string,
-  lastWatched: { episodeNumber: number; seasonNumber: number } | null,
-  count: number
-): Promise<Episode[]> {
-  const season = lastWatched?.seasonNumber ?? 1;
-  const lastEpisodeNumber = lastWatched?.episodeNumber ?? 0;
-
-  // 1 request: the full current season.
-  const seasonData = await tmdbGet<{ episodes?: Episode[] }>(
-    `/tv/${seriesId}/season/${season}`
-  );
-  const episodes = (seasonData?.episodes ?? [])
-    .filter((episode) => episode.episode_number > lastEpisodeNumber)
-    .slice(0, count);
-
-  // Current season exhausted: 1 more request for the next season.
-  if (episodes.length < count) {
-    const nextSeason = await tmdbGet<{ episodes?: Episode[] }>(
-      `/tv/${seriesId}/season/${season + 1}`
-    );
-    for (const episode of nextSeason?.episodes ?? []) {
-      if (episodes.length >= count) break;
-      episodes.push(episode);
-    }
-  }
-
-  return episodes;
-}
 
 export const getUpNextSeries = async (
   limit: number = 8
