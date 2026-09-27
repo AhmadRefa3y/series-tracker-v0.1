@@ -30,9 +30,9 @@ const UpcomingEpisodes = async () => {
   }
 
   return (
-    <section className="mx-4 py-6 pt-8 md:mx-6 md:pt-10">
+    <section className="py-6">
       <div className="px-4 md:px-6">
-        <SectionHeader title="Calendar" loading={false} icon={<CalendarDays className="size-6 shrink-0" strokeWidth={2} />} />
+        <SectionHeader title="Calendar" loading={false} icon={<CalendarDays className="size-5 shrink-0 text-primaryColor" strokeWidth={2.25} />} />
       </div>
       <CalendarGrid items={data} />
     </section>

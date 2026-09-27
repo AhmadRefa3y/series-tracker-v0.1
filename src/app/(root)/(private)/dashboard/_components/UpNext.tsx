@@ -45,13 +45,13 @@ const UpNext = async () => {
   }
 
   return (
-    <section className="mx-4 py-6 pt-8 md:mx-6 md:pt-10">
+    <section className="py-6">
       <div className="px-4 md:px-6">
         <Link
           href="/watchlist"
           className="inline-flex transition-opacity duration-200 hover:opacity-80"
         >
-          <SectionHeader title="Continue Watching" loading={false} />
+          <SectionHeader title="Continue Watching" loading={false} href="/watchlist" />
         </Link>
       </div>
       <UpNextCarousel items={data} />

@@ -9,6 +9,8 @@ export interface UserInsights {
   totalSeries: number;
   completedSeries: number;
   last7DaysEpisodes: number;
+  /** Episodes watched per day for the last 7 days, oldest first. */
+  weeklyActivity: number[];
   genreStats: { name: string; count: number }[];
   mostWatchedSeries: { title: string; count: number; poster: string | null; totalEpisodes: number }[];
 }
@@ -51,6 +53,7 @@ export async function getUserInsights(): Promise<UserInsights | null> {
         totalSeries: 0,
         completedSeries: 0,
         last7DaysEpisodes: 0,
+        weeklyActivity: [0, 0, 0, 0, 0, 0, 0],
         genreStats: [],
         mostWatchedSeries: [],
       };
@@ -132,12 +135,28 @@ export async function getUserInsights(): Promise<UserInsights | null> {
       .sort((a, b) => b.count - a.count)
       .slice(0, 8);
 
+    // 6. Daily histogram for the last 7 days (oldest first) for the dashboard
+    // sidebar's weekly chart. Buckets are calendar days in server-local time,
+    // matching how watchedAt is displayed elsewhere.
+    const weeklyActivity = [0, 0, 0, 0, 0, 0, 0];
+    const today = new Date();
+    today.setHours(23, 59, 59, 999);
+    for (const ep of watchedEpisodes) {
+      const daysAgo = Math.floor(
+        (today.getTime() - new Date(ep.watchedAt).getTime()) / 86_400_000
+      );
+      if (daysAgo >= 0 && daysAgo < 7) {
+        weeklyActivity[6 - daysAgo] += 1;
+      }
+    }
+
     return {
       totalEpisodes,
       totalTimeMinutes,
       totalSeries: seriesMap.size,
       completedSeries,
       last7DaysEpisodes,
+      weeklyActivity,
       genreStats,
       mostWatchedSeries,
     };

@@ -26,7 +26,7 @@ const TrendingCard = ({
 
   return (
     <motion.article
-      className="w-[152px] shrink-0 snap-start sm:w-[168px]"
+      className="group/rank flex w-[152px] shrink-0 snap-start items-end sm:w-[168px]"
       initial={{ opacity: 0, y: 18 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{
@@ -36,8 +36,19 @@ const TrendingCard = ({
         delay: Math.min(index * 0.05, 0.5),
       }}
     >
-      <Link href={href} className="group block" aria-label={show.name}>
-        <div className="relative aspect-[2/3] overflow-hidden rounded-lg bg-[#17141a] ring-1 ring-white/[0.06] transition-all duration-300 group-hover:ring-primaryColor/50">
+      {/* Oversized rank number, Trakt trending style */}
+      <span
+        aria-hidden
+        className="-mr-3 select-none text-[56px] font-black italic leading-[0.8] text-transparent sm:text-[64px]"
+        style={{
+          WebkitTextStroke: "1.5px rgba(252,211,77,0.5)",
+        }}
+      >
+        {index + 1}
+      </span>
+
+      <Link href={href} className="group block w-[112px] shrink-0 sm:w-[124px]" aria-label={show.name}>
+        <div className="relative aspect-[2/3] overflow-hidden rounded-lg bg-[#1d1922] ring-1 ring-white/[0.06] transition-all duration-300 group-hover:ring-primaryColor/50">
           <Image
             src={
               show.poster_path
@@ -46,7 +57,7 @@ const TrendingCard = ({
             }
             alt={show.name}
             fill
-            sizes="168px"
+            sizes="124px"
             className="object-cover transition-transform duration-500 group-hover:scale-105"
           />
 

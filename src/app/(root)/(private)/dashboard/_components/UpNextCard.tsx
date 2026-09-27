@@ -19,6 +19,7 @@ import type { Episode, UpNextItem } from "@/types/seriesT";
 
 const STILL_BASE = "https://image.tmdb.org/t/p/w780";
 const POSTER_BASE = "https://image.tmdb.org/t/p/w500";
+const PROGRESS_BASE = "https://image.tmdb.org/t/p/original";
 
 /** Official IMDb logo (Simple Icons path, 24x24). */
 const IMDB_LOGO =
@@ -136,13 +137,13 @@ const UpNextCard = ({
   };
 
   return (
-    <article className="group/card relative w-[272px] shrink-0 sm:w-[300px]">
-      <div className="relative aspect-video overflow-hidden rounded-lg bg-[#17141a]">
+    <article className="group/card relative w-[300px] shrink-0 sm:w-[340px]">
+      <div className="relative aspect-video overflow-hidden rounded-lg bg-[#1d1922] ring-1 ring-white/[0.06] transition-all duration-300 group-hover/card:ring-primaryColor/40">
         {currentEpisode ? (
           <Image
             src={
               currentEpisode.still_path
-                ? `${STILL_BASE}${currentEpisode.still_path}`
+                ? `${PROGRESS_BASE}${currentEpisode.still_path}`
                 : item.posterPath
                   ? `${POSTER_BASE}${item.posterPath}`
                   : ""
@@ -150,11 +151,11 @@ const UpNextCard = ({
             alt={currentEpisode.name || item.title}
             fill
             preload={preload}
-            sizes="(max-width: 640px) 272px, 300px"
-            className="object-cover transition-opacity duration-300"
+            sizes="(max-width: 640px) 300px, 340px"
+            className="object-cover transition-transform duration-500 group-hover/card:scale-[1.03]"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center bg-[#17141a]">
+          <div className="flex h-full w-full items-center justify-center bg-[#1d1922]">
             <Loader2 className="size-5 animate-spin text-[#a78bfa]" />
           </div>
         )}
@@ -199,6 +200,24 @@ const UpNextCard = ({
           </div>
         )}
 
+        {/* Series progress bar — Trakt-style completion indicator */}
+        {item.totalEpisodes > 0 && (
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-[3px] bg-black/60"
+          >
+            <div
+              className="h-full bg-primaryColor transition-all duration-500"
+              style={{
+                width: `${Math.min(
+                  100,
+                  Math.round((watchedOverall / item.totalEpisodes) * 100)
+                )}%`,
+              }}
+            />
+          </div>
+        )}
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button
@@ -236,6 +255,11 @@ const UpNextCard = ({
           <p className="mt-1 truncate text-[13px] text-white/50">
             {currentEpisode ? formatEpisodeLabel(currentEpisode) : "Fetching next episode…"}
           </p>
+          {item.totalEpisodes > 0 && (
+            <p className="mt-0.5 text-[11px] font-semibold uppercase tracking-wide text-primaryColor/90">
+              {watchedOverall}/{item.totalEpisodes} episodes
+            </p>
+          )}
         </div>
 
         <button

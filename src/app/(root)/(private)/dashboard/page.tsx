@@ -3,6 +3,7 @@ import UpNext from "./_components/UpNext";
 import History from "./_components/History";
 import UpcomingEpisodes from "./_components/UpcomingEpisodes";
 import Trending from "./_components/Trending";
+import StatsSidebar from "./_components/StatsSidebar";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import WelcomeBanner from "@/app/(root)/(private)/dashboard/_components/WelcomeBanner";
@@ -21,35 +22,33 @@ const DashBoard = async () => {
   if (!session) {
     return redirect("/sign-in?callbackUrl=/dashboard");
   }
+
   return (
     <div className="flex flex-col text-white">
       <WelcomeBanner />
-      <div className="bg-[#17141a]">
-        <div className="container mx-auto relative min-h-[380px]">
+
+      {/* Main content + Trakt-style stats rail */}
+      <div className="container mx-auto flex flex-col gap-8 px-4 py-8 lg:flex-row lg:gap-10 lg:px-6">
+        <div className="min-w-0 flex-1">
           <Suspense fallback={<UpNextSkeleton />}>
             <UpNext />
           </Suspense>
-        </div>
-      </div>
 
-      <div className="bg-[#17141a]">
-        <div className="container mx-auto relative h-full">
           <Suspense fallback={<CarouselSkeleton title="History" />}>
             <History />
           </Suspense>
-        </div>
-      </div>
 
-      <div className="bg-[#17141a]">
-        <div className="container mx-auto relative">
           <Suspense fallback={<CalendarSkeleton />}>
             <UpcomingEpisodes />
           </Suspense>
         </div>
+
+        <StatsSidebar />
       </div>
 
-      <div className="bg-[#17141a]">
-        <div className="container mx-auto relative">
+      {/* Full-bleed trending row, Simkl-discovery style */}
+      <div className="bg-[#1d1922]/60">
+        <div className="container mx-auto px-4 lg:px-6">
           <Suspense fallback={<CarouselSkeleton title="Trending Now" />}>
             <Trending />
           </Suspense>
