@@ -201,6 +201,8 @@ export interface UpNextItem {
   watchedCount: number;
   /** IMDb rating for the series, e.g. "8.5". Null when unavailable. */
   imdbRating: string | null;
+  /** IMDb ID for deep links (trailer search, ratings page). Null when unknown. */
+  imdbId?: string | null;
   // The next unwatched episodes in order. The card buffers a couple so it can
   // advance optimistically without waiting on a server round-trip.
   nextEpisodes: Episode[];

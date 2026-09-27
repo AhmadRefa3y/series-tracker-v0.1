@@ -1,11 +1,11 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { Tv } from "lucide-react";
 
 import { auth } from "@/auth";
 import { getUpNextSeries } from "@/app/(root)/(private)/dashboard/DashbaordData";
 import { SectionHeader } from "@/app/(root)/(private)/dashboard/_components/UpNextSkeleton";
 import UpNextCarousel from "@/app/(root)/(private)/dashboard/_components/UpNextCarousel";
+import EmptyUpNext from "@/app/(root)/(private)/dashboard/_components/EmptyUpNext";
 
 const UpNext = async () => {
   const session = await auth();
@@ -25,23 +25,7 @@ const UpNext = async () => {
   }
 
   if (!data || data.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center gap-4 px-4 py-14 text-center text-white">
-        <Tv className="size-10 text-white/30" />
-        <div>
-          <h2 className="text-xl font-bold">You&apos;re all caught up</h2>
-          <p className="mt-1 max-w-md text-sm text-white/50">
-            Start watching a show and your next episodes will appear here.
-          </p>
-        </div>
-        <Link
-          href="/shows"
-          className="rounded-lg bg-primaryColor px-5 py-2 text-sm font-semibold text-secondaryColor transition-transform duration-200 hover:scale-[1.03]"
-        >
-          Browse shows
-        </Link>
-      </div>
-    );
+    return <EmptyUpNext />;
   }
 
   return (

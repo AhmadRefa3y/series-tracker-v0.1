@@ -325,46 +325,39 @@ export const getUpcomingEpisodes = async (
 /**
  * Resolves the next unwatched episodes after `lastWatched`.
  *
- * Instead of downloading every season of a series, this only asks TMDb for a
- * small batch of upcoming coordinates and jumps to the next season when it
- * hits a finale. In the common case a series costs a single round-trip.
+ * Fast path: ONE season fetch returns every episode of the current season in
+ * one request (and tmdbGet caches it, sharing it with History/Calendar). Only
+ * when the current season is exhausted does it make one more request for the
+ * next season. Worst case: 2 requests per series instead of up to 15.
  */
 async function resolveNextEpisodes(
   seriesId: string,
   lastWatched: { episodeNumber: number; seasonNumber: number } | null,
   count: number
 ): Promise<Episode[]> {
-  const episodes: Episode[] = [];
-  let season = lastWatched?.seasonNumber ?? 1;
-  let episodeNumber = lastWatched?.episodeNumber ?? 0;
-  let emptySeasons = 0;
+  const season = lastWatched?.seasonNumber ?? 1;
+  const lastEpisodeNumber = lastWatched?.episodeNumber ?? 0;
 
-  for (let attempt = 0; attempt < 5 && episodes.length < count; attempt++) {
-    const batch = await Promise.all(
-      Array.from({ length: 3 }, (_, offset) =>
-        fetchSingleEpisode(seriesId, season, episodeNumber + offset + 1)
-      )
+  // 1 request: the full current season.
+  const seasonData = await tmdbGet<{ episodes?: Episode[] }>(
+    `/tv/${seriesId}/season/${season}`
+  );
+  const episodes = (seasonData?.episodes ?? [])
+    .filter((episode) => episode.episode_number > lastEpisodeNumber)
+    .slice(0, count);
+
+  // Current season exhausted: 1 more request for the next season.
+  if (episodes.length < count) {
+    const nextSeason = await tmdbGet<{ episodes?: Episode[] }>(
+      `/tv/${seriesId}/season/${season + 1}`
     );
-
-    const found = batch.filter((episode): episode is Episode => episode !== null);
-
-    if (found.length === 0) {
-      // End of the season: try the next one, and give up once two in a row are
-      // empty so a fully caught-up series doesn't keep hitting TMDb.
-      if (++emptySeasons >= 2) break;
-      season += 1;
-      episodeNumber = 0;
-      continue;
+    for (const episode of nextSeason?.episodes ?? []) {
+      if (episodes.length >= count) break;
+      episodes.push(episode);
     }
-
-    emptySeasons = 0;
-    episodes.push(...found);
-    const last = found[found.length - 1];
-    season = last.season_number;
-    episodeNumber = last.episode_number;
   }
 
-  return episodes.slice(0, count);
+  return episodes;
 }
 
 export const getUpNextSeries = async (
@@ -422,6 +415,13 @@ export const getUpNextSeries = async (
           2
         );
 
+        // external_ids come appended from TMDb; the OMDb rating is cached.
+        const details = await tmdbGet<{
+          external_ids?: { imdb_id?: string | null } | null;
+        }>(`/tv/${item.seriesTmdbId}`, {
+          params: { append_to_response: "external_ids" },
+        });
+
         return {
           seriesId: item.seriesTmdbId,
           title: item.title,
@@ -429,6 +429,7 @@ export const getUpNextSeries = async (
           totalEpisodes: item.totalEpisodes,
           watchedCount: item._count.watchedEpisodes,
           imdbRating: await getSeriesImdbRating(item.seriesTmdbId),
+          imdbId: details?.external_ids?.imdb_id ?? null,
           nextEpisodes,
         } satisfies UpNextItem;
       })

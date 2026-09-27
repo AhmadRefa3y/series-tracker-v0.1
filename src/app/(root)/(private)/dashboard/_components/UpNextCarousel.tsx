@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 
 import type { UpNextItem } from "@/types/seriesT";
 import CarouselShell from "./CarouselShell";
@@ -45,22 +45,27 @@ const UpNextCarousel = ({ items }: { items: UpNextItem[] }) => {
 
   return (
     <CarouselShell contentKey={orderedItems.length}>
-      {orderedItems.map((item, index) => (
-        <motion.div
-          key={item.seriesId}
-          className="snap-start"
-          initial={{ opacity: 0, y: 18 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{
-            type: "spring",
-            stiffness: 240,
-            damping: 24,
-            delay: index * 0.05,
-          }}
-        >
-          <UpNextCard item={item} preload={index === 0} />
-        </motion.div>
-      ))}
+      {/* AnimatePresence animates cards in/out when shows complete & leave the row */}
+      <AnimatePresence initial={false} mode="popLayout">
+        {orderedItems.map((item, index) => (
+          <motion.div
+            key={item.seriesId}
+            layout
+            className="snap-start"
+            initial={{ opacity: 0, y: 18, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.25 } }}
+            transition={{
+              type: "spring",
+              stiffness: 240,
+              damping: 24,
+              delay: index * 0.05,
+            }}
+          >
+            <UpNextCard item={item} preload={index === 0} />
+          </motion.div>
+        ))}
+      </AnimatePresence>
     </CarouselShell>
   );
 };
