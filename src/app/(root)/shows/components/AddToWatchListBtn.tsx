@@ -21,11 +21,13 @@ const AddToWatchListBtn = ({
   seriesData,
   session,
   isTracked,
+  className,
 }: // session,
 {
   seriesData: SeriesData;
   session: Session | null;
   isTracked: boolean;
+  className?: string;
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isAdded, setIsAdded] = useState<boolean | null>(isTracked);
@@ -86,7 +88,8 @@ const AddToWatchListBtn = ({
     <Button
       className={cn(
         "text-white p-2 hover:bg-[#6c3384] duration-200 rounded-none m-0 h-full bg-transparent",
-        isAdded && "bg-[#6c3384]"
+        isAdded && "bg-[#6c3384]",
+        className
       )}
       onClick={handleAddToWatchlist}
       disabled={isLoading}

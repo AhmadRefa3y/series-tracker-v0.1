@@ -1,226 +1,140 @@
-import { Suspense } from "react";
-import Image from "next/image";
-import { Star, StarIcon } from "lucide-react";
-import Link from "next/link";
-import AddToWatchListBtn from "@/app/(root)/shows/components/AddToWatchListBtn";
-import AddToWatchedHistoryBtn from "@/app/(root)/shows/components/AddToWatchedHistoryBtn";
-import Pagination from "@/app/(root)/shows/components/Pagination";
-import { getTrendingSeries } from "@/app/(root)/shows/showsData";
-import { discoverTvShows } from "@/app/(root)/shows/discoverData";
-import prismaDb from "@/lib/prisma";
-import { Session } from "next-auth";
+import type { Session } from "next-auth";
+import { SearchX } from "lucide-react";
 
-export default function ShowGrid({ session, params }: ShowGridProps) {
-  return (
-    <Suspense fallback={<ShowsSkeleton />} key={JSON.stringify(params)}>
-      <ShowGridContent session={session} params={params} />
-    </Suspense>
-  );
-}
+import prismaDb from "@/lib/prisma";
+import {
+  hasActiveFilters,
+  toDiscoverParams,
+  type ShowFilterState,
+} from "@/app/(root)/shows/filterConfig";
+import { discoverTvShows, type DiscoverTvResult } from "@/app/(root)/shows/discoverData";
+import { getTrendingSeries } from "@/app/(root)/shows/showsData";
+import Pagination from "@/app/(root)/shows/components/Pagination";
+import ShowCard, { type ShowCardData } from "@/app/(root)/shows/components/ShowCard";
 
 interface ShowGridProps {
   session: Session | null;
-  params: {
-    genreIds?: string;
-    "first_air_date.gte"?: string;
-    "first_air_date.lte"?: string;
-    "vote_average.gte"?: string;
-    "vote_average.lte"?: string;
-    with_original_language?: string;
-    sort_by?: string;
-    page?: number;
-  };
+  filters: ShowFilterState;
+  page: number;
 }
 
-// Loading skeleton component for the grid
-function ShowsSkeleton() {
+export function ShowsGridSkeleton() {
   return (
-    <div className="grid flex-1 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+    <div className="grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-3 xl:grid-cols-4">
       {Array.from({ length: 20 }).map((_, index) => (
-        <div
-          key={index}
-          className="flex flex-col animate-pulse bg-[#17141a] border border-[#414040] h-[227px]"
-        >
-          <div className="absolute top-2 right-2 bg-black/70 rounded-full p-1">
-            <div className="flex items-center gap-1">
-              <Star className="h-3 w-3 text-yellow-400 fill-yellow-400" />
-              <span className="text-xs font-medium text-white"></span>
-            </div>
-          </div>
+        <div key={index} className="flex animate-pulse flex-col">
+          <div className="aspect-[2/3] w-full rounded-xl border border-white/[0.06] bg-[#221d29]" />
+          <div className="mt-3 h-3.5 w-3/4 rounded bg-[#221d29]" />
+          <div className="mt-2 h-3 w-1/2 rounded bg-[#221d29]" />
         </div>
       ))}
     </div>
   );
 }
 
-async function ShowGridContent({ session, params }: ShowGridProps) {
-  const genreIds = params?.genreIds || "";
-  const startDate = params?.["first_air_date.gte"];
-  const endDate = params?.["first_air_date.lte"];
-  const voteAverageGte = params?.["vote_average.gte"];
-  const voteAverageLte = params?.["vote_average.lte"];
-  const language = params?.with_original_language;
-  const sortBy = params?.sort_by || "popularity.desc";
-  const page = params?.page || 1;
+export default async function ShowGrid({ session, filters, page }: ShowGridProps) {
+  const loggedIn = Boolean(session?.user);
 
-  // Fetch shows based on filters
-  let showsData;
-  if (
-    genreIds ||
-    startDate ||
-    endDate ||
-    voteAverageGte ||
-    voteAverageLte ||
-    language ||
-    sortBy !== "popularity.desc"
-  ) {
-    // Use discover endpoint when filters are applied
-    showsData = await discoverTvShows(
-      {
-        with_genres: genreIds,
-        "first_air_date.gte": startDate,
-        "first_air_date.lte": endDate,
-        "vote_average.gte": voteAverageGte
-          ? parseFloat(voteAverageGte)
-          : undefined,
-        "vote_average.lte": voteAverageLte
-          ? parseFloat(voteAverageLte)
-          : undefined,
-        with_original_language: language,
-        sort_by: sortBy,
-        page: page,
-      },
-      !!session?.user
-    );
+  let data: DiscoverTvResult;
+  if (hasActiveFilters(filters)) {
+    data = await discoverTvShows(toDiscoverParams(filters, page), loggedIn);
   } else {
-    // Use trending endpoint when no filters are applied
-    const trendingShows = await getTrendingSeries(!!session?.user, page);
-
-    if (trendingShows)
-      showsData = {
-        results: trendingShows?.results,
-        page: page,
-        total_pages:
-          trendingShows?.total_pages > 500 ? 500 : trendingShows?.total_pages,
-        total_results: trendingShows.total_results,
-      };
+    const trending = await getTrendingSeries(loggedIn, page);
+    if (!trending) {
+      return (
+        <div className="flex flex-col items-center justify-center gap-3 py-24 text-center">
+          <SearchX className="size-10 text-white/30" />
+          <p className="text-sm text-white/60">
+            We couldn&apos;t load shows right now. Please try again.
+          </p>
+        </div>
+      );
+    }
+    data = {
+      results: trending.results,
+      page,
+      total_pages: trending.total_pages > 500 ? 500 : trending.total_pages,
+      total_results: trending.total_results,
+    };
   }
 
-  if (!showsData || !showsData.results) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <p className="text-gray-400">Failed to load shows. Please try again.</p>
-      </div>
-    );
-  }
-  console.log({ showsData });
-
-  const { results: shows, page: currentPage, total_pages } = showsData;
-
-  const UserShows = session?.user
+  // One query powers tracking state and the "hide my watchlist" filter.
+  const userSeries = session?.user
     ? await prismaDb.series.findMany({
-        where: {
-          userId: session.user.id,
-        },
-        include: {
-          watchedEpisodes: true,
-        },
+        where: { userId: session.user.id },
+        include: { watchedEpisodes: true },
       })
     : [];
+  const trackedByTmdbId = new Map(
+    userSeries.map((series) => [series.seriesTmdbId, series])
+  );
 
-  const seriesWithTrackingStatus = shows.map((show) => ({
-    ...show,
-    isTracked: UserShows.some(
-      (userShow) => userShow.seriesTmdbId === show.id.toString()
-    ),
-    Finished: UserShows.some(
-      (userShow) =>
-        userShow.seriesTmdbId === show.id.toString() &&
-        userShow.watchedEpisodes.length === show.number_of_episodes
-    ),
-    watchedEpisodes:
-      UserShows.find((userShow) => userShow.seriesTmdbId === show.id.toString())
-        ?.watchedEpisodes.length || 0,
-  }));
+  let results = data.results;
+  let hiddenCount = 0;
+  if (filters.excludeTracked && session?.user) {
+    const before = results.length;
+    results = results.filter(
+      (series) => !trackedByTmdbId.has(series.id.toString())
+    );
+    hiddenCount = before - results.length;
+  }
+
+  const cards: ShowCardData[] = results.map((show) => {
+    const tracked = trackedByTmdbId.get(show.id.toString());
+    const watched = tracked?.watchedEpisodes.length ?? 0;
+    const total = show.number_of_episodes ?? 0;
+    return {
+      ...show,
+      isTracked: Boolean(tracked),
+      watchedEpisodes: watched,
+      Finished: Boolean(tracked) && total > 0 && watched >= total,
+    };
+  });
 
   return (
-    <div className="flex flex-col flex-1">
-      <div className="grid w-full grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 ">
-        {seriesWithTrackingStatus.length === 0 ? (
-          <div className="text-center py-10 col-span-full">
-            <h2 className="text-xl font-bold">No shows found</h2>
-            <p className="text-gray-400 mt-2">
-              Try adjusting your filters to see more results
+    <div className="flex flex-col">
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <p className="text-xs text-white/45">
+          {data.total_results > 0
+            ? `Showing ${cards.length} of ${data.total_results.toLocaleString()} shows`
+            : "No results"}
+        </p>
+        <p className="text-xs text-white/35">
+          Page {data.page} of {data.total_pages}
+        </p>
+      </div>
+
+      {cards.length === 0 ? (
+        <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-white/10 bg-white/[0.02] py-24 text-center">
+          <SearchX className="size-10 text-white/30" />
+          <div>
+            <h2 className="text-base font-semibold text-white">
+              No shows found
+            </h2>
+            <p className="mt-1 text-sm text-white/50">
+              Try widening your filters or removing a few.
             </p>
           </div>
-        ) : (
-          seriesWithTrackingStatus.map((series) => (
-            <div key={series.id} className="flex flex-col">
-              <Link
-                href={`shows/${series.name.replace(/\s+/g, "").toLowerCase()}-${
-                  series.id
-                }`}
-                className="relative aspect-[3/2] overflow-hidden group"
-              >
-                <Image
-                  src={
-                    series.backdrop_path
-                      ? `https://image.tmdb.org/t/p/w780${series.backdrop_path}`
-                      : series.poster_path
-                      ? `https://image.tmdb.org/t/p/w780${series.poster_path}`
-                      : "/no-image-available.webp" // 👈 fallback image
-                  }
-                  alt={series.name}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t to-50% from-black/70 to-transparent transition-opacity duration-300 flex flex-col justify-end p-3" />
-                <div className="absolute top-2 right-2 bg-black/70 rounded-full p-1">
-                  <div className="flex items-center gap-1">
-                    <Star className="h-3 w-3 text-yellow-400 fill-yellow-400" />
-                    <span className="text-xs font-medium text-white">
-                      {series.vote_average.toFixed(1)}
-                    </span>
-                  </div>
-                </div>
-                <div className="absolute bottom-2 left-2 text-white font-bold text-lg">
-                  {series.name}{" "}
-                  <span className="font-light text-sm">
-                    {series.first_air_date?.split("-")[0] || "N/A"}
-                  </span>
-                </div>
-              </Link>
-              <div className="flex bg-[#17141a] border-r border-[#414040]">
-                <AddToWatchListBtn
-                  seriesData={{
-                    id: series.id.toString(),
-                    title: series.name,
-                    poster: `https://image.tmdb.org/t/p/w780/${series.poster_path}`,
-                  }}
-                  session={session}
-                  isTracked={series.isTracked}
-                />
-                <AddToWatchedHistoryBtn
-                  Finished={series.Finished}
-                  seriesData={{
-                    id: series.id.toString(),
-                    title: series.name,
-                    posterPath: `https://image.tmdb.org/t/p/w780/${series.poster_path}`,
-                  }}
-                  session={session}
-                />
-                <button className="text-white p-2 hover:bg-[#ff5f06] duration-200">
-                  <StarIcon strokeWidth={2} />
-                </button>
-              </div>
-            </div>
-          ))
-        )}
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 gap-x-4 gap-y-7 sm:grid-cols-3 xl:grid-cols-4">
+          {cards.map((series) => (
+            <ShowCard key={series.id} series={series} session={session} />
+          ))}
+        </div>
+      )}
 
-        {/* Pagination Controls */}
-      </div>
-      <Pagination currentPageProp={currentPage} totalPagesProp={total_pages} />
+      {hiddenCount > 0 ? (
+        <p className="mt-6 rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3 text-xs text-white/45">
+          {hiddenCount} show{hiddenCount === 1 ? "" : "s"} hidden because they are
+          on your watchlist.
+        </p>
+      ) : null}
+
+      <Pagination
+        currentPageProp={data.page}
+        totalPagesProp={data.total_pages}
+      />
     </div>
   );
 }

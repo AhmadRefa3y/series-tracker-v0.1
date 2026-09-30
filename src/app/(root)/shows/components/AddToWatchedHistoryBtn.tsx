@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { addSeriesToWatchedHistory } from "@/lib/actions/sharedActions";
+import { cn } from "@/lib/utils";
 
 interface SeriesData {
   id: string;
@@ -15,10 +16,12 @@ const AddToWatchedHistoryBtn = ({
   seriesData,
   session,
   Finished,
+  className,
 }: {
   seriesData: SeriesData;
   session: { user?: { id?: string } } | null;
   Finished: boolean;
+  className?: string;
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [added, setAdded] = useState<boolean>(Finished);
@@ -58,17 +61,19 @@ const AddToWatchedHistoryBtn = ({
 
   return (
     <button
-      className={`text-white p-2 hover:bg-[#0082ce] duration-200  ${
-        added ? "bg-[#0082ce]" : ""
-      }`}
+      className={cn(
+        "text-white p-2 hover:bg-[#0082ce] duration-200",
+        added && "bg-[#0082ce]",
+        className
+      )}
       onClick={handleAddToHistory}
       disabled={isLoading || added}
       title={added ? "Already in history" : "Add to watched history"}
     >
       {isLoading ? (
-        <Loader className="animate-spin" />
+        <Loader className="size-4 animate-spin" />
       ) : (
-        <Check strokeWidth={4} />
+        <Check className="size-4" strokeWidth={3} />
       )}
     </button>
   );
