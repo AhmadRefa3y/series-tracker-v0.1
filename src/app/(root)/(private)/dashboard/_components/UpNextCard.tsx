@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   BarChart2,
   Check,
@@ -70,7 +70,6 @@ const UpNextCard = ({
   preload?: boolean;
 }) => {
   const router = useRouter();
-  const reduceMotion = useReducedMotion();
 
   const [current, setCurrent] = useState(item);
   const [episodeIndex, setEpisodeIndex] = useState(0);
@@ -568,7 +567,7 @@ const UpNextCard = ({
           onClick={handleMarkWatched}
           disabled={isMarking || !currentEpisode}
           aria-label="Mark episode as watched"
-          whileTap={reduceMotion ? undefined : { scale: 0.86 }}
+          whileTap={{ scale: 0.86 }}
           className={cn(
             "flex size-9 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/[0.05] text-primaryColor shadow-inset transition-all duration-200 hover:border-primaryColor/60 hover:bg-primaryColor hover:text-secondaryColor hover:shadow-gold",
             (isMarking || !currentEpisode) && "cursor-not-allowed opacity-50"

@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   Activity,
   ArrowRight,
@@ -41,12 +41,10 @@ const WEEKDAY_LABELS = (() => {
 
 /** Avatar with a slow gold conic ring and a soft halo. */
 const Avatar = ({ src, name }: { src: string; name: string }) => {
-  const reduceMotion = useReducedMotion();
-
   return (
     <motion.div
       className="relative shrink-0"
-      whileHover={reduceMotion ? undefined : { scale: 1.04 }}
+      whileHover={{ scale: 1.04 }}
       transition={{ type: "spring", stiffness: 260, damping: 22 }}
     >
       <span
@@ -56,7 +54,7 @@ const Avatar = ({ src, name }: { src: string; name: string }) => {
       <motion.span
         aria-hidden
         className="absolute -inset-1.5 rounded-full bg-[conic-gradient(from_0deg,transparent_0deg,rgba(252,211,77,0.6)_60deg,transparent_140deg,rgba(252,211,77,0.38)_240deg,transparent_320deg)]"
-        animate={reduceMotion ? undefined : { rotate: 360 }}
+        animate={{ rotate: 360 }}
         transition={{ duration: 14, ease: "linear", repeat: Infinity }}
       />
       <span
@@ -95,8 +93,6 @@ const StatCard = ({
   icon: LucideIcon;
   index: number;
 }) => {
-  const reduceMotion = useReducedMotion();
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
@@ -105,9 +101,9 @@ const StatCard = ({
         type: "spring",
         stiffness: 240,
         damping: 26,
-        delay: reduceMotion ? 0 : 0.14 + index * 0.06,
+        delay: 0.14 + index * 0.06,
       }}
-      whileHover={reduceMotion ? undefined : { y: -4 }}
+      whileHover={{ y: -4 }}
       className="h-full"
     >
       <Link
@@ -148,8 +144,6 @@ const WelcomeBannerClient = ({
   backdropUrl: string | null;
   stats: Stats;
 }) => {
-  const reduceMotion = useReducedMotion();
-
   const hour = new Date().getHours();
   const greeting =
     hour < 5
@@ -196,7 +190,7 @@ const WelcomeBannerClient = ({
           <div className="flex min-w-0 flex-1 flex-col gap-8 lg:max-w-2xl">
             <div>
               <motion.div
-                initial={reduceMotion ? false : { opacity: 0, y: 12 }}
+                initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, ease: EASE }}
                 className="flex items-center gap-4 sm:gap-5"
@@ -221,7 +215,7 @@ const WelcomeBannerClient = ({
               </motion.div>
 
               <motion.p
-                initial={reduceMotion ? false : { opacity: 0, y: 12 }}
+                initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, ease: EASE, delay: 0.08 }}
                 className="mt-6 max-w-xl text-[15px] leading-relaxed text-white/60"
@@ -231,7 +225,7 @@ const WelcomeBannerClient = ({
               </motion.p>
 
               <motion.div
-                initial={reduceMotion ? false : { opacity: 0, y: 12 }}
+                initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, ease: EASE, delay: 0.14 }}
                 className="mt-7 flex flex-wrap items-center gap-3"
@@ -256,7 +250,7 @@ const WelcomeBannerClient = ({
 
             {/* Weekly activity card — Trakt-style bar strip, gold gradient. */}
             <motion.div
-              initial={reduceMotion ? false : { opacity: 0, y: 14 }}
+              initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, ease: EASE, delay: 0.2 }}
               className="relative overflow-hidden rounded-3xl border border-white/[0.07] bg-white/[0.035] p-5 shadow-inset backdrop-blur-xl"
@@ -295,7 +289,7 @@ const WelcomeBannerClient = ({
                         type: "spring",
                         stiffness: 200,
                         damping: 26,
-                        delay: reduceMotion ? 0 : 0.35 + index * 0.05,
+                        delay: 0.35 + index * 0.05,
                       }}
                     />
                     <span className="text-[9px] font-semibold uppercase text-white/35">

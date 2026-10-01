@@ -315,8 +315,8 @@
 
 /*
  * Reduced motion is handled per-effect rather than by nuking every transition:
- * looping decorative animations use `motion-safe:` (aurora, float) and JS
- * animations honour `useReducedMotion()`. A blanket `!important` override here
- * would also break functional feedback (spinners, skeletons) and make hover
- * states snap instead of easing.
+ * decorative CSS animations use `motion-safe:` (aurora, float, page-in) and
+ * framer-motion is globally set to `reducedMotion="user"` in Providers. A
+ * blanket `!important` override here would also break functional feedback
+ * (spinners, skeletons) and make hover states snap instead of easing.
  */

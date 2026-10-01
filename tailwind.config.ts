@@ -127,6 +127,10 @@ export default {
           from: { backgroundPosition: "200% center" },
           to: { backgroundPosition: "0% center" },
         },
+        "page-in": {
+          from: { opacity: "0", transform: "translateY(12px)" },
+          to: { opacity: "1", transform: "none" },
+        },
       },
       animation: {
         aurora: "aurora 18s ease-in-out infinite",
@@ -134,6 +138,7 @@ export default {
         "pulse-ring": "pulse-ring 3.2s ease-out infinite",
         marquee: "marquee 40s linear infinite",
         shimmer: "shimmer 6s linear infinite",
+        "page-in": "page-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both",
       },
     },
   },

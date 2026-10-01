@@ -1,13 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
 import { ArrowRight, Tv } from "lucide-react";
 
 /** Animated empty state for the Continue Watching row. */
 const EmptyUpNext = () => {
-  const reduceMotion = useReducedMotion();
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
@@ -16,11 +14,7 @@ const EmptyUpNext = () => {
       className="mx-4 my-8 flex flex-col items-center justify-center gap-5 overflow-hidden rounded-3xl border border-white/[0.07] bg-white/[0.03] px-6 py-16 text-center md:mx-6"
     >
       <motion.span
-        animate={
-          reduceMotion
-            ? undefined
-            : { scale: [1, 1.06, 1], rotate: [0, -3, 3, 0] }
-        }
+        animate={{ scale: [1, 1.06, 1], rotate: [0, -3, 3, 0] }}
         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
         className="flex size-16 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] shadow-inset"
       >

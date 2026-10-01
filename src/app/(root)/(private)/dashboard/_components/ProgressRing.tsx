@@ -1,7 +1,7 @@
 "use client";
 
 import { useId } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
 
 /**
  * Circular progress ring with a soft gold gradient. Pure SVG + framer-motion so
@@ -16,7 +16,6 @@ const ProgressRing = ({
   label: string;
   sub: string;
 }) => {
-  const reduceMotion = useReducedMotion();
   // React ids contain colons, which break `url(#id)` references in SVG — strip them.
   const gradientId = `ring-${useId().replace(/:/g, "")}`;
   const clamped = Math.max(0, Math.min(100, percent));
@@ -58,7 +57,7 @@ const ProgressRing = ({
               type: "spring",
               stiffness: 80,
               damping: 20,
-              delay: reduceMotion ? 0 : 0.2,
+              delay: 0.2,
             }}
           />
         </svg>

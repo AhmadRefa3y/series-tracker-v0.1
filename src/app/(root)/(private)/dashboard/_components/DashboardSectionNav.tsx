@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
 
 import { cn } from "@/lib/utils";
 
@@ -20,7 +20,6 @@ const DashboardSectionNav = ({
 }: {
   sections: DashboardSection[];
 }) => {
-  const reduceMotion = useReducedMotion();
   // Rendered with every section first so the rail reserves its space (no
   // layout shift), then narrowed to the sections that actually exist.
   const [visibleSections, setVisibleSections] =
@@ -82,11 +81,7 @@ const DashboardSectionNav = ({
                 <motion.span
                   layoutId="dashboard-tab-pill"
                   className="absolute inset-0 rounded-full bg-primaryColor shadow-gold"
-                  transition={
-                    reduceMotion
-                      ? { duration: 0 }
-                      : { type: "spring", stiffness: 320, damping: 30 }
-                  }
+                  transition={{ type: "spring", stiffness: 320, damping: 30 }}
                 />
               )}
               <span className="relative z-10">{section.label}</span>

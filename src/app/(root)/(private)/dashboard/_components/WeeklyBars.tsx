@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
 import { format } from "date-fns";
 
 /**
@@ -8,7 +8,6 @@ import { format } from "date-fns";
  * Bars scale against the busiest day; quiet days get a minimum stub.
  */
 const WeeklyBars = ({ data }: { data: number[] }) => {
-  const reduceMotion = useReducedMotion();
   const peak = Math.max(1, ...data);
 
   // Weekday labels for the 7-day window ending today, e.g. [M, T, W, T, F, S, S]
@@ -60,7 +59,7 @@ const WeeklyBars = ({ data }: { data: number[] }) => {
                 type: "spring",
                 stiffness: 200,
                 damping: 26,
-                delay: reduceMotion ? 0 : 0.25 + index * 0.05,
+                delay: 0.25 + index * 0.05,
               }}
             />
             <span className="text-[9px] font-semibold uppercase text-white/35">

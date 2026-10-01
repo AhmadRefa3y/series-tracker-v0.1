@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   Check,
   Eye,
@@ -57,7 +57,6 @@ const SeriesData = ({
   hideWhenComplete = false,
 }: SeriesDataProps) => {
   const router = useRouter();
-  const reduceMotion = useReducedMotion();
 
   const [nextEpisodes, setNextEpisodes] = useState(initialNextEpisodes);
   const [watchedEpisodes, setWatchedEpisodes] = useState(initWatchedEpisodes);
@@ -342,7 +341,7 @@ const SeriesData = ({
         {isCompleted && status !== "DROPPED" && (
           <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/60 backdrop-blur-[1px]">
             <motion.span
-              initial={reduceMotion ? false : { scale: 0.6, opacity: 0 }}
+              initial={{ scale: 0.6, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
               className="flex flex-col items-center gap-1 text-primaryColor"
@@ -484,7 +483,7 @@ const SeriesData = ({
               ? `Mark S${currentEpisode.season_number}E${currentEpisode.episode_number} watched`
               : "No episodes left"
           }
-          whileTap={reduceMotion ? undefined : { scale: 0.95 }}
+          whileTap={{ scale: 0.95 }}
           className={cn(
             "flex flex-1 items-center justify-center gap-1.5 py-2 text-[12px] font-bold text-primaryColor transition-colors duration-200 hover:bg-primaryColor hover:text-secondaryColor",
             (isMarking || !currentEpisode || isCompleted || status === "DROPPED") &&
