@@ -23,10 +23,10 @@ const WeeklyBars = ({ data }: { data: number[] }) => {
   return (
     <div>
       <div className="mb-3 flex items-center justify-between">
-        <h3 className="text-[10px] font-bold uppercase tracking-widest text-white/40">
+        <h3 className="text-[10px] font-bold uppercase tracking-[0.16em] text-white/40">
           Last 7 days
         </h3>
-        <span className="text-[11px] font-semibold text-white/60">
+        <span className="rounded-full border border-white/[0.06] bg-white/[0.03] px-2 py-0.5 text-[10px] font-semibold text-white/55">
           {data.reduce((a, b) => a + b, 0)} episodes
         </span>
       </div>
@@ -47,9 +47,9 @@ const WeeklyBars = ({ data }: { data: number[] }) => {
               {count > 0 ? count : ""}
             </span>
             <motion.div
-              className={`w-full rounded-t-sm ${
+              className={`w-full rounded-t-md ${
                 count > 0
-                  ? "bg-gradient-to-t from-primaryColor/40 to-primaryColor"
+                  ? "bg-gradient-to-t from-gold-deep/50 via-primaryColor to-[#fde68a] shadow-[0_0_18px_-6px_rgba(252,211,77,0.6)]"
                   : "bg-white/[0.06]"
               }`}
               initial={{ height: 0 }}

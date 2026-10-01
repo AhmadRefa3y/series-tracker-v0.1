@@ -13,12 +13,13 @@ const Trending = async () => {
   }
 
   return (
-    <section className="py-6">
+    <section id="trending" className="scroll-mt-32 py-8">
       <div className="px-4 md:px-6">
         <SectionHeader
           title="Trending Now"
           loading={false}
-          icon={<Flame className="size-5 shrink-0 text-primaryColor" strokeWidth={2.25} />}
+          subtitle="The shows everyone is talking about this week"
+          icon={<Flame className="size-5" strokeWidth={2.25} />}
         />
       </div>
       <TrendingRow items={shows.results} />

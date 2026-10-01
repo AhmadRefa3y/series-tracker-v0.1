@@ -10,19 +10,24 @@ export const metadata = {
   title: "Home - Sennit",
   description: "Discover the latest and trending shows on Sennit.",
 };
+
 const HomePage = async () => {
   const session = await auth();
 
   if (session?.user?.id) {
     redirect("/dashboard");
   }
+
   return (
-    <div className="relative flex flex-col items-center justify-center bg-[#17141a] text-white  h-full ">
+    <div className="relative flex w-full flex-col items-center text-white">
       <Hero />
-      <div className="w-full max-w-7xl mx-auto px-6 py-12">
-        <Suspense fallback={<TopShowsSkeleton />}>
-          <TrendingShows />
-        </Suspense>
+
+      <div className="w-full">
+        <div className="container mx-auto px-4 py-16 sm:py-20 md:px-6">
+          <Suspense fallback={<TopShowsSkeleton />}>
+            <TrendingShows />
+          </Suspense>
+        </div>
       </div>
     </div>
   );

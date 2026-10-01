@@ -6,8 +6,8 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /**
- * Horizontal scroll row with hover arrows. Shared by Continue Watching and
- * History so both sections keep the exact same layout and behaviour.
+ * Horizontal scroll row with hover arrows and soft edge fades. Shared by
+ * every dashboard carousel so they behave and breathe identically.
  */
 const CarouselShell = ({
   children,
@@ -54,11 +54,35 @@ const CarouselShell = ({
     });
   };
 
+  const arrowClass = (enabled: boolean) =>
+    cn(
+      "absolute top-[38%] z-20 hidden size-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-black/55 text-white shadow-lift backdrop-blur-xl transition-all duration-300 hover:border-primaryColor/50 hover:bg-primaryColor hover:text-secondaryColor md:flex",
+      enabled
+        ? "opacity-0 group-hover/carousel:opacity-100"
+        : "pointer-events-none opacity-0"
+    );
+
   return (
-    <div className="group/carousel relative mt-4">
+    <div className="group/carousel relative mt-5">
+      {/* Edge fades hint that the row keeps going. */}
+      <div
+        aria-hidden
+        className={cn(
+          "pointer-events-none absolute inset-y-0 left-0 z-10 w-12 bg-gradient-to-r from-ink-900 to-transparent transition-opacity duration-300",
+          canScrollLeft ? "opacity-100" : "opacity-0"
+        )}
+      />
+      <div
+        aria-hidden
+        className={cn(
+          "pointer-events-none absolute inset-y-0 right-0 z-10 w-12 bg-gradient-to-l from-ink-900 to-transparent transition-opacity duration-300",
+          canScrollRight ? "opacity-100" : "opacity-0"
+        )}
+      />
+
       <div
         ref={scrollerRef}
-        className="no-scrollbar flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth px-4 pb-2 md:px-6"
+        className="no-scrollbar scroll-native flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth px-4 pb-3 pt-1 md:px-6"
       >
         {children}
       </div>
@@ -67,12 +91,7 @@ const CarouselShell = ({
         type="button"
         aria-label="Scroll left"
         onClick={() => scrollByPage(-1)}
-        className={cn(
-          "absolute left-2 top-[35%] z-10 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/70 text-white shadow-xl ring-1 ring-white/10 backdrop-blur-md transition-all duration-200 hover:bg-primaryColor hover:text-secondaryColor md:flex",
-          canScrollLeft
-            ? "opacity-0 group-hover/carousel:opacity-100"
-            : "pointer-events-none opacity-0"
-        )}
+        className={cn("left-3", arrowClass(canScrollLeft))}
       >
         <ChevronLeft className="size-5" />
       </button>
@@ -81,12 +100,7 @@ const CarouselShell = ({
         type="button"
         aria-label="Scroll right"
         onClick={() => scrollByPage(1)}
-        className={cn(
-          "absolute right-2 top-[35%] z-10 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/70 text-white shadow-xl ring-1 ring-white/10 backdrop-blur-md transition-all duration-200 hover:bg-primaryColor hover:text-secondaryColor md:flex",
-          canScrollRight
-            ? "opacity-0 group-hover/carousel:opacity-100"
-            : "pointer-events-none opacity-0"
-        )}
+        className={cn("right-3", arrowClass(canScrollRight))}
       >
         <ChevronRight className="size-5" />
       </button>

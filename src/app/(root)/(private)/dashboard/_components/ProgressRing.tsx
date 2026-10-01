@@ -1,10 +1,11 @@
 "use client";
 
+import { useId } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 
 /**
- * Circular progress ring, Trakt-profile style. Pure SVG + framer-motion so it
- * animates in without any chart dependency.
+ * Circular progress ring with a soft gold gradient. Pure SVG + framer-motion so
+ * it animates in without any chart dependency.
  */
 const ProgressRing = ({
   percent,
@@ -16,6 +17,8 @@ const ProgressRing = ({
   sub: string;
 }) => {
   const reduceMotion = useReducedMotion();
+  // React ids contain colons, which break `url(#id)` references in SVG — strip them.
+  const gradientId = `ring-${useId().replace(/:/g, "")}`;
   const clamped = Math.max(0, Math.min(100, percent));
 
   // SVG circle progress math: circumference of r=34 circle.
@@ -23,9 +26,15 @@ const ProgressRing = ({
   const offset = circumference * (1 - clamped / 100);
 
   return (
-    <div className="flex flex-col items-center gap-2">
+    <div className="flex flex-col items-center gap-2.5">
       <div className="relative size-24">
         <svg viewBox="0 0 80 80" className="size-full -rotate-90">
+          <defs>
+            <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#fde68a" />
+              <stop offset="100%" stopColor="#e0a92a" />
+            </linearGradient>
+          </defs>
           <circle
             cx="40"
             cy="40"
@@ -39,7 +48,7 @@ const ProgressRing = ({
             cy="40"
             r="34"
             fill="none"
-            stroke="#fcd34d"
+            stroke={`url(#${gradientId})`}
             strokeWidth="7"
             strokeLinecap="round"
             strokeDasharray={circumference}
@@ -53,15 +62,15 @@ const ProgressRing = ({
             }}
           />
         </svg>
-        <span className="absolute inset-0 flex items-center justify-center text-lg font-black text-white">
+        <span className="absolute inset-0 flex items-center justify-center text-xl font-black tracking-tight text-white">
           {clamped}%
         </span>
       </div>
       <div className="text-center">
-        <div className="text-[11px] font-bold uppercase tracking-wide text-white/70">
+        <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-white/70">
           {label}
         </div>
-        <div className="text-[10px] text-white/35">{sub}</div>
+        <div className="mt-0.5 text-[10px] text-white/35">{sub}</div>
       </div>
     </div>
   );

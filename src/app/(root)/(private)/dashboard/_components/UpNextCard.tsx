@@ -310,8 +310,8 @@ const UpNextCard = ({
   };
 
   return (
-    <article className="group/card relative w-[300px] shrink-0 sm:w-[340px]">
-      <div className="relative aspect-video overflow-hidden rounded-lg bg-[#1d1922] ring-1 ring-white/[0.06] transition-all duration-300 group-hover/card:ring-primaryColor/40">
+    <article className="group/card relative w-[280px] shrink-0 sm:w-[320px]">
+      <div className="card-lift relative aspect-video overflow-hidden rounded-2xl border border-white/[0.07] bg-ink-600 shadow-lift group-hover/card:-translate-y-1.5 group-hover/card:scale-[1.01] group-hover/card:border-primaryColor/40 group-hover/card:shadow-gold">
         {/* Episode slide — old episode slides out, next slides in */}
         <div className="absolute inset-0">
           <AnimatePresence initial={false} custom={slideDir} mode="popLayout">
@@ -336,10 +336,10 @@ const UpNextCard = ({
                   alt={currentEpisode.name || item.title}
                   fill
                   preload={preload}
-                  sizes="(max-width: 640px) 300px, 340px"
-                  className="object-cover transition-transform duration-500 group-hover/card:scale-[1.03]"
+                  sizes="(max-width: 640px) 280px, 320px"
+                  className="object-cover transition-transform duration-700 group-hover/card:scale-105"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-ink-950/85 via-ink-950/5 to-transparent" />
               </motion.div>
             ) : (
               <motion.div
@@ -347,7 +347,7 @@ const UpNextCard = ({
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-[#1d1922]"
+                className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-ink-600"
               >
                 <EyeOff className="size-5 text-white/30" />
                 <p className="text-xs text-white/40">No upcoming episodes</p>
@@ -392,7 +392,7 @@ const UpNextCard = ({
               animate={{ opacity: 0 }}
               whileHover={{ opacity: 1 }}
             >
-              <span className="flex size-12 items-center justify-center rounded-full bg-black/60 backdrop-blur-md ring-1 ring-white/20">
+              <span className="flex size-14 items-center justify-center rounded-full border border-white/25 bg-black/50 backdrop-blur-xl">
                 <Play className="size-5 translate-x-0.5 text-white" />
               </span>
             </motion.div>
@@ -401,7 +401,7 @@ const UpNextCard = ({
 
         {item.imdbRating && (
           <span
-            className="pointer-events-none absolute left-1.5 top-1.5 z-20 flex items-center gap-1.5 rounded-md bg-black/75 px-2 py-1 text-[11px] font-bold text-white backdrop-blur-sm"
+            className="pointer-events-none absolute left-2 top-2 z-20 flex items-center gap-1.5 rounded-full border border-white/10 bg-black/70 px-2 py-1 text-[11px] font-bold text-white backdrop-blur-md"
             title={`IMDb ${item.imdbRating}`}
           >
             <svg
@@ -418,7 +418,7 @@ const UpNextCard = ({
 
         {/* Runtime + remaining chips */}
         {currentEpisode && (currentEpisode.runtime || episodesLeft > 0) && (
-          <div className="pointer-events-none absolute inset-x-1.5 bottom-1.5 z-20 flex items-center justify-between gap-2 rounded-md bg-black/80 px-2.5 py-1.5 backdrop-blur-sm">
+          <div className="pointer-events-none absolute inset-x-2 bottom-2 z-20 flex items-center justify-between gap-2 rounded-lg border border-white/[0.08] bg-black/65 px-2.5 py-1.5 backdrop-blur-md">
             <span className="text-xs font-semibold text-white">
               {currentEpisode.runtime
                 ? formatDuration(currentEpisode.runtime)
@@ -440,14 +440,14 @@ const UpNextCard = ({
             <button
               type="button"
               aria-label="Episode options"
-              className="absolute right-1.5 top-1.5 z-30 flex size-7 items-center justify-center rounded-md text-white/90 transition-colors duration-200 hover:bg-black/50 hover:text-white"
+              className="absolute right-2 top-2 z-30 flex size-8 items-center justify-center rounded-full border border-transparent text-white/90 transition-colors duration-200 hover:border-white/10 hover:bg-black/60 hover:text-white"
             >
               <MoreVertical className="size-4" />
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent
             align="end"
-            className="min-w-[12rem] border-white/10 bg-[#1d1922] text-white"
+            className="min-w-[12rem] border-white/10 bg-ink-700 text-white"
           >
             <DropdownMenuItem
               onClick={handleMarkWatched}
@@ -519,10 +519,10 @@ const UpNextCard = ({
         {current.totalEpisodes > 0 && (
           <div
             aria-hidden
-            className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-[3px] bg-black/60"
+            className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-1 bg-black/60"
           >
             <motion.div
-              className="h-full bg-primaryColor"
+              className="h-full rounded-r-full bg-gradient-to-r from-gold-deep via-primaryColor to-[#fde68a]"
               initial={false}
               animate={{ width: `${progressPct}%` }}
               transition={{ type: "spring", stiffness: 120, damping: 20 }}
@@ -532,9 +532,9 @@ const UpNextCard = ({
       </div>
 
       {/* Title + mark button */}
-      <div className="mt-2.5 flex items-start justify-between gap-3">
+      <div className="mt-3 flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <h3 className="truncate text-[15px] font-bold leading-tight text-white">
+          <h3 className="truncate text-[15px] font-semibold leading-tight tracking-tight text-white">
             {item.title}
           </h3>
           <AnimatePresence mode="wait" initial={false}>
@@ -548,7 +548,7 @@ const UpNextCard = ({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -6 }}
               transition={{ duration: 0.18 }}
-              className="mt-1 truncate text-[13px] text-white/50"
+              className="mt-1 truncate text-[13px] text-white/45"
             >
               {currentEpisode
                 ? formatEpisodeLabel(currentEpisode)
@@ -570,7 +570,7 @@ const UpNextCard = ({
           aria-label="Mark episode as watched"
           whileTap={reduceMotion ? undefined : { scale: 0.86 }}
           className={cn(
-            "flex size-8 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-primaryColor transition-colors duration-200 hover:bg-primaryColor hover:text-secondaryColor",
+            "flex size-9 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/[0.05] text-primaryColor shadow-inset transition-all duration-200 hover:border-primaryColor/60 hover:bg-primaryColor hover:text-secondaryColor hover:shadow-gold",
             (isMarking || !currentEpisode) && "cursor-not-allowed opacity-50"
           )}
         >

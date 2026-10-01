@@ -11,7 +11,7 @@ export async function Header() {
   const session = await auth();
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-white/5 bg-[#17141a]/85 text-neutralColor backdrop-blur-xl">
+    <header className="sticky top-0 z-50 w-full border-b border-white/[0.06] bg-ink-900/70 text-neutralColor shadow-[0_1px_0_0_rgba(255,255,255,0.04),0_18px_40px_-30px_rgba(0,0,0,0.9)] backdrop-blur-2xl">
       <div className="mx-auto flex h-16 w-full max-w-7xl items-center gap-3 px-4 md:gap-6 md:px-6">
         <Link
           href="/"

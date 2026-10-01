@@ -1,4 +1,4 @@
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ChevronDown, Play, Sparkles } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -13,101 +13,112 @@ const HeroBgImages = [
   "https://occ-0-6661-56.1.nflxso.net/dnm/api/v6/Z-WHgqd_TeJxSuha8aZ5WpyLcX8/AAAABZ_2jVFGcYWPbW8-ffPxk8BjLVruP0FUW1fGzC6nRXmHDvfD_rP5i9q70pl4HDCvy5NAk-jlwKs8WchMBlGCtzlckWfzl_h9XFtk.webp?r=b86",
 ];
 
+const Dot = () => (
+  <span aria-hidden className="size-1 rounded-full bg-white/25" />
+);
+
 export default function Hero() {
+  // Picked once on the server so the markup is stable — no hydration mismatch.
+  const backdrop =
+    HeroBgImages[Math.floor(Math.random() * HeroBgImages.length)];
+
   return (
-    <div className="relative w-full  flex flex-col  h-screen">
-      {/* Background Image */}
-      <div className="absolute inset-0">
+    <section className="relative isolate -mt-16 flex min-h-[100svh] w-full flex-col overflow-hidden pt-16">
+      {/* Cinematic backdrop + depth layers */}
+      <div aria-hidden className="absolute inset-0 -z-10">
         <Image
-          src={HeroBgImages[Math.floor(Math.random() * HeroBgImages.length)]}
-          alt="Dramatic landscape with silhouettes"
+          src={backdrop}
+          alt=""
           fill
-          className="object-cover"
-          priority
+          preload
+          sizes="100vw"
+          className="scale-105 object-cover object-center"
         />
-        {/* Overlay for better text readability */}
-        <div className="absolute inset-0 bg-black/50" />
+        <div className="absolute inset-0 bg-ink-950/60" />
+        <div className="absolute inset-0 bg-gradient-to-b from-ink-900/70 via-ink-900/40 to-ink-900" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(7,7,10,0.75)_100%)]" />
+        <div className="absolute inset-0 grain opacity-[0.06]" />
+        <div className="absolute -top-24 left-1/2 h-[30rem] w-[50rem] -translate-x-1/2 rounded-full bg-primaryColor/[0.08] blur-[130px] motion-safe:animate-aurora" />
+        <div className="absolute bottom-[-12rem] right-[-6rem] h-[28rem] w-[28rem] rounded-full bg-[#8b5cf6]/[0.08] blur-[130px]" />
       </div>
-      <div className="absolute inset-0">
-        {[...Array(20)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute w-1 h-1 bg-amber-300/30 rounded-full animate-pulse"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 4}s`,
-              animationDuration: `${3 + Math.random() * 2}s`,
-            }}
-          />
-        ))}
-      </div>
-      <div className="absolute top-20 right-16 animate-pulse">
-        <svg width="40" height="20" viewBox="0 0 40 20">
-          <path
-            d="M5,10 Q15,5 25,10 Q30,8 35,12 Q30,15 25,12 Q15,18 5,12 Q10,8 5,10 Z"
-            fill="black"
-            opacity="0.8"
-          />
-        </svg>
-      </div>
-      <div
-        className="absolute top-32 right-8 animate-pulse"
-        style={{ animationDelay: "1s" }}
-      >
-        <svg width="35" height="18" viewBox="0 0 35 18">
-          <path
-            d="M3,9 Q12,4 22,9 Q27,7 32,11 Q27,14 22,11 Q12,16 3,11 Q8,7 3,9 Z"
-            fill="black"
-            opacity="0.6"
-          />
-        </svg>
-      </div>
-      {/* Content */}
-      <div className="relative z-10 flex flex-1 items-center justify-center px-4">
-        <div className="text-center max-w-4xl mx-auto">
-          {/* Logo */}
-          <div className="flex flex-col items-center justify-center  mb-8 ">
-            <div className="relative">
-              <div className="absolute w-[100px] h-[110px] rounded-sm z-0 left-[40%] -translate-x-1/2 top-[45%] -translate-y-1/2 skew-x-[27deg] bg-gradient-to-br from-red-500 via-rose-500 to-orange-400 blur-xl opacity-60 animate-pulse shadow-2xl"></div>
-              <div>
-                <Image
-                  src="/logo.png"
-                  alt="logo"
-                  width={200}
-                  height={200}
-                  className="z-10 relative"
-                />
-              </div>
-            </div>
-          </div>
 
-          {/* Main Headline */}
-          <h2 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
-            <span className="text-primaryColor">Discover.</span>{" "}
-            <span>Track.</span>{" "}
-            <span className="text-primaryColor">Share.</span>
-          </h2>
+      <div className="relative mx-auto flex w-full max-w-6xl flex-1 flex-col items-center justify-center px-4 py-24 text-center">
+        <span className="animate-fadeIn flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-white/70 opacity-0 backdrop-blur-xl">
+          <Sparkles className="size-3.5 text-primaryColor" strokeWidth={2.5} />
+          Your shows · your stats · your taste
+        </span>
 
-          {/* Description */}
-          <p className="text-lg md:text-xl text-white/90 mb-8 max-w-3xl mx-auto leading-relaxed">
-            <span className="font-semibold ">Discover</span> what&#39;s hot and
-            where to stream it. <span className="font-semibold ">Track</span>{" "}
-            shows and movies you watch.{" "}
-            <span className="font-semibold ">Share</span> comments,
-            recommendations, and ratings.
-          </p>
+        <div
+          className="animate-fadeIn relative mt-8 opacity-0"
+          style={{ animationDelay: "0.1s" }}
+        >
+          <span
+            aria-hidden
+            className="absolute left-1/2 top-1/2 h-28 w-28 -translate-x-1/2 -translate-y-1/2 rotate-[27deg] rounded-3xl bg-gradient-to-br from-red-500 via-rose-500 to-orange-400 opacity-50 blur-2xl"
+          />
+          <Image
+            src="/logo.png"
+            alt="Sennit"
+            width={180}
+            height={180}
+            className="relative h-28 w-auto object-contain sm:h-32"
+          />
+        </div>
 
-          {/* CTA Button */}
+        <h1
+          className="animate-fadeIn mt-6 max-w-4xl text-balance text-5xl font-bold leading-[1.05] tracking-tight text-white opacity-0 sm:text-6xl lg:text-7xl"
+          style={{ animationDelay: "0.2s" }}
+        >
+          <span className="gold-text">Discover.</span> Track.{" "}
+          <span className="gold-text">Share.</span>
+        </h1>
+
+        <p
+          className="animate-fadeIn mt-6 max-w-2xl text-base leading-relaxed text-white/65 opacity-0 sm:text-lg"
+          style={{ animationDelay: "0.3s" }}
+        >
+          Find what&apos;s hot and where to stream it. Track every episode you
+          watch, and turn your viewing into beautiful, shareable stats.
+        </p>
+
+        <div
+          className="animate-fadeIn mt-9 flex w-full flex-col items-center justify-center gap-3 opacity-0 sm:w-auto sm:flex-row"
+          style={{ animationDelay: "0.4s" }}
+        >
           <Link
             href="/sign-up"
-            className="bg-primaryColor text-secondaryColor hover:text-neutralColor hover:bg-secondaryColor   font-semibold px-8 py-4 text-lg rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 flex w-fit mx-auto items-center justify-center"
+            className="group inline-flex w-full items-center justify-center gap-2 rounded-full bg-primaryColor px-7 py-3.5 text-sm font-bold text-secondaryColor shadow-gold transition-transform duration-200 hover:scale-[1.03] sm:w-auto sm:text-base"
           >
-            JOIN SEENIT FOR FREE
-            <ArrowRight className="ml-2 w-5 h-5" />
+            Join Sennit — it&apos;s free
+            <ArrowRight className="size-5 transition-transform duration-300 group-hover:translate-x-0.5" />
+          </Link>
+          <Link
+            href="/shows"
+            className="group/ghost inline-flex w-full items-center justify-center gap-2 rounded-full border border-white/[0.12] bg-white/[0.05] px-6 py-3.5 text-sm font-semibold text-white/85 backdrop-blur-xl transition-colors duration-300 hover:border-white/25 hover:bg-white/[0.1] hover:text-white sm:w-auto sm:text-base"
+          >
+            <Play className="size-4 fill-current" />
+            Explore shows
           </Link>
         </div>
+
+        <div
+          className="animate-fadeIn mt-10 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/35 opacity-0"
+          style={{ animationDelay: "0.5s" }}
+        >
+          <span>Free forever</span>
+          <Dot />
+          <span>Track shows &amp; movies</span>
+          <Dot />
+          <span>Deep stats</span>
+        </div>
       </div>
-    </div>
+
+      <div className="relative flex justify-center pb-10">
+        <span className="flex flex-col items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-white/30 motion-safe:animate-float">
+          Scroll
+          <ChevronDown className="size-4" />
+        </span>
+      </div>
+    </section>
   );
 }

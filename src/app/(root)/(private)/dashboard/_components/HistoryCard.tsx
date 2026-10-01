@@ -35,7 +35,7 @@ const formatWatchedAt = (date: Date) => {
 
 const HistoryCard = ({
   item,
-  sizes = "(max-width: 640px) 272px, 300px",
+  sizes = "(max-width: 640px) 280px, 320px",
 }: {
   item: WatchHistoryItem;
   sizes?: string;
@@ -54,7 +54,7 @@ const HistoryCard = ({
         <Link
           href={href}
           aria-label={`${item.seriesTitle} ${episodeLabel}`}
-          className="relative block aspect-video overflow-hidden rounded-lg bg-[#17141a]"
+          className="card-lift relative block aspect-video overflow-hidden rounded-2xl border border-white/[0.07] bg-ink-600 shadow-lift group-hover/card:-translate-y-1.5 group-hover/card:scale-[1.01] group-hover/card:border-primaryColor/40 group-hover/card:shadow-gold"
         >
           {image ? (
             <Image
@@ -62,7 +62,7 @@ const HistoryCard = ({
               alt={item.seriesTitle}
               fill
               sizes={sizes}
-              className="object-cover transition-transform duration-500 group-hover/card:scale-105"
+              className="object-cover transition-transform duration-700 group-hover/card:scale-105"
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center bg-white/5">
@@ -70,7 +70,7 @@ const HistoryCard = ({
             </div>
           )}
 
-          <div className="pointer-events-none absolute inset-x-1.5 bottom-1.5 z-20 flex items-center justify-between gap-2 rounded-md bg-black/80 px-2.5 py-1.5 backdrop-blur-sm">
+          <div className="pointer-events-none absolute inset-x-2 bottom-2 z-20 flex items-center justify-between gap-2 rounded-lg border border-white/[0.08] bg-black/65 px-2.5 py-1.5 backdrop-blur-md">
             <span className="text-xs font-semibold text-white">{runtime}</span>
             <span className="text-xs text-white/90">
               {formatWatchedAt(item.watchedAt)}
@@ -90,11 +90,11 @@ const HistoryCard = ({
         </div>
       </div>
 
-      <div className="mt-2.5 min-w-0">
-        <h3 className="truncate text-[15px] font-bold leading-tight text-white">
+      <div className="mt-3 min-w-0">
+        <h3 className="truncate text-[15px] font-semibold leading-tight tracking-tight text-white">
           {item.seriesTitle}
         </h3>
-        <p className="mt-1 truncate text-[13px] text-white/50">
+        <p className="mt-1 truncate text-[13px] text-white/45">
           {episodeLabel}
         </p>
       </div>

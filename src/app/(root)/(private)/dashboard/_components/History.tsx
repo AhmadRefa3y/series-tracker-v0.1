@@ -1,15 +1,14 @@
-import Link from "next/link";
-
-import { getWatchHistory } from "@/app/(root)/(private)/dashboard/DashbaordData";
-import { SectionHeader } from "@/app/(root)/(private)/dashboard/_components/UpNextSkeleton";
-import CarouselShell from "./CarouselShell";
-import HistoryCard from "./HistoryCard";
 import {
   format,
   isSameDay,
   isToday,
   isYesterday,
 } from "date-fns";
+
+import { getWatchHistory } from "@/app/(root)/(private)/dashboard/DashbaordData";
+import { SectionHeader } from "@/app/(root)/(private)/dashboard/_components/UpNextSkeleton";
+import CarouselShell from "./CarouselShell";
+import HistoryCard from "./HistoryCard";
 
 const HISTORY_LIMIT = 14;
 
@@ -41,21 +40,26 @@ const History = async () => {
   }
 
   return (
-    <section className="py-6">
+    <section id="history" className="scroll-mt-32 py-8">
       <div className="px-4 md:px-6">
-        <SectionHeader title="History" loading={false} href="/history" />
+        <SectionHeader
+          title="History"
+          loading={false}
+          href="/history"
+          actionLabel="Full history"
+          subtitle="Everything you've watched, newest first"
+        />
       </div>
 
-      <div className="mt-4 space-y-5 px-4 md:px-6">
+      <div className="mt-6 space-y-7 px-4 md:px-6">
         {groups.map((group) => (
           <div key={group.label}>
-            {/* Day divider — Trakt history style (CarouselShell adds mt-4) */}
             <div className="flex items-center gap-3">
-              <span className="text-[11px] font-bold uppercase tracking-widest text-white/40">
+              <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-white/40">
                 {group.label}
               </span>
-              <span className="h-px flex-1 bg-white/[0.07]" />
-              <span className="text-[10px] font-semibold text-white/30">
+              <span className="h-px flex-1 bg-gradient-to-r from-white/10 to-transparent" />
+              <span className="rounded-full border border-white/[0.06] bg-white/[0.03] px-2.5 py-0.5 text-[10px] font-semibold text-white/40">
                 {group.items.length} episode{group.items.length === 1 ? "" : "s"}
               </span>
             </div>
@@ -64,7 +68,7 @@ const History = async () => {
               {group.items.map((item) => (
                 <div
                   key={item.id}
-                  className="w-[272px] shrink-0 snap-start sm:w-[300px]"
+                  className="w-[280px] shrink-0 snap-start sm:w-[320px]"
                 >
                   <HistoryCard item={item} />
                 </div>

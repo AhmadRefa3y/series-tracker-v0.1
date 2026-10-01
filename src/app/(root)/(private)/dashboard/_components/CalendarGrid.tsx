@@ -47,7 +47,7 @@ const EpisodeCard = ({
 
   return (
     <motion.article
-      className="w-[272px] shrink-0 snap-start sm:w-[300px]"
+      className="w-[280px] shrink-0 snap-start sm:w-[320px]"
       initial={{ opacity: 0, y: 18 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{
@@ -59,7 +59,7 @@ const EpisodeCard = ({
       }}
     >
       <Link href={href} className="group block">
-        <div className="relative aspect-video overflow-hidden rounded-lg bg-[#1d1922] ring-1 ring-white/[0.06] transition-all duration-300 group-hover:ring-primaryColor/40">
+        <div className="card-lift relative aspect-video overflow-hidden rounded-2xl border border-white/[0.07] bg-ink-600 shadow-lift group-hover:-translate-y-1.5 group-hover:scale-[1.01] group-hover:border-primaryColor/40 group-hover:shadow-gold">
           <Image
             src={
               item.stillUrl ??
@@ -68,14 +68,14 @@ const EpisodeCard = ({
             }
             alt={item.name || item.title}
             fill
-            sizes="(max-width: 640px) 272px, 300px"
-            className="object-cover transition-transform duration-300 group-hover:scale-[1.04]"
+            sizes="(max-width: 640px) 280px, 320px"
+            className="object-cover transition-transform duration-700 group-hover:scale-105"
           />
 
           {/* Air time chip */}
           <span
             className={cn(
-              "absolute left-1.5 top-1.5 z-20 rounded-md px-2 py-1 text-[11px] font-bold backdrop-blur-sm",
+              "absolute left-2 top-2 z-20 rounded-full px-2.5 py-1 text-[11px] font-bold backdrop-blur-md",
               isToday(parseISO(item.airDate))
                 ? "bg-primaryColor text-secondaryColor"
                 : "bg-black/70 text-white"
@@ -85,7 +85,7 @@ const EpisodeCard = ({
           </span>
 
           {(item.runtime || item.voteAverage || item.imdbRating) && (
-            <div className="pointer-events-none absolute inset-x-1.5 bottom-1.5 z-20 flex items-center justify-between gap-2 rounded-md bg-black/80 px-2.5 py-1.5 backdrop-blur-sm">
+            <div className="pointer-events-none absolute inset-x-2 bottom-2 z-20 flex items-center justify-between gap-2 rounded-lg border border-white/[0.08] bg-black/65 px-2.5 py-1.5 backdrop-blur-md">
               <span className="text-xs font-semibold text-white">
                 {item.runtime ? formatRuntime(item.runtime) : ""}
               </span>
@@ -109,11 +109,11 @@ const EpisodeCard = ({
           )}
         </div>
 
-        <div className="mt-2.5">
-          <h3 className="truncate text-[15px] font-bold leading-tight text-white">
+        <div className="mt-3">
+          <h3 className="truncate text-[15px] font-semibold leading-tight tracking-tight text-white">
             {item.title}
           </h3>
-          <p className="mt-1 truncate text-[13px] text-white/50">
+          <p className="mt-1 truncate text-[13px] text-white/45">
             {episodeLabel}
             {item.name ? ` - ${item.name}` : ""}
           </p>
@@ -148,7 +148,7 @@ const CalendarGrid = ({ items }: { items: UpcomingEpisodeItem[] }) => {
           <div className="flex items-center gap-3 px-4 md:px-6">
             <span
               className={cn(
-                "text-[11px] font-bold uppercase tracking-widest",
+                "text-[11px] font-bold uppercase tracking-[0.18em]",
                 group.heading.startsWith("Today")
                   ? "text-primaryColor"
                   : "text-white/40"
@@ -156,8 +156,8 @@ const CalendarGrid = ({ items }: { items: UpcomingEpisodeItem[] }) => {
             >
               {group.heading}
             </span>
-            <span className="h-px flex-1 bg-white/[0.07]" />
-            <span className="text-[10px] font-semibold text-white/30">
+            <span className="h-px flex-1 bg-gradient-to-r from-white/10 to-transparent" />
+            <span className="rounded-full border border-white/[0.06] bg-white/[0.03] px-2.5 py-0.5 text-[10px] font-semibold text-white/40">
               {group.items.length} episode{group.items.length === 1 ? "" : "s"}
             </span>
           </div>

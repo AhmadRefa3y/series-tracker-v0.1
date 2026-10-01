@@ -30,9 +30,14 @@ const UpcomingEpisodes = async () => {
   }
 
   return (
-    <section className="py-6">
+    <section id="calendar" className="scroll-mt-32 py-8">
       <div className="px-4 md:px-6">
-        <SectionHeader title="Calendar" loading={false} icon={<CalendarDays className="size-5 shrink-0 text-primaryColor" strokeWidth={2.25} />} />
+        <SectionHeader
+          title="Calendar"
+          loading={false}
+          subtitle="Upcoming episodes from your watchlist"
+          icon={<CalendarDays className="size-5" strokeWidth={2.25} />}
+        />
       </div>
       <CalendarGrid items={data} />
     </section>

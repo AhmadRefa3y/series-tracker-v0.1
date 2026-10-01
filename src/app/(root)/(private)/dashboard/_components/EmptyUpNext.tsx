@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
-import { Tv } from "lucide-react";
+import { ArrowRight, Tv } from "lucide-react";
 
 /** Animated empty state for the Continue Watching row. */
 const EmptyUpNext = () => {
@@ -10,32 +10,38 @@ const EmptyUpNext = () => {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 14 }}
+      initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ type: "spring", stiffness: 220, damping: 24 }}
-      className="flex flex-col items-center justify-center gap-4 px-4 py-14 text-center text-white"
+      transition={{ type: "spring", stiffness: 220, damping: 26 }}
+      className="mx-4 my-8 flex flex-col items-center justify-center gap-5 overflow-hidden rounded-3xl border border-white/[0.07] bg-white/[0.03] px-6 py-16 text-center md:mx-6"
     >
       <motion.span
         animate={
           reduceMotion
             ? undefined
-            : { scale: [1, 1.08, 1], rotate: [0, -4, 4, 0] }
+            : { scale: [1, 1.06, 1], rotate: [0, -3, 3, 0] }
         }
-        transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
+        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+        className="flex size-16 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] shadow-inset"
       >
-        <Tv className="size-10 text-white/30" />
+        <Tv className="size-7 text-primaryColor" />
       </motion.span>
+
       <div>
-        <h2 className="text-xl font-bold">You&apos;re all caught up</h2>
-        <p className="mt-1 max-w-md text-sm text-white/50">
+        <h2 className="text-2xl font-bold tracking-tight text-white">
+          You&apos;re all caught up
+        </h2>
+        <p className="mt-2 max-w-md text-sm text-white/50">
           Start watching a show and your next episodes will appear here.
         </p>
       </div>
+
       <Link
         href="/shows"
-        className="rounded-lg bg-primaryColor px-5 py-2 text-sm font-semibold text-secondaryColor transition-transform duration-200 hover:scale-[1.03]"
+        className="group inline-flex items-center gap-2 rounded-full bg-primaryColor px-6 py-2.5 text-sm font-bold text-secondaryColor shadow-gold transition-transform duration-200 hover:scale-[1.03]"
       >
         Browse shows
+        <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-0.5" />
       </Link>
     </motion.div>
   );

@@ -53,6 +53,21 @@
     --chart-5: 27 87% 67%;
 
     --radius: 0.5rem;
+
+    /* Sennit premium surface ramp — deep, neutral-biased ink with a warm
+       gold accent. Kept as CSS vars so pages can opt into the darker canvas
+       without touching the legacy `--background` token. */
+    --ink-950: #07070a;
+    --ink-900: #0b0a0f;
+    --ink-800: #121018;
+    --ink-700: #17141a;
+    --ink-600: #1d1922;
+
+    --gold: #fcd34d;
+
+    /* Shared motion language: a soft, app-like ease used for UI transitions
+       that are not driven by framer-motion springs. */
+    --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
   }
   .dark {
     --background: 270 13% 9%;
@@ -132,6 +147,55 @@
   }
 }
 
+/* Slow drifting aurora used behind the cinematic hero. */
+@keyframes aurora {
+  0%,
+  100% {
+    transform: translate3d(-4%, -2%, 0) scale(1.05);
+    opacity: 0.55;
+  }
+  50% {
+    transform: translate3d(4%, 3%, 0) scale(1.18);
+    opacity: 0.85;
+  }
+}
+
+/* Gentle vertical float for decorative badges. */
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+/* Expanding ring pulse for the hero avatar halo. */
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.92);
+    opacity: 0.6;
+  }
+  70% {
+    transform: scale(1.35);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.35);
+    opacity: 0;
+  }
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
 .animate-fadeIn {
   animation: fadeIn 0.8s ease-out forwards;
 }
@@ -144,8 +208,24 @@
   * {
     @apply border-border;
   }
+  html {
+    scroll-behavior: smooth;
+    /* Clears the sticky header + dashboard tab rail when jumping to anchors. */
+    scroll-padding-top: 8rem;
+    -webkit-tap-highlight-color: transparent;
+  }
   body {
     @apply bg-background text-foreground;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  ::selection {
+    background: rgba(252, 211, 77, 0.3);
+    color: #fff;
+  }
+  :focus-visible {
+    outline: none;
   }
 }
 
@@ -162,21 +242,81 @@
     width: 6px;
   }
   .custom-scrollbar::-webkit-scrollbar-track {
-    background: #17141a;
+    background: transparent;
   }
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: #333;
+    background: rgba(255, 255, 255, 0.14);
     border-radius: 10px;
   }
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: #444;
+    background: rgba(255, 255, 255, 0.24);
+  }
+
+  /* ---- Premium surface system -------------------------------------- */
+
+  /* Frosted panel: the default raised surface across the redesigned pages. */
+  .glass {
+    @apply border border-white/[0.07] bg-white/[0.035] backdrop-blur-xl;
+  }
+  .glass-strong {
+    @apply border border-white/[0.09] bg-white/[0.06] backdrop-blur-2xl;
+  }
+  /* Inset top highlight that gives panels a soft, physical edge. */
+  .hairline {
+    box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.06);
+  }
+  /* Film-grain overlay for the cinematic hero. */
+  .grain {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.42'/%3E%3C/svg%3E");
+  }
+  /* Edge-to-edge fade that hints at more content in a scroll row. */
+  .fade-edge-r {
+    background: linear-gradient(
+      to left,
+      var(--ink-900) 0%,
+      rgba(11, 10, 15, 0) 100%
+    );
+  }
+  .gold-text {
+    background: linear-gradient(100deg, #fcd34d 0%, #fde68a 45%, #f5c451 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  /* Native-feeling momentum + contained scroll chaining on touch. */
+  .scroll-native {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+  }
+
+  /*
+   * Shared card hover motion. Explicit properties (not `transition-all`) so
+   * the lift/glow animates smoothly without dragging unrelated paint, and a
+   * soft eased curve so it reads as a native lift rather than a pop.
+   */
+  .card-lift {
+    transition-property: transform, box-shadow, border-color;
+    transition-duration: 320ms;
+    transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   @keyframes progress {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
   }
   .animate-progress {
     animation: progress 1.5s infinite linear;
   }
 }
+
+/*
+ * Reduced motion is handled per-effect rather than by nuking every transition:
+ * looping decorative animations use `motion-safe:` (aurora, float) and JS
+ * animations honour `useReducedMotion()`. A blanket `!important` override here
+ * would also break functional feedback (spinners, skeletons) and make hover
+ * states snap instead of easing.
+ */

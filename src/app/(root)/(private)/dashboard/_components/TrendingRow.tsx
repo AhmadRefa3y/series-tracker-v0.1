@@ -26,7 +26,7 @@ const TrendingCard = ({
 
   return (
     <motion.article
-      className="group/rank flex w-[152px] shrink-0 snap-start items-end sm:w-[168px]"
+      className="group/rank flex w-[158px] shrink-0 snap-start items-end sm:w-[176px]"
       initial={{ opacity: 0, y: 18 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{
@@ -47,8 +47,8 @@ const TrendingCard = ({
         {index + 1}
       </span>
 
-      <Link href={href} className="group block w-[112px] shrink-0 sm:w-[124px]" aria-label={show.name}>
-        <div className="relative aspect-[2/3] overflow-hidden rounded-lg bg-[#1d1922] ring-1 ring-white/[0.06] transition-all duration-300 group-hover:ring-primaryColor/50">
+      <Link href={href} className="group block w-[120px] shrink-0 sm:w-[132px]" aria-label={show.name}>
+        <div className="card-lift relative aspect-[2/3] overflow-hidden rounded-2xl border border-white/[0.07] bg-ink-600 shadow-lift group-hover:-translate-y-1.5 group-hover:scale-[1.02] group-hover:border-primaryColor/50 group-hover:shadow-gold">
           <Image
             src={
               show.poster_path
@@ -57,19 +57,19 @@ const TrendingCard = ({
             }
             alt={show.name}
             fill
-            sizes="124px"
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            sizes="132px"
+            className="object-cover transition-transform duration-700 group-hover:scale-105"
           />
 
           {/* Rating chip */}
-          <span className="absolute right-1.5 top-1.5 z-10 flex items-center gap-1 rounded-full bg-black/70 px-1.5 py-0.5 text-[11px] font-semibold text-white backdrop-blur-sm">
+          <span className="absolute right-2 top-2 z-10 flex items-center gap-1 rounded-full border border-white/10 bg-black/65 px-2 py-0.5 text-[11px] font-semibold text-white backdrop-blur-md">
             <Star className="size-3 fill-primaryColor text-primaryColor" />
             {show.vote_average.toFixed(1)}
           </span>
 
           {/* Bottom gradient with title, revealed more strongly on hover */}
-          <div className="absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-black/85 via-black/40 to-transparent px-2.5 pb-2 pt-8">
-            <h3 className="truncate text-[13px] font-bold text-white">
+          <div className="absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-ink-950/95 via-ink-950/45 to-transparent px-3 pb-2.5 pt-10">
+            <h3 className="truncate text-[13px] font-semibold tracking-tight text-white">
               {show.name}
             </h3>
             {year && <p className="text-[11px] text-white/60">{year}</p>}

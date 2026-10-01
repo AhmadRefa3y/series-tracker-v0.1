@@ -1,5 +1,4 @@
 import { redirect } from "next/navigation";
-import Link from "next/link";
 
 import { auth } from "@/auth";
 import { getUpNextSeries } from "@/app/(root)/(private)/dashboard/DashbaordData";
@@ -29,14 +28,15 @@ const UpNext = async () => {
   }
 
   return (
-    <section className="py-6">
+    <section id="continue-watching" className="scroll-mt-32 py-8">
       <div className="px-4 md:px-6">
-        <Link
+        <SectionHeader
+          title="Continue Watching"
+          loading={false}
           href="/watchlist"
-          className="inline-flex transition-opacity duration-200 hover:opacity-80"
-        >
-          <SectionHeader title="Continue Watching" loading={false} href="/watchlist" />
-        </Link>
+          actionLabel="Watchlist"
+          subtitle="Pick up exactly where you left off"
+        />
       </div>
       <UpNextCarousel items={data} />
     </section>
