@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
@@ -39,10 +38,6 @@ import {
 const STILL_BASE = "https://image.tmdb.org/t/p/w780";
 const POSTER_BASE = "https://image.tmdb.org/t/p/w500";
 
-/** Official IMDb logo (Simple Icons path, 24x24). */
-const IMDB_LOGO =
-  "M22.3781 0H1.6218C.7411.0583.0587.7437.0018 1.5953l-.001 20.783c.0585.8761.7125 1.543 1.5559 1.6191A.337.337 0 0 0 1.6016 24h20.7971a.4579.4579 0 0 0 .0437-.002c.8727-.0768 1.5568-.8271 1.5568-1.7085V1.7098c0-.8914-.696-1.6416-1.584-1.7078A.3294.3294 0 0 0 22.3781 0zm0 .496a1.2144 1.2144 0 0 1 1.1252 1.2139v20.5797c0 .6377-.4875 1.1602-1.1045 1.2145H1.6016c-.5967-.0543-1.0645-.5297-1.1053-1.1258V1.6284C.5371 1.0185 1.0184.5364 1.6217.496h20.7564zM4.7954 8.2603v7.3636H2.8899V8.2603h1.9055zm6.5367 0v7.3636H9.6707v-4.9704l-.6711 4.9704H7.813l-.6986-4.8618-.0066 4.8618h-1.668V8.2603h2.468c.0748.4476.1492.9694.2307 1.5734l.2712 1.8713.4407-3.4447h2.4817zm2.9772 1.3289c.0742.0404.122.108.1417.2034.0279.0953.0345.3118.0345.6442v2.8548c0 .4881-.0345.7867-.0955.8954-.0609.1152-.2304.1695-.5018.1695V9.5211c.204 0 .3457.0205.4211.0681zm-.0211 6.0347c.4543 0 .8006-.0265 1.0245-.0742.2304-.0477.4204-.1357.5694-.2648.1556-.1218.2642-.298.3251-.5219.0611-.2238.1021-.6648.1021-1.3224v-2.5832c0-.6986-.0271-1.1668-.0742-1.4039-.041-.237-.1431-.4543-.3126-.6437-.1695-.1973-.4198-.3324-.7456-.421-.3191-.0808-.8542-.1285-1.7694-.1285h-1.4244v7.3636h2.3051zm5.14-1.7827c0 .3523-.0199.5762-.0544.6708-.033.0947-.1894.1424-.3046.1424-.1086 0-.19-.0477-.2238-.1351-.041-.0887-.0609-.2986-.0609-.6238v-1.9469c0-.3324.0199-.5423.0543-.6237.0338-.0808.1086-.122.2171-.122.1153 0 .2709.0412.3114.1425.041.0947.0609.2986.0609.6032v1.8926zm-2.4747-5.5809v7.3636h1.7157l.1152-.4675c.1556.1894.3251.3324.5152.4271.1828.0881.4608.1357.678.1357.3047 0 .5629-.0748.7802-.237.2165-.1562.3589-.3462.4198-.5628.0543-.2173.0887-.543.0887-.9841v-2.0675c0-.4409-.0139-.7324-.0344-.8681-.0199-.1357-.0742-.2781-.1695-.4204-.1021-.1425-.2437-.251-.4272-.3325-.1834-.0742-.3999-.1152-.6576-.1152-.2172 0-.4952.0477-.6846.1285-.1835.0887-.353.2238-.5086.4007V8.2603h-1.8309z";
-
 const formatDuration = (minutes: number) => {
   const total = Math.max(0, Math.round(minutes));
   const hours = Math.floor(total / 60);
@@ -62,6 +57,52 @@ const formatEpisodeLabel = (episode: Episode) => {
   return episode.name ? `${prefix} - ${episode.name}` : prefix;
 };
 
+/**
+ * Artwork already decoded in this session. When the slide swaps to the next
+ * episode, the incoming still renders at full opacity on its very first frame
+ * — no fade-from-blank while the network image loads.
+ */
+const decodedStills = new Set<string>();
+
+/** The image a given next-episode renders (still art, else the series poster). */
+const episodeImageSrc = (episode: Episode | null, posterPath: string | null) =>
+  episode?.still_path
+    ? `${STILL_BASE}${episode.still_path}`
+    : posterPath
+      ? `${POSTER_BASE}${posterPath}`
+      : null;
+
+const FadeImage = ({
+  src,
+  alt,
+  preload,
+}: {
+  src: string;
+  alt: string;
+  preload: boolean;
+}) => {
+  // Start visible when we already have the bytes, so a swap never blinks.
+  const [loaded, setLoaded] = useState(() => decodedStills.has(src));
+
+  return (
+    <Image
+      src={src}
+      alt={alt}
+      fill
+      preload={preload}
+      sizes="(max-width: 640px) 268px, 308px"
+      onLoad={() => {
+        decodedStills.add(src);
+        setLoaded(true);
+      }}
+      className={cn(
+        "object-cover transition-opacity duration-300 ease-soft",
+        loaded ? "opacity-100" : "opacity-0"
+      )}
+    />
+  );
+};
+
 const UpNextCard = ({
   item,
   preload = false,
@@ -69,23 +110,57 @@ const UpNextCard = ({
   item: UpNextItem;
   preload?: boolean;
 }) => {
-  const router = useRouter();
-
   const [current, setCurrent] = useState(item);
   const [episodeIndex, setEpisodeIndex] = useState(0);
   const [slideDir, setSlideDir] = useState(1); // 1 = forward, -1 = undo.
   const [isMarking, setIsMarking] = useState(false);
   const [burstKey, setBurstKey] = useState(0);
+  // The prop snapshot we last reconciled, so we can detect server refreshes
+  // and fold them in during render (before paint) instead of in an effect.
+  const [syncedItem, setSyncedItem] = useState(item);
   const busy = useRef(false);
   const lastMarked = useRef<{
     seasonNumber: number;
     episodeNumber: number;
   } | null>(null);
 
-  // Sync when the server sends genuinely new data (initial load / HMR).
-  useEffect(() => {
+  /**
+   * Index of the first episode that comes after the last episode we marked.
+   * When the server refreshes after a mark, its list already starts at the next
+   * episode, so this returns 0. If a stale list still contains the marked
+   * episode, it skips past it — the card can only ever move forward, never
+   * flash back to the episode the user just watched.
+   */
+  const indexAfterLastMark = (entry: UpNextItem) => {
+    const marked = lastMarked.current;
+    if (!marked) return 0;
+
+    let start = 0;
+    while (
+      start < entry.nextEpisodes.length &&
+      (entry.nextEpisodes[start].season_number < marked.seasonNumber ||
+        (entry.nextEpisodes[start].season_number === marked.seasonNumber &&
+          entry.nextEpisodes[start].episode_number <= marked.episodeNumber))
+    ) {
+      start++;
+    }
+    // Never index past the list (that would briefly render the empty state on
+    // a stale refresh); keep the last available episode visible instead.
+    return entry.nextEpisodes.length > 0
+      ? Math.min(start, entry.nextEpisodes.length - 1)
+      : 0;
+  };
+
+  // Apply a refreshed server snapshot during render so React never commits a
+  // frame that pairs the new list with the old index. While a mark/unmark is
+  // in flight we hold the current episode steady — the refresh lands when the
+  // request finishes, so the next episode only appears once the button is done
+  // loading.
+  if (item !== syncedItem && !isMarking) {
+    setSyncedItem(item);
     setCurrent(item);
-  }, [item]);
+    setEpisodeIndex(indexAfterLastMark(item));
+  }
 
   const currentEpisode = current.nextEpisodes[episodeIndex] ?? null;
   const watchedOverall = current.watchedCount + episodeIndex;
@@ -113,6 +188,25 @@ const UpNextCard = ({
     ? `https://www.imdb.com/title/${current.imdbId}`
     : null;
 
+  const stillSrc = episodeImageSrc(currentEpisode, item.posterPath);
+
+  // Warm the next episode's artwork so the slide that follows a mark shows the
+  // new still instantly instead of flashing the card background.
+  const upcomingSrc = episodeImageSrc(
+    current.nextEpisodes[episodeIndex + 1] ?? null,
+    item.posterPath
+  );
+
+  useEffect(() => {
+    if (!upcomingSrc || decodedStills.has(upcomingSrc)) return;
+    const image = new window.Image();
+    image.onload = () => decodedStills.add(upcomingSrc);
+    image.src = upcomingSrc;
+    return () => {
+      image.onload = null;
+    };
+  }, [upcomingSrc]);
+
   /**
    * Apply a refreshed item from the server. Keeps the optimistic episodeIndex
    * consistent: skip past anything we already marked so a slow response can't
@@ -120,19 +214,7 @@ const UpNextCard = ({
    */
   const applyRefreshedItem = (fresh: UpNextItem) => {
     setCurrent(fresh);
-    const marked = lastMarked.current;
-    let start = 0;
-    if (marked) {
-      while (
-        start < fresh.nextEpisodes.length &&
-        (fresh.nextEpisodes[start].season_number < marked.seasonNumber ||
-          (fresh.nextEpisodes[start].season_number === marked.seasonNumber &&
-            fresh.nextEpisodes[start].episode_number <= marked.episodeNumber))
-      ) {
-        start++;
-      }
-    }
-    setEpisodeIndex(start);
+    setEpisodeIndex(indexAfterLastMark(fresh));
     busy.current = false;
   };
 
@@ -147,15 +229,15 @@ const UpNextCard = ({
       episodeNumber: episode.episode_number,
     };
 
-    // 1. Optimistic animation first — advance the card instantly so the UI
-    // never waits on the network. The slide, burst and progress bar all fire
-    // before the request leaves the browser.
+    // Immediate feedback only — the burst plays and the button spins, but the
+    // artwork deliberately stays on the current episode. The next episode is
+    // revealed once the request finishes (below), so nothing advances while the
+    // mark is still loading.
     setSlideDir(1);
     setBurstKey((key) => key + 1);
-    setEpisodeIndex((index) => index + 1);
 
     try {
-      // 2. One server round-trip: mark + fresh card data (prefetched next ep).
+      // One server round-trip: mark + fresh card data (prefetched next ep).
       const res = await markEpisodeWatchedUpNext({
         episodeData: {
           seriesID: item.seriesId,
@@ -172,11 +254,15 @@ const UpNextCard = ({
         return;
       }
 
+      // Mark confirmed and the button is done loading — now swap in the next
+      // episode.
       if (res.item) {
         applyRefreshedItem(res.item);
       } else {
-        // Show left the row (completed) — carousel animates it away.
-        setCurrent((prev) => ({ ...prev, nextEpisodes: [] }));
+        // The show completed and left the row. Leave the artwork as-is; the
+        // carousel animates the whole card away on refresh instead of flashing
+        // an empty state first.
+        busy.current = false;
       }
 
       setIsMarking(false);
@@ -191,7 +277,9 @@ const UpNextCard = ({
             }),
         },
       });
-      router.refresh(); // Sync other sections (history, stats) in background.
+      // The action's revalidatePath already refreshes the dashboard. Issuing
+      // router.refresh() here would re-render the whole route a second time
+      // and flash its loading overlay.
     } catch (error) {
       console.error("Error marking episode:", error);
       setIsMarking(false);
@@ -202,60 +290,46 @@ const UpNextCard = ({
   };
 
   const handleUndo = async (
-    episode: { seasonNumber: number; episodeNumber: number }
+    episode: { seasonNumber: number; episodeNumber: number } | null
   ) => {
     if (busy.current) return;
     busy.current = true;
     setIsMarking(true);
     setSlideDir(-1);
 
+    // Clear the mark floor up-front so any refresh landing mid-request keeps
+    // the unmarked episode in place instead of skipping past it.
+    const previousMarked = lastMarked.current;
+    lastMarked.current = null;
+
     try {
       const res = await unmarkEpisodeUpNext({
         episodeData: {
           seriesID: item.seriesId,
-          episodeNumber: episode.episodeNumber,
-          seasonNumber: episode.seasonNumber,
+          // With no explicit episode, the server undoes the most recently
+          // watched one — so "Undo last mark" works after a reload too.
+          ...(episode
+            ? {
+                episodeNumber: episode.episodeNumber,
+                seasonNumber: episode.seasonNumber,
+              }
+            : {}),
         },
       });
 
       if (!res.success) {
+        lastMarked.current = previousMarked;
         toast.error(res.message);
         return;
       }
 
-      lastMarked.current = null;
       if (res.item) {
         setCurrent(res.item);
         setEpisodeIndex(0);
-      } else {
-        // Row dropped the series while undoing — rebuild a minimal client-side
-        // list so the card isn't stuck empty (server refetch fixes details).
-        setCurrent((prev) => ({
-          ...prev,
-          watchedCount: Math.max(0, prev.watchedCount - 1),
-          nextEpisodes: [
-            {
-              id: 0,
-              name: `S${episode.seasonNumber} • E${episode.episodeNumber}`,
-              overview: "",
-              vote_average: 0,
-              vote_count: 0,
-              air_date: "",
-              episode_number: episode.episodeNumber,
-              episode_type: "standard",
-              production_code: "",
-              runtime: null,
-              season_number: episode.seasonNumber,
-              show_id: Number(prev.seriesId),
-              still_path: null,
-            },
-            ...prev.nextEpisodes,
-          ],
-        }));
-        setEpisodeIndex(0);
       }
+      // If `res.item` is null the series left the row (e.g. its only watched
+      // episode was undone) — the carousel removes this card on refresh.
       toast.success("Episode unmarked");
-      router.refresh();
     } catch (error) {
       console.error("Error unmarking episode:", error);
       toast.error("An error occurred");
@@ -271,7 +345,7 @@ const UpNextCard = ({
     const res = await setUpNextSeriesStatus(item.seriesId, status);
     if (res.success) {
       toast.success(res.message);
-      router.refresh();
+      // The action revalidates the dashboard and watchlist for us.
     } else {
       toast.error(res.message);
     }
@@ -308,37 +382,48 @@ const UpNextCard = ({
     );
   };
 
+  const compactEpisode = currentEpisode
+    ? `S${currentEpisode.season_number}E${currentEpisode.episode_number}`
+    : "";
+
   return (
-    <article className="group/card relative w-[280px] shrink-0 sm:w-[320px]">
-      <div className="card-lift relative aspect-video overflow-hidden rounded-2xl border border-white/[0.07] bg-ink-600 shadow-lift group-hover/card:-translate-y-1.5 group-hover/card:scale-[1.01] group-hover/card:border-primaryColor/40 group-hover/card:shadow-gold">
-        {/* Episode slide — old episode slides out, next slides in */}
+    <article className="relative w-[268px] shrink-0 sm:w-[308px]">
+      <div className="relative aspect-video overflow-hidden rounded-none bg-ink-600 shadow-elevated">
+        {/* Episode slide — old episode eases out, next eases in. */}
         <div className="absolute inset-0">
-          <AnimatePresence initial={false} custom={slideDir} mode="popLayout">
+          <AnimatePresence initial={false} custom={slideDir}>
             {currentEpisode ? (
               <motion.div
                 key={`${currentEpisode.season_number}-${currentEpisode.episode_number}`}
                 custom={slideDir}
-                initial={{ opacity: 0, x: slideDir * 64, scale: 0.96 }}
-                animate={{ opacity: 1, x: 0, scale: 1 }}
-                exit={{ opacity: 0, x: slideDir * -64, scale: 0.96 }}
-                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                // Pure slide (no opacity fade): the outgoing still stays solid
+                // until it leaves and the incoming still is already decoded, so
+                // the card never shows a blank frame mid-swap.
+                initial={{ x: slideDir * 28 }}
+                animate={{ x: 0 }}
+                exit={{ x: slideDir * -28 }}
+                transition={{
+                  type: "spring",
+                  stiffness: 420,
+                  damping: 34,
+                  mass: 0.6,
+                }}
                 className="absolute inset-0"
               >
-                <Image
-                  src={
-                    currentEpisode.still_path
-                      ? `${STILL_BASE}${currentEpisode.still_path}`
-                      : item.posterPath
-                        ? `${POSTER_BASE}${item.posterPath}`
-                        : ""
-                  }
-                  alt={currentEpisode.name || item.title}
-                  fill
-                  preload={preload}
-                  sizes="(max-width: 640px) 280px, 320px"
-                  className="object-cover transition-transform duration-700 group-hover/card:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-ink-950/85 via-ink-950/5 to-transparent" />
+                <div className="absolute inset-0">
+                  {stillSrc ? (
+                    <FadeImage
+                      src={stillSrc}
+                      alt={currentEpisode.name || item.title}
+                      preload={preload}
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center bg-ink-600">
+                      <EyeOff className="size-5 text-white/20" />
+                    </div>
+                  )}
+                </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/15" />
               </motion.div>
             ) : (
               <motion.div
@@ -346,100 +431,55 @@ const UpNextCard = ({
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-ink-600"
+                className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 bg-ink-600"
               >
-                <EyeOff className="size-5 text-white/30" />
-                <p className="text-xs text-white/40">No upcoming episodes</p>
+                <EyeOff className="size-5 text-white/25" />
+                <p className="text-xs text-white/35">No upcoming episodes</p>
               </motion.div>
             )}
           </AnimatePresence>
         </div>
 
-        {/* Watched burst — check ring + expanding glow on mark */}
-        {burstKey > 0 && (
-          <motion.span
-            key={burstKey}
-            aria-hidden
-            className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center"
-            initial={{ opacity: 1 }}
-            animate={{ opacity: 0 }}
-            transition={{ duration: 0.9, ease: "easeOut" }}
-          >
+        {/* Subtle watched confirmation — quick and quiet. */}
+        <AnimatePresence>
+          {burstKey > 0 && (
             <motion.span
-              className="flex size-16 items-center justify-center rounded-full bg-primaryColor"
-              initial={{ scale: 0.4, opacity: 0.95 }}
-              animate={{ scale: 2.2, opacity: 0 }}
-              transition={{ duration: 0.7, ease: "easeOut" }}
-            >
-              <Check className="size-8 text-secondaryColor" strokeWidth={3} />
-            </motion.span>
-          </motion.span>
-        )}
-
-        {/* Play overlay on hover */}
-        {currentEpisode && (
-          <>
-            <Link
-              href={watchHref}
-              aria-label={`Play ${item.title} ${formatEpisodeLabel(currentEpisode)}`}
-              className="absolute inset-0 z-10"
-            />
-            <motion.div
+              key={burstKey}
               aria-hidden
-              className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center"
-              initial={false}
+              className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center"
+              initial={{ opacity: 1 }}
               animate={{ opacity: 0 }}
-              whileHover={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.55, ease: "easeOut" }}
             >
-              <span className="flex size-14 items-center justify-center rounded-full border border-white/25 bg-black/50 backdrop-blur-xl">
-                <Play className="size-5 translate-x-0.5 text-white" />
-              </span>
-            </motion.div>
-          </>
+              <motion.span
+                className="flex size-12 items-center justify-center rounded-full bg-primaryColor shadow-gold"
+                initial={{ scale: 0.5, opacity: 0.9 }}
+                animate={{ scale: 1.6, opacity: 0 }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
+              >
+                <Check className="size-6 text-secondaryColor" strokeWidth={3} />
+              </motion.span>
+            </motion.span>
+          )}
+        </AnimatePresence>
+
+        {/* Play affordance — fades in on hover, never blocks the card. */}
+        {currentEpisode && (
+          <Link
+            href={watchHref}
+            aria-label={`Play ${item.title} ${formatEpisodeLabel(currentEpisode)}`}
+            className="absolute inset-0 z-10"
+          />
         )}
 
-        {item.imdbRating && (
-          <span
-            className="pointer-events-none absolute left-2 top-2 z-20 flex items-center gap-1.5 rounded-full border border-white/10 bg-black/70 px-2 py-1 text-[11px] font-bold text-white backdrop-blur-md"
-            title={`IMDb ${item.imdbRating}`}
-          >
-            <svg
-              viewBox="0 0 24 24"
-              className="size-4"
-              fill="#f5c518"
-              aria-hidden="true"
-            >
-              <path d={IMDB_LOGO} />
-            </svg>
-            {item.imdbRating}
-          </span>
-        )}
-
-        {/* Runtime + remaining chips */}
-        {currentEpisode && (currentEpisode.runtime || episodesLeft > 0) && (
-          <div className="pointer-events-none absolute inset-x-2 bottom-2 z-20 flex items-center justify-between gap-2 rounded-lg border border-white/[0.08] bg-black/65 px-2.5 py-1.5 backdrop-blur-md">
-            <span className="text-xs font-semibold text-white">
-              {currentEpisode.runtime
-                ? formatDuration(currentEpisode.runtime)
-                : ""}
-            </span>
-            <span className="text-xs text-white/90">
-              {episodesLeft > 0
-                ? `${episodesLeft} left${
-                    remainingTime ? ` · ${formatRemaining(remainingTime)}` : ""
-                  }`
-                : ""}
-            </span>
-          </div>
-        )}
-
-        {/* Dropdown actions */}
+        {/* Options — visible on touch, revealed on hover for desktop. */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button
               type="button"
               aria-label="Episode options"
-              className="absolute right-2 top-2 z-30 flex size-8 items-center justify-center rounded-full border border-transparent text-white/90 transition-colors duration-200 hover:border-white/10 hover:bg-black/60 hover:text-white"
+              className="absolute right-2 top-2 z-30 flex size-8 items-center justify-center rounded-full bg-black/40 text-white/85 ring-1 ring-white/10 backdrop-blur-md transition-all duration-200 hover:bg-black/65 hover:text-white"
             >
               <MoreVertical className="size-4" />
             </button>
@@ -458,17 +498,9 @@ const UpNextCard = ({
               {currentEpisode?.episode_number ?? "?"} watched
             </DropdownMenuItem>
             <DropdownMenuItem
-              onClick={() => {
-                const target =
-                  lastMarked.current ??
-                  (currentEpisode
-                    ? {
-                        seasonNumber: currentEpisode.season_number,
-                        episodeNumber: currentEpisode.episode_number,
-                      }
-                    : null);
-                if (target) handleUndo(target);
-              }}
+              // `null` lets the server resolve the most recently watched
+              // episode, so this works even when the in-session mark is gone.
+              onClick={() => handleUndo(lastMarked.current)}
               disabled={isMarking || watchedOverall === 0}
               className="cursor-pointer focus:bg-white/10 focus:text-white"
             >
@@ -487,7 +519,10 @@ const UpNextCard = ({
             >
               <Star className="size-4" /> IMDb rating
             </DropdownMenuItem>
-            <DropdownMenuItem asChild className="cursor-pointer focus:bg-white/10 focus:text-white">
+            <DropdownMenuItem
+              asChild
+              className="cursor-pointer focus:bg-white/10 focus:text-white"
+            >
               <Link href={seriesHref}>
                 <Info className="size-4" /> Open show
               </Link>
@@ -514,69 +549,81 @@ const UpNextCard = ({
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {/* Series progress bar — Trakt-style completion indicator */}
+        {/* Slim completion bar — the only progress chrome on the artwork. */}
         {current.totalEpisodes > 0 && (
           <div
             aria-hidden
-            className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-1 bg-black/60"
+            className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-1 bg-black/35"
           >
             <motion.div
-              className="h-full rounded-r-full bg-gradient-to-r from-gold-deep via-primaryColor to-[#fde68a]"
+              className="h-full rounded-r-full bg-primaryColor"
               initial={false}
               animate={{ width: `${progressPct}%` }}
-              transition={{ type: "spring", stiffness: 120, damping: 20 }}
+              transition={{ type: "spring", stiffness: 180, damping: 26 }}
             />
           </div>
         )}
       </div>
 
-      {/* Title + mark button */}
-      <div className="mt-3 flex items-start justify-between gap-3">
+      {/* Quiet, native-style metadata block. */}
+      <div className="mt-3 flex items-start gap-3">
         <div className="min-w-0 flex-1">
           <h3 className="truncate text-[15px] font-semibold leading-tight tracking-tight text-white">
             {item.title}
           </h3>
-          <AnimatePresence mode="wait" initial={false}>
-            <motion.p
-              key={
-                currentEpisode
-                  ? `${currentEpisode.season_number}-${currentEpisode.episode_number}`
-                  : "none"
-              }
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
-              transition={{ duration: 0.18 }}
-              className="mt-1 truncate text-[13px] text-white/45"
-            >
-              {currentEpisode
-                ? formatEpisodeLabel(currentEpisode)
-                : "Fetching next episode…"}
-            </motion.p>
-          </AnimatePresence>
+
+          <motion.p
+            key={
+              currentEpisode
+                ? `${currentEpisode.season_number}-${currentEpisode.episode_number}`
+                : "none"
+            }
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.15 }}
+            className="mt-1 truncate text-[12.5px] text-white/45"
+            title={currentEpisode ? formatEpisodeLabel(currentEpisode) : undefined}
+          >
+            {currentEpisode ? (
+              <>
+                <span className="font-semibold text-white/70">
+                  {compactEpisode}
+                </span>
+                {currentEpisode.name ? (
+                  <span> · {currentEpisode.name}</span>
+                ) : null}
+              </>
+            ) : (
+              "Finding next episode…"
+            )}
+          </motion.p>
+
           {current.totalEpisodes > 0 && (
-            <p className="mt-0.5 text-[11px] font-semibold uppercase tracking-wide text-primaryColor/90">
-              {watchedOverall}/{current.totalEpisodes} episodes · {progressPct}%
+            <p className="mt-1 truncate text-[11px] tabular-nums text-white/30">
+              {watchedOverall} of {current.totalEpisodes}
+              {remainingTime > 0
+                ? ` · ${formatRemaining(remainingTime)} left`
+                : ""}
             </p>
           )}
         </div>
 
-        {/* Big mark-watched button — spinning loader while request runs */}
         <motion.button
           type="button"
           onClick={handleMarkWatched}
           disabled={isMarking || !currentEpisode}
           aria-label="Mark episode as watched"
-          whileTap={{ scale: 0.86 }}
+          whileTap={{ scale: 0.88 }}
+          transition={{ type: "spring", stiffness: 500, damping: 30 }}
           className={cn(
-            "flex size-9 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/[0.05] text-primaryColor shadow-inset transition-all duration-200 hover:border-primaryColor/60 hover:bg-primaryColor hover:text-secondaryColor hover:shadow-gold",
+            "flex size-10 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-white/75 transition-colors duration-200 hover:border-primaryColor hover:bg-primaryColor hover:text-secondaryColor",
             (isMarking || !currentEpisode) && "cursor-not-allowed opacity-50"
           )}
         >
           {isMarking ? (
             <Loader2 className="size-4 animate-spin" />
           ) : (
-            <Check className="size-5" strokeWidth={2.5} />
+            <Check className="size-[18px]" strokeWidth={2.5} />
           )}
         </motion.button>
       </div>

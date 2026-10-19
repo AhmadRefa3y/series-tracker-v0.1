@@ -2,42 +2,40 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowRight, Tv } from "lucide-react";
+import { ArrowRight, Clapperboard } from "lucide-react";
 
-/** Animated empty state for the Continue Watching row. */
+/** Calm, native-style empty state for the Continue Watching row. */
 const EmptyUpNext = () => {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
+    <motion.section
+      initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ type: "spring", stiffness: 220, damping: 26 }}
-      className="mx-4 my-8 flex flex-col items-center justify-center gap-5 overflow-hidden rounded-3xl border border-white/[0.07] bg-white/[0.03] px-6 py-16 text-center md:mx-6"
+      transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+      className="py-8"
     >
-      <motion.span
-        animate={{ scale: [1, 1.06, 1], rotate: [0, -3, 3, 0] }}
-        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-        className="flex size-16 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] shadow-inset"
-      >
-        <Tv className="size-7 text-primaryColor" />
-      </motion.span>
+      <div className="mx-4 flex flex-col items-start gap-4 rounded-none border border-white/[0.06] bg-white/[0.02] p-5 sm:flex-row sm:items-center md:mx-6">
+        <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-white/[0.04] text-primaryColor">
+          <Clapperboard className="size-5" />
+        </span>
 
-      <div>
-        <h2 className="text-2xl font-bold tracking-tight text-white">
-          You&apos;re all caught up
-        </h2>
-        <p className="mt-2 max-w-md text-sm text-white/50">
-          Start watching a show and your next episodes will appear here.
-        </p>
+        <div className="min-w-0 flex-1">
+          <h2 className="text-[15px] font-semibold tracking-tight text-white">
+            You&apos;re all caught up
+          </h2>
+          <p className="mt-0.5 text-[13px] leading-snug text-white/45">
+            Start watching a show and the next episode will appear here.
+          </p>
+        </div>
+
+        <Link
+          href="/shows"
+          className="group inline-flex shrink-0 items-center gap-1.5 rounded-full bg-white/[0.06] px-4 py-2 text-[13px] font-semibold text-white/80 transition-colors duration-200 hover:bg-primaryColor hover:text-secondaryColor"
+        >
+          Browse shows
+          <ArrowRight className="size-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
+        </Link>
       </div>
-
-      <Link
-        href="/shows"
-        className="group inline-flex items-center gap-2 rounded-full bg-primaryColor px-6 py-2.5 text-sm font-bold text-secondaryColor shadow-gold transition-transform duration-200 hover:scale-[1.03]"
-      >
-        Browse shows
-        <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-0.5" />
-      </Link>
-    </motion.div>
+    </motion.section>
   );
 };
 

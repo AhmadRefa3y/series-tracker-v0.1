@@ -50,16 +50,20 @@ const UpNextCarousel = ({ items }: { items: UpNextItem[] }) => {
         {orderedItems.map((item, index) => (
           <motion.div
             key={item.seriesId}
-            layout
+            layout="position"
             className="snap-start"
-            initial={{ opacity: 0, y: 18, scale: 0.96 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.25 } }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{
+              opacity: 0,
+              scale: 0.96,
+              transition: { duration: 0.16, ease: "easeOut" },
+            }}
             transition={{
               type: "spring",
-              stiffness: 240,
-              damping: 24,
-              delay: index * 0.05,
+              stiffness: 420,
+              damping: 34,
+              delay: Math.min(index * 0.035, 0.2),
             }}
           >
             <UpNextCard item={item} preload={index === 0} />

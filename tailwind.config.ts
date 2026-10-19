@@ -85,6 +85,7 @@ export default {
       boxShadow: {
         glow: "0 0 0 1px rgba(255,255,255,0.06), 0 24px 60px -28px rgba(0,0,0,0.85)",
         lift: "0 34px 70px -34px rgba(0,0,0,0.95)",
+        elevated: "0 4px 10px rgba(0,0,0,0.7), 0 20px 38px -8px rgba(0,0,0,0.95)",
         gold: "0 18px 50px -18px rgba(252,211,77,0.4)",
         inset: "inset 0 1px 0 0 rgba(255,255,255,0.06)",
       },

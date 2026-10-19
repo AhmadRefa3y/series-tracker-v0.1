@@ -1,7 +1,6 @@
 "use server";
-import { BASE_URL } from "@/lib/constants";
+import { tmdbGet } from "@/lib/tmdb";
 import { Episode, Series } from "@/types/seriesT";
-import axios from "axios";
 
 interface TMDBResponse {
   results: Series[];
@@ -18,101 +17,71 @@ interface TMDBMultiResponse {
 }
 
 export async function SearchSeries(query: string): Promise<TMDBResponse> {
-  try {
-    const response = await axios.get(`${BASE_URL}/search/tv`, {
-      params: { api_key: process.env.TMDB_API_KEY, query },
-    });
-    return response.data;
-  } catch (error) {
-    throw new Error("Failed to fetch series details", { cause: error });
-  }
+  const data = await tmdbGet<TMDBResponse>("/search/tv", {
+    params: { query },
+  });
+  if (!data) throw new Error("Failed to fetch series details");
+  return data;
 }
 
 export async function SearchMulti(query: string): Promise<TMDBMultiResponse> {
-  try {
-    const response = await axios.get(`${BASE_URL}/search/multi`, {
-      params: { api_key: process.env.TMDB_API_KEY, query },
-    });
-    return response.data;
-  } catch (error) {
-    throw new Error("Failed to fetch search results", { cause: error });
-  }
+  const data = await tmdbGet<TMDBMultiResponse>("/search/multi", {
+    params: { query },
+  });
+  if (!data) throw new Error("Failed to fetch search results");
+  return data;
 }
 
 export async function getTrendingSeriesBasic(): Promise<TMDBResponse> {
-  try {
-    const response = await axios.get(`${BASE_URL}/trending/tv/day`, {
-      params: { api_key: process.env.TMDB_API_KEY },
-    });
-    return response.data;
-  } catch (error) {
-    throw new Error("Failed to fetch trending series", { cause: error });
-  }
+  const data = await tmdbGet<TMDBResponse>("/trending/tv/day");
+  if (!data) throw new Error("Failed to fetch trending series");
+  return data;
 }
 
 export async function fetchAllEpisodes(
   seriesTmdbId: string,
   endSeason?: number
 ): Promise<Episode[] | null> {
-  try {
-    // Fetch series details to get number of seasons
-    const seriesRes = await axios.get(`${BASE_URL}/tv/${seriesTmdbId}`, {
-      params: { api_key: process.env.TMDB_API_KEY },
-    });
-    const numberOfSeasons = seriesRes.data.number_of_seasons;
+  // Fetch series details to get number of seasons
+  const series = await tmdbGet<Series>(`/tv/${seriesTmdbId}`);
+  if (!series) return null;
 
-    // Fetch all seasons in parallel
-    const seasonPromises = [];
-    for (let season = 1; season <= (endSeason ?? numberOfSeasons); season++) {
-      seasonPromises.push(
-        axios.get(`${BASE_URL}/tv/${seriesTmdbId}/season/${season}`, {
-          params: { api_key: process.env.TMDB_API_KEY },
-        })
-      );
+  const lastSeason = endSeason ?? series.number_of_seasons ?? 0;
+  if (lastSeason < 1) return [];
+
+  // Fetch all seasons in parallel (tmdbGet caps concurrency and retries 429s)
+  const seasons = await Promise.all(
+    Array.from({ length: lastSeason }, (_, index) =>
+      tmdbGet<{ episodes?: Episode[] }>(
+        `/tv/${seriesTmdbId}/season/${index + 1}`
+      )
+    )
+  );
+
+  // Collect all episodes into a single array
+  const allEpisodes: Episode[] = [];
+  for (const season of seasons) {
+    if (season?.episodes) {
+      allEpisodes.push(...season.episodes);
     }
-    const seasons = await Promise.all(seasonPromises);
-
-    // Collect all episodes into a single array
-    const allEpisodes: Episode[] = [];
-    seasons.forEach((seasonRes) => {
-      if (seasonRes.data.episodes) {
-        allEpisodes.push(...seasonRes.data.episodes);
-      }
-    });
-
-    return allEpisodes;
-  } catch (error) {
-    console.log("Error fetching episodes:", error);
-    return null;
   }
+
+  return allEpisodes;
 }
 
 export async function fetchSeasonEpisodes(
   seriesTmdbId: string,
   seasonNumber: number
 ): Promise<Episode[] | null> {
-  try {
-    const response = await axios.get(
-      `${BASE_URL}/tv/${seriesTmdbId}/season/${seasonNumber}`,
-      {
-        params: { api_key: process.env.TMDB_API_KEY },
-      }
-    );
-    return response.data.episodes || [];
-  } catch (error) {
-    console.log(`Error fetching season ${seasonNumber} episodes:`, error);
-    return null;
-  }
+  const data = await tmdbGet<{ episodes?: Episode[] }>(
+    `/tv/${seriesTmdbId}/season/${seasonNumber}`
+  );
+  if (!data) return null;
+  return data.episodes ?? [];
 }
 
-export async function fetchSeriesDetails(seriesTmdbId: string): Promise<Series | null> {
-  try {
-    const response = await axios.get(`${BASE_URL}/tv/${seriesTmdbId}`, {
-      params: { api_key: process.env.TMDB_API_KEY },
-    });
-    return response.data as Series;
-  } catch (error) {
-    console.error(`Error fetching series ${seriesTmdbId} details:`, error);
-    return null;
-  }
+export async function fetchSeriesDetails(
+  seriesTmdbId: string
+): Promise<Series | null> {
+  return tmdbGet<Series>(`/tv/${seriesTmdbId}`);
 }

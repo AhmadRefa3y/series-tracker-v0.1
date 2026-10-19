@@ -19,7 +19,7 @@ import { BASE_URL } from "@/lib/constants";
 
 const CACHE_TTL_MS = 5 * 60 * 1000; // Fresh enough for air-date data.
 const MAX_RETRIES = 3;
-const MAX_CONCURRENT = 8;
+const MAX_CONCURRENT = 4;
 
 const cache = new Map<string, { expiresAt: number; value: unknown }>();
 const inFlight = new Map<string, Promise<unknown>>();
@@ -111,7 +111,12 @@ export async function tmdbGet<T>(
         }
       }
     } catch (error) {
-      console.error(`TMDb request failed: ${path}`, error);
+      const reason = axios.isAxiosError(error)
+        ? error.response?.status ?? error.code ?? "network error"
+        : error instanceof Error
+          ? error.message
+          : "unknown error";
+      console.error(`TMDb request failed: ${path} (${reason})`);
       return null;
     } finally {
       releaseSlot();

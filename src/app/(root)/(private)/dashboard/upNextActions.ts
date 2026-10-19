@@ -94,14 +94,22 @@ export const markEpisodeWatchedUpNext = async ({
   }
 };
 
-/** Undo a mark from the toast — returns the refreshed item the same way. */
+/**
+ * Undo a mark — returns the refreshed item the same way.
+ *
+ * `episodeNumber`/`seasonNumber` may be omitted (e.g. "Undo last mark" after a
+ * page reload, when the client no longer remembers which episode it marked).
+ * In that case the most recently watched episode is looked up server-side so
+ * the button always undoes something real instead of no-oping on the upcoming
+ * episode.
+ */
 export const unmarkEpisodeUpNext = async ({
   episodeData,
 }: {
   episodeData: {
     seriesID: string;
-    episodeNumber: number;
-    seasonNumber: number;
+    episodeNumber?: number;
+    seasonNumber?: number;
   };
 }): Promise<MarkResult> => {
   const session = await auth();
@@ -124,12 +132,33 @@ export const unmarkEpisodeUpNext = async ({
       return { success: false, message: "Series not found in your watchlist" };
     }
 
+    let target: { seasonNumber: number; episodeNumber: number } | null = null;
+    if (
+      episodeData.episodeNumber != null &&
+      episodeData.seasonNumber != null
+    ) {
+      target = {
+        seasonNumber: episodeData.seasonNumber,
+        episodeNumber: episodeData.episodeNumber,
+      };
+    } else {
+      target = await prismaDb.watchedEpisode.findFirst({
+        where: { userId, seriesId: series.id },
+        orderBy: [{ watchedAt: "desc" }, { id: "desc" }],
+        select: { seasonNumber: true, episodeNumber: true },
+      });
+    }
+
+    if (!target) {
+      return { success: false, message: "Nothing to undo" };
+    }
+
     await prismaDb.watchedEpisode.deleteMany({
       where: {
         userId,
         seriesId: series.id,
-        seasonNumber: episodeData.seasonNumber,
-        episodeNumber: episodeData.episodeNumber,
+        seasonNumber: target.seasonNumber,
+        episodeNumber: target.episodeNumber,
       },
     });
 

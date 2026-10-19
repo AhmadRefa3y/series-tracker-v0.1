@@ -88,13 +88,17 @@ const SectionHeader = ({
 
 const CardSkeleton = ({ className }: { className?: string }) => (
   <div className={cn("shrink-0", className)}>
-    <div className="relative aspect-video overflow-hidden rounded-2xl border border-white/[0.05] bg-ink-600">
+    <div className="relative aspect-video overflow-hidden rounded-none bg-ink-600">
       <div className="absolute inset-0 animate-pulse bg-white/[0.05]" />
-      <div className="absolute inset-x-2 bottom-2 h-7 animate-pulse rounded-lg bg-black/50" />
+      <div className="absolute inset-x-0 bottom-0 h-1 bg-white/[0.06]" />
     </div>
-    <div className="mt-3 space-y-2">
-      <div className="h-4 w-3/5 animate-pulse rounded bg-white/[0.07]" />
-      <div className="h-3 w-4/5 animate-pulse rounded bg-white/[0.04]" />
+    <div className="mt-3 flex items-start gap-3">
+      <div className="flex-1 space-y-2">
+        <div className="h-4 w-3/5 animate-pulse rounded bg-white/[0.07]" />
+        <div className="h-3 w-4/5 animate-pulse rounded bg-white/[0.04]" />
+        <div className="h-2.5 w-2/5 animate-pulse rounded bg-white/[0.03]" />
+      </div>
+      <div className="size-10 shrink-0 animate-pulse rounded-full bg-white/[0.05]" />
     </div>
   </div>
 );
@@ -107,7 +111,7 @@ const CarouselSkeleton = ({ title }: { title: string }) => (
     </div>
     <div className="mt-5 flex gap-4 overflow-hidden px-4 pb-2 md:px-6">
       {[...Array(5)].map((_, idx) => (
-        <CardSkeleton key={idx} className="w-[280px] sm:w-[320px]" />
+        <CardSkeleton key={idx} className="w-[268px] sm:w-[308px]" />
       ))}
     </div>
   </section>
@@ -129,7 +133,7 @@ const CalendarSkeleton = () => (
     </div>
     <div className="mt-5 flex gap-4 overflow-hidden px-4 pb-2 md:px-6">
       {[...Array(5)].map((_, idx) => (
-        <CardSkeleton key={idx} className="w-[280px] sm:w-[320px]" />
+        <CardSkeleton key={idx} className="w-[268px] sm:w-[308px]" />
       ))}
     </div>
   </section>
